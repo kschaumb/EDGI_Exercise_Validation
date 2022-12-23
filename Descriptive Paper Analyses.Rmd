@@ -16,7 +16,7 @@ library(sjmisc)
 library(rmarkdown)
 library(knitr)
 library(psych)
-load('EDGI_exercise_cleaned.RData') 
+load('data/EDGI_exercise_cleaned.RData') 
 
 exercisers <- EDGI_exercise_cleaned |> 
   filter(ED100k_exercise_icb >0)
@@ -76,18 +76,29 @@ frq(EDGI_exercise_cleaned$case_status)
 
 ## Weight History
 ```{r}
-range(EDGI_exercise_cleaned$currentbmi, na.rm = TRUE)
+
+WtHx<- EDGI_exercise_cleaned|> 
+  select(record_id, height, wt_cur_lb, wt_lo_lb, wt_hi_lb, currentbmi, highestbmi, lowestbmi, ED100k_wt_suppress_high_current, ED100k_wt_suppress_curr_low) 
+
+#Save data file -- 'weight history outliers' 
+WtHx_outliers <- WtHx |> 
+  filter(currentbmi > 70 | currentbmi < 10 | ED100k_wt_suppress_curr_low > 250 | ED100k_wt_suppress_high_current > 250 | ED100k_wt_suppress_high_current < 0 | ED100k_wt_suppress_curr_low < 0) 
+write.csv(WtHx_outliers, file = 'data/EDGI_WtHx_outliers.csv')
+
 ```
 
-BMIs of > 60 and < 10 were removed for data integrity. Weight history is presented in table \@ref(tab:wthx). **Note - there are some out of range values for weight suppression we have to decide what we want to do with these**
+There were 25 individuals who reported a current BMI > 70 or < 10 and 77 individuals who reported weight suppression values that were high (> 250 lb difference between highest weight and current weight or current weight and lowest weight, or negative weight suppression values -- i.e. a current weight that is higher than one's highest ever weight, or a lowest weight that is higher than one's current weight) 
+
+
+BMIs of > 70 and < 10 were removed for data integrity. Weight history is presented in table \@ref(tab:wthx). **Note - there are some out of range values for weight suppression we have to decide what we want to do with these**
 
 ```{r wthx, results='asis', warning=FALSE}
-Wthx1<- EDGI_exercise_cleaned|> 
-  select(currentbmi, highestbmi, lowestbmi, ED100k_wt_suppress_high_current, ED100k_wt_suppress_curr_low) 
-Wthx <- describe(Wthx1) |> 
-  select(!c(vars, mad)) |> 
-  mutate(across(where(is.numeric), round, digits = 2))
-rownames(Wthx) <- c('Current BMI', 'Highest BMI', 'Lowest Adult BMI', 'Current Weight Suppression', 'Current vs.Lowest Weight')
+
+WtHx <- WtHx |> select(-c(record_id))
+  
+Wthx <- describe(WtHx) |> 
+  mutate(across(where(is.numeric), round, digits = 2))  
+rownames(Wthx) <- c('Height', 'Current Weight', 'Lowest Weight', 'Highest Weight', 'Current BMI', 'Highest BMI', 'Lowest Adult BMI', 'Current Weight Suppression', 'Current vs.Lowest Weight')
 
 knitr::kable(Wthx, caption = 'Weight History')
 ```
@@ -167,5 +178,59 @@ frq(EDGI_exercise_cleaned$cet_clinical)
 ```
 # Maladaptive Exercise across Diagnosis, Age, Gender, and Weight History
 
-# Association with other current and historical ED symptoms and age-of-onset symtpom comparisons
+Considering across diagnosis, the following describes rates of (1) maladaptive exercise history; (2) rates of CET clinical cutoff being met, and (3) current CET symptom scores
+
+## Diagnosis Groups
+
+```{r}
+ct <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_exercise_icb_factor)
+
+dx_row_percents <- prop.table (ct, 1)
+
+dx_row_percents <- as.data.frame(dx_row_percents) |> 
+ rename(`Diagnosis Group` = Var1) |> 
+ rename(`History of Driven Exercise` =Var2) 
+
+ggplot(dx_row_percents, aes( x = `History of Driven Exercise`, y = Freq*100, fill = `Diagnosis Group` )) + 
+  geom_col()+
+  facet_wrap (~ `Diagnosis Group`) +
+  labs(title = 'Percentages by Diagnosis Group and History of Driven Exercise', x = 'History of Driven Exercise', y = 'Percentage (within Diagnosis Group)') + 
+  scale_x_discrete(labels = c('Never', 'A few', 'More Often'))
+```
+
+### CET Clinical Cutoff
+
+```{r}
+
+```
+
+
+## Age
+```{r}
+
+```
+
+## Gender
+```{r}
+ct <- table(EDGI_exercise_cleaned$sex, EDGI_exercise_cleaned$ED100k_exercise_icb_factor)
+
+sex_row_percents <- prop.table (ct, 1)
+
+sex_row_percents <- as.data.frame(sex_row_percents) |> 
+ rename(`Sex` = Var1) |> 
+ rename(`History of Driven Exercise` =Var2) 
+
+ggplot(sex_row_percents, aes( x = `History of Driven Exercise`, y = Freq*100, fill = Sex )) + 
+  geom_col()+
+  facet_wrap (~ Sex) +
+  labs(title = 'History of Driven Exercise across Sex (assigned at birth)', x = 'History of Driven Exercise', y = 'Percentage (within Sex)') + 
+  scale_x_discrete(labels = c('Never', 'A few', 'More Often'))
+```
+
+## Weight History 
+
+```{r}
+
+```
+
 

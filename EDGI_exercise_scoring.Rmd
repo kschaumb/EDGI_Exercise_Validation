@@ -19,9 +19,9 @@ library(expss)
 
 
 ```{r, results='hide', echo=FALSE}
-## loads raw data and scoresheets
+## loads raw data and scoresheets. data needs to be loaded into data/ folder prior to running below
 
-EDGI_raw <- read_sas('exercise.sas7bdat') 
+EDGI_raw <- read_sas('data/exercise.sas7bdat') 
 ED100k_score <- read_excel("EDGI_exercise_scoresheet.xlsx", 'ED100k')
 EDEQ_score <- read_excel("EDGI_exercise_scoresheet.xlsx", 'EDEQ')
 CET_score <- read_excel("EDGI_exercise_scoresheet.xlsx", 'CET')
@@ -119,14 +119,8 @@ ED100k_scored <- ED100k [[8]]
 
 # Add various weight suppression variables; clean outlier BMI variables
 ED100k_scored <- ED100k_scored |> 
-  mutate (currentbmi = na_if(currentbmi, expss::gt(60))) |> # outlier BMI values
-  mutate (currentbmi = na_if(currentbmi, expss::lt(10))) |> 
   mutate (highestbmi = round(703*wt_hi_lb/(height^2), 2))  |> 
-  mutate (highestbmi = na_if(highestbmi, expss::gt(60))) |>
-  mutate (highestbmi = na_if(highestbmi, expss::lt(10))) |> 
-  mutate (lowestbmi = round(703*wt_lo_lb/(height^2), 2)) |> 
-  mutate (lowestbmi = na_if(lowestbmi, expss::gt(60))) |> 
-  mutate (lowestbmi = na_if(lowestbmi, expss::lt(10)))  |> 
+  mutate (lowestbmi = round(703*wt_lo_lb/(height^2), 2)) |>
   mutate( ED100k_wt_suppress_high_current = wt_hi_lb - wt_cur_lb) |> 
   mutate( ED100k_wt_suppress_high_AN = wt_hi_lb - wt_loan_lb) |> 
   mutate( ED100k_wt_suppress_current_AN = wt_cur_lb - wt_loan_lb) |> 
@@ -138,7 +132,7 @@ ED100k_scored <- ED100k_scored |>
   mutate( ED100k_bmi_suppress_current_AN = currentbmi - an_bmi) |> 
   mutate( ED100k_bmi_suppress_current_low = currentbmi - lowestbmi) 
 
-save (ED100k_scored, file = "EDGI_scored_data.RData")
+save (ED100k_scored, file = "data/EDGI_scored_data.RData")
 ```
 
 # EDEQ
@@ -190,7 +184,7 @@ Scoring is completed as follows:
 ```{r, echo=FALSE}
 EDEQ_scored <- scorekeep(EDGI_raw, EDEQ_score)
 EDEQ_scored <- EDEQ_scored [[5]]
-resave (EDEQ_scored, file = "EDGI_scored_data.RData")
+resave (EDEQ_scored, file = "data/EDGI_scored_data.RData")
 
 ```
 
@@ -248,12 +242,12 @@ Key variables calculated from the current scoring include:
 
 CET_scored <- scorekeep(EDGI_raw, CET_score)
 CET_scored <- CET_scored [[6]]
-resave (CET_scored, file = "EDGI_scored_data.RData")
+resave (CET_scored, file = "data/EDGI_scored_data.RData")
 
 ```
 
 ```{r warning = FALSE, echo=FALSE}
-load('EDGI_scored_data.RData')
+load('data/EDGI_scored_data.RData')
 
 Data <- full_join(CET_scored,ED100k_scored)
 EDGI_exercise_cleaned <- full_join(Data, EDEQ_scored) |> 
@@ -261,8 +255,8 @@ EDGI_exercise_cleaned <- full_join(Data, EDEQ_scored) |>
   rename_all(function(x) gsub('.factor', '_factor', x)) |> 
   rename(ED100k_ex_int_sumNA = ED100k_ex_interfere_sum_NA_percent) |> #renames to shorter for SAS friendly variable name
   rename(ED100k_ex_int_weightedsum = ED100k_ex_interfere_sum_weighted_sum) #renames to shorter for SAS friendly variable name
-write_sas(EDGI_exercise_cleaned, 'exercise_cleaned.sas7bdat')
-save(EDGI_exercise_cleaned, file = "EDGI_exercise_cleaned.RData")
+write_sas(EDGI_exercise_cleaned, 'data/exercise_cleaned.sas7bdat')
+save(EDGI_exercise_cleaned, file = "data/EDGI_exercise_cleaned.RData")
 ```
 
 
