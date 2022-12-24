@@ -16,6 +16,7 @@ library(sjmisc)
 library(rmarkdown)
 library(knitr)
 library(psych)
+library(ggplot2)
 load('data/EDGI_exercise_cleaned.RData') 
 
 exercisers <- EDGI_exercise_cleaned |> 
@@ -150,7 +151,6 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
   mutate(edeq_ex_excessive = case_when(edeq_ex_driven_freq_28 >=20 ~ 1, 
                                     edeq_ex_driven_freq_28 < 20 ~ 0) )
 frq(EDGI_exercise_cleaned$edeq_ex_excessive)
-frq(EDGI_exercise_cleaned$edeq_ex_driven_freq_28)
 ```
 
 ### CET
@@ -195,42 +195,219 @@ ggplot(dx_row_percents, aes( x = `History of Driven Exercise`, y = Freq*100, fil
   geom_col()+
   facet_wrap (~ `Diagnosis Group`) +
   labs(title = 'Percentages by Diagnosis Group and History of Driven Exercise', x = 'History of Driven Exercise', y = 'Percentage (within Diagnosis Group)') + 
-  scale_x_discrete(labels = c('Never', 'A few', 'More Often'))
+  scale_x_discrete(labels = c('Never', 'A few', 'More Often')) +
+    theme(legend.position = 'none') 
+
 ```
 
 ### CET Clinical Cutoff
 
 ```{r}
+cet_clinical <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$cet_clinical)
 
+dx_row_percents_cet <- prop.table (cet_clinical, 1)
+
+dx_row_percents_cet <- as.data.frame(dx_row_percents_cet) |> 
+ rename(`Diagnosis Group` = Var1) |> 
+ rename(`CET Clinical Cutoff Met` =Var2) |> 
+ filter(`CET Clinical Cutoff Met` == 1)
+
+ggplot(dx_row_percents_cet, aes( x = `Diagnosis Group`, y = Freq*100, fill = `Diagnosis Group` )) + 
+  geom_col()+
+  labs(title = 'Percentage of Current CET Cutoff Met by Diagnosis Group', x = 'History of Driven Exercise', y = 'Percentage (within Diagnosis Group)') + 
+theme(legend.position = 'none') 
+
+
+```
+```{r}
+median_cet <- EDGI_exercise_cleaned |> 
+  group_by (case_status) |> 
+  summarize (median_cet = median (cet_total_weighted_sum, na.rm = TRUE))
+
+cet_plot <- ggplot(EDGI_exercise_cleaned, aes(x = case_status, y = cet_total_weighted_sum, color = case_status)) +
+  geom_jitter(size = 0.3) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  labs(title = 'Current CET score based on Diagnosis History', x = 'Diagnosis Group', y = 'CET score') + 
+  theme(legend.position = 'none') +
+  geom_text(data = median_cet, aes(x = case_status, y = median_cet + 1, label = round(median_cet, 1)), size = 3, color = 'black', fontface ='bold')
+
+
+cet_plot
 ```
 
 
 ## Age
 ```{r}
 
+median_age <- EDGI_exercise_cleaned |> 
+  group_by (ED100k_exercise_icb_factor, case_status) |> 
+  summarize (median_age = median (age, na.rm = TRUE))
+
+age_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = age, color = ED100k_exercise_icb_factor)) + 
+  geom_jitter(size = 0.3) +
+  scale_color_manual(values = c('purple', 'blue', 'orange')) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  facet_wrap(~case_status) +
+  labs(title = 'Age based on Diagnosis History and History or of DEx', x = 'History of Driven Exercise', y = 'Age') + 
+  scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) + 
+  theme(legend.position = 'none') + 
+  geom_text(data = median_age, aes(x = ED100k_exercise_icb_factor, y = median_age + 2, label = median_age), size = 3, color = 'black', fontface ='bold')
+
+age_plot
 ```
+```{r}
+ggplot(data = EDGI_exercise_cleaned, aes(x= age, y = cet_total_weighted_sum))+  
+  geom_point() + 
+  geom_smooth(method = 'lm', color = 'red')
+```
+
 
 ## Gender
 ```{r}
-ct <- table(EDGI_exercise_cleaned$sex, EDGI_exercise_cleaned$ED100k_exercise_icb_factor)
+exh_gender <- table(EDGI_exercise_cleaned$ED100k_gender_dummy, EDGI_exercise_cleaned$ED100k_exercise_icb_factor)
 
-sex_row_percents <- prop.table (ct, 1)
+gender_row_percents <- prop.table (exh_gender, 1)
 
-sex_row_percents <- as.data.frame(sex_row_percents) |> 
- rename(`Sex` = Var1) |> 
+gender_row_percents <- as.data.frame(gender_row_percents) |> 
+ rename(`Gender` = Var1) |> 
  rename(`History of Driven Exercise` =Var2) 
 
-ggplot(sex_row_percents, aes( x = `History of Driven Exercise`, y = Freq*100, fill = Sex )) + 
+names(gender_row_percents$Gender) <- c('Male', 'Female', 'Nonbinary')
+
+ggplot(gender_row_percents, aes( x = `History of Driven Exercise`, y = Freq*100, fill = Gender )) + 
   geom_col()+
-  facet_wrap (~ Sex) +
-  labs(title = 'History of Driven Exercise across Sex (assigned at birth)', x = 'History of Driven Exercise', y = 'Percentage (within Sex)') + 
-  scale_x_discrete(labels = c('Never', 'A few', 'More Often'))
+  facet_wrap (~ Gender) +
+  labs(title = 'History of Driven Exercise across Gender', x = 'History of Driven Exercise', y = 'Percentage (within Gender)') + 
+  scale_x_discrete(labels = c('Never', 'A few', 'More Often'))  +
+  theme(legend.position = 'none') 
+
+
 ```
 
 ## Weight History 
 
 ```{r}
+EDGI_exercise_cleaned <- EDGI_exercise_cleaned |> 
+  mutate (currentbmi = if_else(currentbmi > 70 | currentbmi < 10, NaN, currentbmi)) |> 
+  mutate (lowestbmi = if_else(lowestbmi > 70 | lowestbmi < 10, NaN, lowestbmi)) |> 
+  mutate (highetbmi = if_else(highestbmi > 70 | highestbmi < 10, NaN, highestbmi)) |> 
+  mutate (ED100k_wt_suppress_high_low = if_else(ED100k_wt_suppress_high_low > 250 | ED100k_wt_suppress_high_low < 0, NaN, ED100k_wt_suppress_high_low)) |> 
+  mutate (ED100k_wt_suppress_curr_low = if_else(ED100k_wt_suppress_curr_low > 250 | ED100k_wt_suppress_curr_low < 0, NaN, ED100k_wt_suppress_curr_low)) |> 
+  mutate (ED100k_wt_suppress_high_current= if_else(ED100k_wt_suppress_high_current > 250 | ED100k_wt_suppress_high_current < 0, NaN, ED100k_wt_suppress_high_current)) 
+
+
+medians <- EDGI_exercise_cleaned |> 
+  group_by (ED100k_exercise_icb_factor, case_status) |> 
+  summarize (median_ws_curr_low = median (ED100k_wt_suppress_curr_low, na.rm = TRUE),
+             median_current_bmi= median (currentbmi, na.rm = TRUE),
+             median_highest_bmi = median(highestbmi, na.rm = TRUE),
+             median_lowestbmi = median (lowestbmi, na.rm = TRUE),
+             median_ws_high_low = median (ED100k_wt_suppress_high_low, na.rm = TRUE), 
+             median_ws_high_current = median (ED100k_wt_suppress_high_current, na.rm = TRUE),
+             median_ws_curr_low = median (ED100k_wt_suppress_curr_low, na.rm = TRUE), 
+)
+
+
+currbmi_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = currentbmi, color = ED100k_exercise_icb_factor)) + 
+  geom_jitter(size = 0.3) +
+  scale_color_manual(values = c('purple', 'blue', 'orange')) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  facet_wrap(~case_status) +
+  labs(title = 'Current BMI based on Diagnosis History and History or of DEx', x = 'History of Driven Exercise', y = 'Current BMI') + 
+  scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) + 
+  theme(legend.position = 'none') + 
+  geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_current_bmi + 2, label = round(median_current_bmi, 1)), size = 3, color = 'black', fontface ='bold') 
+
+currbmi_plot
 
 ```
+
+
+
+```{r}
+lowestbmi_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = lowestbmi, color = ED100k_exercise_icb_factor)) + 
+  geom_jitter(size = 0.3) +
+  scale_color_manual(values = c('purple', 'blue', 'orange')) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  facet_wrap(~case_status) +
+  labs(title = 'Lowest BMI based on Diagnosis History and History or of DEx', x = 'History of Driven Exercise', y = 'Lowest BMI') + 
+  scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) + 
+  theme(legend.position = 'none') + 
+  geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_lowestbmi + 2, label = round(median_lowestbmi, 1)), size = 3, color = 'black', fontface ='bold') +
+  scale_y_continuous(limits = c(10, 40))
+  
+
+lowestbmi_plot
+```
+
+```{r}
+highestbmi_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = highestbmi, color = ED100k_exercise_icb_factor)) + 
+  geom_jitter(size = 0.3) +
+  scale_color_manual(values = c('purple', 'blue', 'orange')) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  facet_wrap(~case_status) +
+  labs(title = 'Highest BMI based on Diagnosis History and History or of DEx', x = 'History of Driven Exercise', y = 'Highest BMI') + 
+  scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) + 
+  theme(legend.position = 'none') + 
+  geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_highest_bmi + 2, label = round(median_highest_bmi, 1)), size = 3, color = 'black', fontface ='bold') +
+  scale_y_continuous(limits = c(10, 70))
+  
+
+highestbmi_plot
+```
+
+
+```{r}
+ws_plot <- ggplot (EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = ED100k_wt_suppress_high_current, color = ED100k_exercise_icb_factor)) + 
+  geom_jitter(size = 0.3) +
+  scale_color_manual(values = c('purple', 'blue', 'orange')) +
+  geom_boxplot(alpha = 0.5, color =  'black', aes(middle = median(ED100k_wt_suppress_high_current, na.rm = TRUE))) +
+  facet_wrap(~case_status) +
+  labs(title = 'Current Weight Suppression based on Diagnosis History and History or of DEx', x = 'History of Driven Exercise', y = 'Median Weight Suppression - Current') +
+  theme(legend.position = 'none') +
+  scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) +
+  geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_ws_high_current+5, label = round(median_ws_high_current, 1)), size = 3, color = 'black', fontface ='bold') + 
+  coord_cartesian(ylim  = c( 0,  80))
+
+    
+ws_plot
+
+```
+
+```{r}
+wt_variablility_plot <- ggplot (EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = ED100k_wt_suppress_high_low, color = ED100k_exercise_icb_factor)) + 
+  geom_jitter(size = 0.3) +
+  scale_color_manual(values = c('purple', 'blue', 'orange')) +
+  geom_boxplot(alpha = 0.5, color =  'black', aes(middle = median(ED100k_wt_suppress_high_low, na.rm = TRUE))) +
+  facet_wrap(~case_status) +
+  labs(title = 'Weight variability (difference in highest vs lowest weight) based on Diagnosis Hx and Hx or of DEx', x = 'History of Driven Exercise', y = 'Median Weight Suppression - Current') +
+  theme(legend.position = 'none') +
+  scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) +
+  geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_ws_high_low + 10, label = round(median_ws_high_low, 1)), size = 3, color = 'black', fontface ='bold') + 
+  coord_cartesian(ylim  = c( 0,  200))
+
+    
+wt_variablility_plot
+
+```
+
+```{r}
+wt_restore_plot <- ggplot (EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = ED100k_wt_suppress_curr_low, color = ED100k_exercise_icb_factor)) + 
+  geom_jitter(size = 0.3) +
+  scale_color_manual(values = c('purple', 'blue', 'orange')) +
+  geom_boxplot(alpha = 0.5, color =  'black', aes(middle = median(ED100k_wt_suppress_curr_low, na.rm = TRUE))) +
+  facet_wrap(~case_status) +
+  labs(title = 'Weight restoration (difference between lowest and current weight) based on Diagnosis History and History or of DEx', x = 'History of Driven Exercise', y = 'Current - Lowest Weight') +
+  theme(legend.position = 'none') +
+  scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) +
+  geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_ws_curr_low + 10, label = round(median_ws_curr_low, 1)), size = 3, color = 'black', fontface ='bold') + 
+  coord_cartesian(ylim  = c( 0,  200))
+
+    
+wt_restore_plot
+
+
+```
+
 
 
