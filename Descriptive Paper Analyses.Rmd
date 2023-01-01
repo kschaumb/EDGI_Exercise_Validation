@@ -7,7 +7,7 @@ output:
 
 ```{r, setup, include=FALSE}
 
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, results = 'hide')
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, results = 'hide', warning = FALSE)
 library(expss)
 library(bookdown)
 library(dplyr)
@@ -182,6 +182,8 @@ Considering across diagnosis, the following describes rates of (1) maladaptive e
 
 ## Diagnosis Groups
 
+History of Maladaptive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment. Maladaptive exercise was also reported in half of those with BN-BED (50%) and a portion (20%) of those with BED. 
+
 ```{r}
 ct <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_exercise_icb_factor)
 
@@ -202,6 +204,8 @@ ggplot(dx_row_percents, aes( x = `History of Driven Exercise`, y = Freq*100, fil
 
 ### CET Clinical Cutoff
 
+With regards to current compulsive exercise, 35-40% of individuals reporting history of AN, AN Mixed, and BN met current clinical cutoff on the CET for compulsive exercise, with rates being lower in those with histories of BN-BED (29%) and BED (15%). Overall, median CET scores were below clinical cutoff for all groups.
+
 ```{r}
 cet_clinical <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$cet_clinical)
 
@@ -219,6 +223,7 @@ theme(legend.position = 'none')
 
 
 ```
+
 ```{r}
 median_cet <- EDGI_exercise_cleaned |> 
   group_by (case_status) |> 
@@ -235,8 +240,13 @@ cet_plot <- ggplot(EDGI_exercise_cleaned, aes(x = case_status, y = cet_total_wei
 cet_plot
 ```
 
-
 ## Age
+
+### Exercise History
+
+Regarding age, those who reported a history of driven exercise appeared to be similar ages in the AN and AN Mixed groups, though there was an 8, 9, and 10 year difference in median age among those who reported no history vs a regular history of maladaptive exercise for the BN, BED, and BN-BED Mixed groups, respectively, with those reporting a maldaptive exercise history having a younger median age. 
+
+
 ```{r}
 
 median_age <- EDGI_exercise_cleaned |> 
@@ -255,14 +265,30 @@ age_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y 
 
 age_plot
 ```
-```{r}
+
+### CET
+
+With regards to CET Scores, there did not appear to be an overall association based on visual inspection of a scatterplot between age and **current** CET scores in the full sample, nor a strong association between meeting clinical cutoff on the CET score and current age.
+
+```{r age-cet}
+
+ggplot(data = EDGI_exercise_cleaned, aes (x = cet_clinical, y = age)) + 
+  geom_point() + 
+  geom_smooth(method = 'lm', color = 'red') + 
+  facet_wrap(~case_status)
+
+
 ggplot(data = EDGI_exercise_cleaned, aes(x= age, y = cet_total_weighted_sum))+  
   geom_point() + 
-  geom_smooth(method = 'lm', color = 'red')
+  geom_smooth(method = 'lm', color = 'red') +
+  facet_wrap(~case_status)
 ```
-
-
 ## Gender
+
+### Exercise History 
+
+Female and nonbinary individuals reported Histories of Maladaptive Exercise over 60%, while Male individuals reported this history ~40%
+
 ```{r}
 exh_gender <- table(EDGI_exercise_cleaned$ED100k_gender_dummy, EDGI_exercise_cleaned$ED100k_exercise_icb_factor)
 
@@ -281,6 +307,58 @@ ggplot(gender_row_percents, aes( x = `History of Driven Exercise`, y = Freq*100,
   scale_x_discrete(labels = c('Never', 'A few', 'More Often'))  +
   theme(legend.position = 'none') 
 
+```
+
+### CET
+```{r}
+cet_gender <- table(EDGI_exercise_cleaned$ED100k_gender_dummy, EDGI_exercise_cleaned$cet_clinical)
+
+cet_gender_row_percents <- prop.table (cet_gender, 1)
+cet_gender_row_percents <- as.data.frame(cet_gender_row_percents) |> 
+ rename(`Gender` = Var1) |> 
+ rename(`CET Clinical Cutoff` =Var2) |> 
+ filter(`CET Clinical Cutoff` == 1)
+
+names(cet_gender_row_percents$Gender) <- c('Male', 'Female', 'Nonbinary')
+
+cet_clinical_gender_plot <- ggplot(cet_gender_row_percents, aes( x = `Gender`, y = Freq*100, fill = Gender )) + 
+  geom_col()+
+  labs(title = 'CET clinical cutoff met across Gender', x = 'Gender', y = 'Percentage (within Gender)') + 
+  scale_x_discrete(labels = c('Male', 'Female', 'Nonbinary'))  +
+  theme(legend.position = 'none') 
+
+cet_by_gender <- EDGI_exercise_cleaned |> 
+  filter(!is.na(ED100k_gender_dummy))  
+ 
+median_cet_gender_dx <- cet_by_gender |> 
+  group_by (ED100k_gender_dummy, case_status) |> 
+  summarize (median_cet = median (cet_total_weighted_sum, na.rm = TRUE)) 
+
+median_cet_gender <- cet_by_gender |> 
+  group_by (ED100k_gender_dummy) |> 
+  summarize (median_cet = median (cet_total_weighted_sum, na.rm = TRUE)) 
+
+cet_gender_plot <- ggplot(cet_by_gender, aes(x = as.factor(ED100k_gender_dummy), y = cet_total_weighted_sum, color = as.factor(ED100k_gender_dummy))) +
+  geom_jitter(size = 0.3) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  labs(title = 'Current CET score based on Gender', x = 'Gender', y = 'CET score') + 
+  theme(legend.position = 'none') +
+  facet_wrap(~ case_status) +
+  geom_text(data = median_cet_gender_dx, aes(x = ED100k_gender_dummy+1, y = median_cet+1, label = round(median_cet, 1)), size = 3, color = 'black', fontface ='bold') + 
+scale_x_discrete(labels = c('Male', 'Female', 'Nonbinary'))  
+
+cet_gender_plot.2 <- ggplot(cet_by_gender, aes(x = as.factor(ED100k_gender_dummy), y = cet_total_weighted_sum, color = as.factor(ED100k_gender_dummy))) +
+  geom_jitter(size = 0.3) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  labs(title = 'Current CET score based on Gender', x = 'Gender', y = 'CET score') + 
+  theme(legend.position = 'none') +
+  geom_text(data = median_cet_gender, aes(x = ED100k_gender_dummy+1, y = median_cet+1, label = round(median_cet, 1)), size = 3, color = 'black', fontface ='bold') + 
+scale_x_discrete(labels = c('Male', 'Female', 'Nonbinary'))  
+
+
+cet_clinical_gender_plot
+cet_gender_plot
+cet_gender_plot.2
 
 ```
 
@@ -322,8 +400,6 @@ currbmi_plot
 
 ```
 
-
-
 ```{r}
 lowestbmi_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = lowestbmi, color = ED100k_exercise_icb_factor)) + 
   geom_jitter(size = 0.3) +
@@ -335,10 +411,10 @@ lowestbmi_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_fact
   theme(legend.position = 'none') + 
   geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_lowestbmi + 2, label = round(median_lowestbmi, 1)), size = 3, color = 'black', fontface ='bold') +
   scale_y_continuous(limits = c(10, 40))
-  
 
 lowestbmi_plot
 ```
+
 
 ```{r}
 highestbmi_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = highestbmi, color = ED100k_exercise_icb_factor)) + 
@@ -355,7 +431,6 @@ highestbmi_plot <- ggplot(EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_fac
 
 highestbmi_plot
 ```
-
 
 ```{r}
 ws_plot <- ggplot (EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_factor, y = ED100k_wt_suppress_high_current, color = ED100k_exercise_icb_factor)) + 
@@ -380,7 +455,7 @@ wt_variablility_plot <- ggplot (EDGI_exercise_cleaned, aes(x = ED100k_exercise_i
   scale_color_manual(values = c('purple', 'blue', 'orange')) +
   geom_boxplot(alpha = 0.5, color =  'black', aes(middle = median(ED100k_wt_suppress_high_low, na.rm = TRUE))) +
   facet_wrap(~case_status) +
-  labs(title = 'Weight variability (difference in highest vs lowest weight) based on Diagnosis Hx and Hx or of DEx', x = 'History of Driven Exercise', y = 'Median Weight Suppression - Current') +
+  labs(title = 'Weight variability (difference in highest vs lowest weight) based on \nDiagnosis Hx and Hx  of DEx', x = 'History of Driven Exercise', y = 'Median Weight Suppression - Current') +
   theme(legend.position = 'none') +
   scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) +
   geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_ws_high_low + 10, label = round(median_ws_high_low, 1)), size = 3, color = 'black', fontface ='bold') + 
@@ -397,17 +472,142 @@ wt_restore_plot <- ggplot (EDGI_exercise_cleaned, aes(x = ED100k_exercise_icb_fa
   scale_color_manual(values = c('purple', 'blue', 'orange')) +
   geom_boxplot(alpha = 0.5, color =  'black', aes(middle = median(ED100k_wt_suppress_curr_low, na.rm = TRUE))) +
   facet_wrap(~case_status) +
-  labs(title = 'Weight restoration (difference between lowest and current weight) based on Diagnosis History and History or of DEx', x = 'History of Driven Exercise', y = 'Current - Lowest Weight') +
+  labs(title = 'Weight restoration (difference between lowest and current weight) based on \nDiagnosis History and History of DEx', x = 'History of Driven Exercise', y = 'Current - Lowest Weight') +
   theme(legend.position = 'none') +
   scale_x_discrete(labels = c('Never', 'A Few', 'More Often')) +
   geom_text(data = medians, aes(x = ED100k_exercise_icb_factor, y = median_ws_curr_low + 10, label = round(median_ws_curr_low, 1)), size = 3, color = 'black', fontface ='bold') + 
   coord_cartesian(ylim  = c( 0,  200))
 
-    
 wt_restore_plot
-
 
 ```
 
+### CET Clinical Cutoff
 
+### Current BMI
+
+```{r}
+median_bmi <- EDGI_exercise_cleaned |> 
+  group_by (cet_clinical, case_status) |> 
+  summarize (median_bmi = median (currentbmi, na.rm = TRUE))
+
+
+
+ggplot(EDGI_exercise_cleaned, aes(x = as.factor(cet_clinical), y = currentbmi, color = as.factor(cet_clinical))) + 
+  geom_jitter(size = 0.3) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  facet_wrap(~case_status) +
+  labs(title = 'Current BMI based on Diagnosis History and CET Clinical Met', 
+       x = 'CET Clinical Met', y = 'BMI') + 
+  scale_x_discrete(labels = c('No', 'Yes')) + 
+  theme(legend.position = 'none') + 
+  geom_text(data = median_bmi, aes(x = cet_clinical+ 1, y = median_bmi + 2, label = median_bmi), size = 3, color = 'black', fontface ='bold') +
+  scale_y_continuous(limits = c(10, 70))
+
+```
+
+### Lowest BMI
+
+```{r}
+median_bmi_low <- EDGI_exercise_cleaned |> 
+  group_by (cet_clinical, case_status) |> 
+  summarize (median_bmi_low = median (lowestbmi, na.rm = TRUE))
+
+
+
+ggplot(EDGI_exercise_cleaned, aes(x = as.factor(cet_clinical), y = lowestbmi, color = as.factor(cet_clinical))) + 
+  geom_jitter(size = 0.3) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  facet_wrap(~case_status) +
+  labs(title = 'Lowest BMI based on Diagnosis History and CET Clinical Met', 
+       x = 'CET Clinical Met', y = 'BMI') + 
+  scale_x_discrete(labels = c('No', 'Yes')) + 
+  theme(legend.position = 'none') + 
+  geom_text(data = median_bmi_low, aes(x = cet_clinical+ 1, y = median_bmi_low + 2, label = median_bmi_low), size = 3, color = 'black', fontface ='bold') +
+  scale_y_continuous(limits = c(10, 70))
+
+```
+### Current Weight Suppression
+
+```{r}
+
+median_ws <- EDGI_exercise_cleaned |> 
+  group_by (cet_clinical, case_status) |> 
+  summarize (median_ws = median (ED100k_wt_suppress_high_current, na.rm = TRUE))
+
+ggplot(EDGI_exercise_cleaned, aes(x = as.factor(cet_clinical), y = ED100k_wt_suppress_high_current, color = as.factor(cet_clinical))) + 
+  geom_jitter(size = 0.3) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  facet_wrap(~case_status) +
+  labs(title = 'Current Weight Suppression based on Diagnosis History and CET Clinical Met', 
+       x = 'CET Clinical Met', y = 'Weight suppression') + 
+  scale_x_discrete(labels = c('No', 'Yes')) + 
+  theme(legend.position = 'none') + 
+  geom_text(data = median_ws, aes(x = cet_clinical+ 1, y = median_ws + 5, label = median_ws), size = 3, color = 'black', fontface ='bold') +
+  coord_cartesian(ylim  = c( 0,  100))
+
+```
+
+### Current Weight Restoration
+
+```{r}
+
+median_wr <- EDGI_exercise_cleaned |> 
+  group_by (cet_clinical, case_status) |> 
+  summarize (median_wr = median (ED100k_wt_suppress_curr_low, na.rm = TRUE))
+
+ggplot(EDGI_exercise_cleaned, aes(x = as.factor(cet_clinical), y = ED100k_wt_suppress_curr_low, color = as.factor(cet_clinical))) + 
+  geom_jitter(size = 0.3) +
+  geom_boxplot(alpha = 0.5, color= 'black') +
+  facet_wrap(~case_status) +
+  labs(title = 'Current Weight Restoration based on Diagnosis History and CET Clinical Met', 
+       x = 'CET Clinical Met', y = 'Weight suppression') + 
+  scale_x_discrete(labels = c('No', 'Yes')) + 
+  theme(legend.position = 'none') + 
+  geom_text(data = median_wr, aes(x = cet_clinical+ 1, y = median_wr + 5, label = median_wr), size = 3, color = 'black', fontface ='bold') +
+  coord_cartesian(ylim  = c( 0,  100))
+
+```
+
+### CET Current Score
+
+#### Current BMI
+
+```{r}
+ggplot(data = EDGI_exercise_cleaned, aes(x= cet_total_weighted_sum, y = currentbmi))+  
+  geom_point() + 
+  geom_smooth(method = 'lm', color = 'red') + 
+  facet_wrap(~case_status) +
+  coord_cartesian(ylim  = c( 10,  70))
+```
+
+#### Lowest BMI
+
+```{r}
+ggplot(data = EDGI_exercise_cleaned, aes(x= cet_total_weighted_sum, y = lowestbmi))+  
+  geom_point() + 
+  geom_smooth(method = 'lm', color = 'red') + 
+  facet_wrap(~case_status) +
+  coord_cartesian(ylim  = c( 10,  50))
+```
+
+#### Current Weight Suppression
+
+```{r}
+ggplot(data = EDGI_exercise_cleaned, aes(x= cet_total_weighted_sum, y = ED100k_wt_suppress_high_current))+  
+  geom_point() + 
+  geom_smooth(method = 'lm', color = 'red') + 
+  facet_wrap(~case_status) +
+  coord_cartesian(ylim  = c( 0,  100))
+```
+
+#### Current Weight Restoration
+
+```{r}
+ggplot(data = EDGI_exercise_cleaned, aes(x= cet_total_weighted_sum, y = ED100k_wt_suppress_curr_low))+  
+  geom_point() + 
+  geom_smooth(method = 'lm', color = 'red') + 
+  facet_wrap(~case_status) +
+  coord_cartesian(ylim  = c( 0,  200))
+```
 

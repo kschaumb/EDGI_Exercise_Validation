@@ -115,7 +115,7 @@ Key variables relevant for the current papers include:
 ```{r, warning=FALSE, echo=FALSE}
 
 ED100k<- scorekeep(EDGI_raw, ED100k_score)
-ED100k_scored <- ED100k [[8]]
+ED100k_scored <- ED100k [[10]]
 
 # Add various weight suppression variables; clean outlier BMI variables
 ED100k_scored <- ED100k_scored |> 
