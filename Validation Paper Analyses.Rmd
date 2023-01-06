@@ -1,9 +1,10 @@
-
 ---
 title: EDGI Exercise Validation Paper Results
 author: Katherine Schaumberg
 output:
   bookdown::html_document2: default
+editor_options: 
+  markdown: 
 ---
 
 ```{r, setup, include=FALSE}
@@ -31,8 +32,7 @@ regular_compulsive_exercisers <- EDGI_exercise_cleaned |>
 
 ```
 
-
-### Compulsive Exercise
+# Compulsive Exercise
 
 Only those who endorsed EVER Exercising to intentionally control weight
 or shape were asked to report (Yes/No) the next two questions - whether
@@ -41,196 +41,204 @@ distress if unable to exercise (`ex_distress`). In re-coding, those (n =
 945) who reported no no exercise to control shape and weight were marked
 as 0 for these two questions. These two questions were then combined
 using OR logic to determine compulsive exercise - with individuals being
-classified as compulsive exercisers if they reported either feeling
-compelled to exercise or distress if unable to exercise.
-
-`ED100k_ex_compulsive` (Ever felt compelled to exercise for wt and shape
-control OR uneasy / distressed if unable to exercise)
-
-`ED100k_ex_compulsive_strict` (Report exercising for weight loss 'more often' AND felt compelled to exercise or uneasy/distressed if unable to exercise)
+classified as *ever compulsive exercisers* if they reported exercising
+to intentionally control wieght and shape at all and either feeling
+compelled to exercise or distress if unable to exercise for any amount
+of time.
 
 ```{r, echo=FALSE}
-frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_strict)
-
 frq(EDGI_exercise_cleaned$ED100k_ex_compulsive)
+
 ```
 
 Amongst those who reported ANY exercise for shape and weight control and
 were asked explicitly about compulsive exercise (not skipped), rates of
-endorsement for either feeling compelled to exercise OR feeling distressed when unable to exercise are hight (96%); among those who reported exercise for shape and weight control 'more often', endorsement of either feeling compelled to exercise OR feeling distressed when unable to exercise is 99.5% -- indicating that these two questions be unnecessary for defining compulsive exercise *within* eating disordered samples, or that non-binary responses may elucidate degree of these 
+endorsement for either feeling compelled to exercise OR feeling
+distressed when unable to exercise are hight (96%); among those who
+reported exercise for shape and weight control 'more often', endorsement
+of either feeling compelled to exercise OR feeling distressed when
+unable to exercise is 99.5% -- indicating that these two questions be
+unnecessary for defining compulsive exercise *within* eating disordered
+samples, or that non-binary responses may elucidate degree of these
 
-Those who reported any compulsive exercise were further asked a series
-of questions, including how long they felt compelled to exercise or
-distressed when unable to exercise. In addition to the 24 individuals
-who did not report on compulsion/distress, 217 additional individuals
-did not report duration. Those who reported No Exercise for Weight
-Control OR No Compulsive Exercise were coded as '0' for this item.
+Those who reported either compelled to exercise or distressed when
+unable to exercise were further asked how long they felt this way. In
+addition to the 24 individuals who did not report on
+compulsion/distress, 217 additional individuals did not report duration.
+Those who reported No Compulsive Exercise symptoms were coded as '0' for
+this item.
 
-`ED100k_ex_dur` (For how long did you feel compelled to exercise or felt
-distressed if unable to exercise?)
 
-```{r, echo=FALSE,message=FALSE}
+```{r}
 frq(EDGI_exercise_cleaned$ED100k_ex_dur)
 ```
+We then defined regular compulsive exercisers as those who endorsed
+using exercise as a weight control behavior 'more often' and reported
+either compulsive exercise symptom which lasted for at least three
+months in duration.
 
+The vast majority of individuals who endorsed exercising 'more often' in
+the first question of the series reported either feeling compelled to
+exercise and/or distressed when unable to exercise for a period that
+lasted at least 3 months in duration
+`r frq(regular_exercisers$ED100k_ex_compulsive_strict_3mo)`,
+highlighting convergent validity of the first and third questions and
+suggesting that those with eating disorders who endorse using exercise
+to intentionally control weight 'more often' are doing so for a
+substantive period of time.
 
+## Age of Onset and Age of Last Reported Compulsive Exercise
 
-`ED100k_ex_compulsive_1mo`  categorizes whether compulsive exercise was present for at least one month, while `ED100k_ex_compulsive_strict_3mo` categorizes whether compulsive exercise lasted for at least three months and exercise was endorsed 'more often' as a weight control behavior. Once again, the vast majority of individuals (98.2%) who endorsed exercising 'more often' met criteria for compulsive exercise that lasted at least 3 months in duration, suggesting that those with eating disorders who endorse using exercise to intentionally control weight 'more often' are doing so for a substantive period of time. 
+Age of last reported compulsive exercise was captured for the ever
+compulsive exercise group (any duration):
 
+Mean age of last exercise =
+`r mean(EDGI_exercise_cleaned$ex_age_last, na.rm = TRUE)` SD =
+`r sd(EDGI_exercise_cleaned$ex_age_last, na.rm = TRUE)`
 
+About half of the sample reporting regular compulsive exercise (total n
+= `r nrow(regular_compulsive_exercisers)` did not report age of last
+compulsive exercise (n not reporting =
+`r sum(is.na(regular_compulsive_exercisers$ex_age_last))`), which
+suggests (as mentioned below) that many individuals were currently
+experiencing the symptom.
 
-```{r, echo=FALSE,message=FALSE}
-frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_1mo)
-frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_strict_3mo)
+Individuals reporting a history of compulsive exercise were also asked
+when the first time they experienced this symptom.
 
-frq(regular_exercisers$ED100k_ex_compulsive_strict_3mo)
-```
+One participant reported age of onset as '233', which was removed as NA
+before analysis. Median age of first exercise is
+`r median(regular_compulsive_exercisers$ex_age, na.rm = TRUE)`, with
+range = `r range(regular_compulsive_exercisers$ex_age, na.rm = TRUE)`
+among those who reported regular compulsive exercise, with all
+participants reporting regular compulsive exercise reporting age of
+onset
 
+## Current Compulsive Exercise
 
-
-
-#### Age of Onset and Age of Last Reported Compulsive Exercise 
-
-Age of last reported compulsive exercise was captured for those reporting compulsive exercise: 
-
-`ex_age_last` (How old were you when you stopped exercising to control your weight and shape AND felt either compelled to exercise or distressed if unable to exercise?)
-
-Mean age of last exercise = `r mean(EDGI_exercise_cleaned$ex_age_last, na.rm = TRUE)` SD = `r sd(EDGI_exercise_cleaned$ex_age_last, na.rm = TRUE)` 
-
-About half of the sample reporting regular ('more often') compulsive exercise (total n = `r nrow(regular_compulsive_exercisers)` did not report age of last compulsive exercise (n not reporting = `r sum(is.na(regular_compulsive_exercisers$ex_age_last))`), in line with the finding that many individuals were currently experiencing the symptom (below)
-
-
-```{r}
-hist(regular_compulsive_exercisers$ex_age_last)
-```
-
-Individuals reporting a history of regular compulsive exercise were also asked when the first time they experienced this symptom. 
-
-`ex_age` (How old were you when you first exercised to control your weight and shape AND felt either compelled to exercise or distressed if unable to exercise?)
-
-One participant reported age of onset as '233', which was removed as NA before analysis.
-
-```{r}
-hist(regular_compulsive_exercisers$ex_age)
-```
-
-
-Mean age of first exercise = `r mean(regular_compulsive_exercisers$ex_age, na.rm = TRUE)` SD = `r sd(regular_compulsive_exercisers$ex_age, na.rm = TRUE)` 
-
-All participants reporting regular compulsive exercise (total n = `r nrow(regular_compulsive_exercisers)` reported  age of onset.
-
-
-```{r}
-range(regular_compulsive_exercisers$ex_age, na.rm = TRUE)
-```
-
-
-#### Current Compulsive Exercise
-
-In addition to history of compulsive exercise, individuals who endorsed history of compulsive exercise were asked if they currently engage in exercise to control weight and shape AND feel compelled to exercise or distress if unable to exercise (`ex_current`), which was recoded to impute 0 values for those with no history of compulsive exercise (ED100k_ex_compulsive_current). About 40% of the TOTAL sample (valid n = 7235) reported compulsive exercise was an ongoing symptom.
+In addition to history of compulsive exercise, individuals who endorsed
+history of compulsive exercise were asked if they currently engage in
+exercise to control weight and shape AND feel compelled to exercise or
+distress if unable to exercise (`ex_current`), which was recoded to
+impute 0 values for those with no history of compulsive exercise
+(ED100k_ex_compulsive_current). About 40% of the TOTAL sample (valid n =
+7235) reported compulsive exercise was an ongoing symptom.
 
 ```{r, echo=FALSE,message=FALSE}
 frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current)
 ```
 
-Among those reporting history of regular compulsive exercise, over half of participants reported current compulsive exercise
+Among those reporting history of regular compulsive exercise, over half
+of participants reported current compulsive exercise
 
 ```{r, echo=FALSE,message=FALSE}
 frq(regular_compulsive_exercisers$ED100k_ex_compulsive_current)
 ```
 
-### Exercise Addiction
+# Exercise Addiction
 
-We defined exercise addiction as having regular compulsive exercise for at least three months AND having exercise interfere with one's life. 
+We defined exercise addiction as having regular compulsvie exercise for
+at least three months AND having exercise interfere with one's life.
+Individuals with any compulsive exercise symptoms were also asked
+whether this interfered with their life in a series of 3 questions --
+whether it caused them to change eating habits, decline opportunities to
+be with friends, or whether they exercised despite illness or injury.
 
-Individuals any compulsive exercise were also asked whether this interfered with their life in a series of 3 questions -- whether it caused them to change eating habits, decline opportunities to be with friends, or whether they exercised despite illness or injury. 
+The full sample results are presented below (imputed to be 'no' for
+those who reported no compulsive exercise symptoms). Individuals
+reporting YES to ANY of those three symptoms were coded YES in response
+to Exercise Interference.
 
-The full sample results are presented below (imputed to be 'no' for those who reported no compulsive exercise). Individuals reporting YES to ANY of those three symptoms were coded YES in response to Exercise Interference
-
-`ED100k_ex_interfere` (Did exercise ever interfere in one's life (changing eating habits, declining opportunities to be with friends, exercising despite illness or injury) 
 ```{r, echo=FALSE}
 frq(EDGI_exercise_cleaned$ED100k_ex_interfere)
 ```
 
-When looking at just those with regular ('more often') exercise, rates of endorsement were 98%, again indicating that the vast majority of indivdiuals reporting regular exercise for weight loss to control weight and shape also experienced life interfering sequellae of this behavior. 
+When looking at just those with regular exercise for weight control,
+rates of endorsement of life interfering symptoms were 98%, again
+indicating that the vast majority of indivdiuals reporting regular
+exercise for weight loss to control weight and shape also experienced
+life interfering sequellae of this behavior.
 
 ```{r}
-
 frq(regular_exercisers$ED100k_ex_interfere)
 ```
 
-In the entire sample, the modal number of exercise interference items was all 3
+In the entire sample as well as those with regular exercise for weight
+control, the modal number of exercise interference items was all 3. \`
 
-`ED100k_ex_interfere_sum_complete` (Sum of criterion (max = 3) for exercise interference items) 
-```{r, echo=FALSE,message=FALSE}
-frq(EDGI_exercise_cleaned$ED100k_ex_interfere_sum_complete
-    )
-```
+The following variable defines presence of addictive exercise in the
+whole sample:
 
-And examining only those who reported regular ('more often') exercise, the majority reported all three life interference items
-
-```{r}
-
-frq(regular_exercisers$ED100k_ex_interfere_sum_complete)
-```
-
-The following variable defines presence of addictive exercise in the whole sample:
-
-`ED100k_ex_addictive` (Regular exercise for weight control and feeling compelled to exercise or distressed if unable to exercise that lasted for at least 3 months AND at least one life interfering symptom
+`ED100k_ex_addictive` (Regular exercise for weight control and feeling
+compelled to exercise or distressed if unable to exercise that lasted
+for at least 3 months AND at least one life interfering symptom
 
 ```{r, echo=FALSE,message=FALSE}
 frq(EDGI_exercise_cleaned$ED100k_ex_addictive)
 ```
 
+# Excessive Exercise
 
-### Excessive Exercise 
+Excessive exercise was defined as compulsive exercise occurring for at
+least one month, every day or nearly ever day. Among the whole sample
+('0' imputed for those reported no compulsive exercise), rates are:
 
-Excessive exercise was defined as compulsive exercise occurring for at least one month, every day or nearly ever day. Among the whole sample ('0' imputed for those reported no compulsive exercise), rates are:  
+`ED100k_ex_excessive` (\>1 month of compulsive exercise every day or
+nearly every day)
 
-`ED100k_ex_excessive` (>1 month of compulsive exercise every day or nearly every day) 
 ```{r, echo=FALSE,message=FALSE}
 frq(EDGI_exercise_cleaned$ED100k_ex_excessive)
 ```
 
-
-Among the subsample who reported regular compulsive exercise, rates are about 80% reporting at least one month of compulsive exercise every day or nearly every day.
+Among the subsample who reported regular compulsive exercise, rates are
+about 80% reporting at least one month of compulsive exercise every day
+or nearly every day.
 
 ```{r, echo=FALSE,message=FALSE}
 frq(regular_compulsive_exercisers$ED100k_ex_excessive)
 ```
 
+# Compensatory Exercise
 
-### Compensatory Exercise
-
-All participants were asked about compensatory exercise (`be_icb__5`), with about half of the sample reporting compensatory exercise: 
+All participants were asked about compensatory exercise (`be_icb__5`),
+with about half of the sample reporting compensatory exercise:
 
 ```{r}
 frq(EDGI_exercise_cleaned$be_icb___5)
 ```
 
-Among those with regular exercise, rates were somehwat higher (>60%), 
-
+Among those with regular exercise, rates were somehwat higher (\>60%),
 
 ```{r}
 frq(regular_exercisers$be_icb___5)
 ```
 
-### Broad Maladaptive Exercise
+# Broad Maladaptive Exercise
 
-A broad maladaptive exercise variable was the final exercise variable made, which included individuals who reported regular exercise for weight loss ('more often') with at 3 months of compulsive exercise OR any compensatory exercise
+A broad maladaptive exercise variable was the final exercise variable
+made, which included individuals who reported regular exercise for
+weight loss ('more often') for at 3 months with compulsive symptoms OR
+any compensatory exercise
 
 In the full sampple, xxx % met criteria
 
 Among those reporting regular exercise, xxx% met criteria
 
-`ED100k_ex_maladaptive` (reports 3 months of compensatory exercise OR any compensatory exercise)  
+`ED100k_ex_maladaptive` (reports 3 months of compensatory exercise OR
+any compensatory exercise)
 
-Overall, there 
+Overall, there
+
 ```{r, echo=FALSE,message=FALSE}
 frq(EDGI_exercise_cleaned$ED100k_ex_maladaptive)
+
+frq(regular_exercisers$ED100k_ex_maladaptive)
+
 ```
 
-When examining overlap in compensatory and compulsive exercise, the vast majority of individuals endorsing compensatory exercise 
+When examining overlap in compensatory and compulsive exercise, the vast
+majority of individuals endorsing compensatory exercise
+
 ```{r}
 ct <- table(EDGI_exercise_cleaned$ED100k_ex_compulsive, EDGI_exercise_cleaned$ED100k_ex_compensatory)
 
@@ -250,3 +258,42 @@ ggplot(ex_row_percents, aes( x = `Compulsive Exercise`, y = Freq*100, fill = `Co
 
 ```
 
+2.  Examine convergent validity: [zero-order correlations]
+
+<!-- -->
+
+a.  Current Exercise
+b.  Frequency of driven exercise over the past 28 days -- EDE-Q item 18
+
+<!-- -->
+
+ii. CET total and subscale mean ± SD scores
+iii. CET clinical cutoff (prevalence: frequency and 95% CI calculated
+     with the binomial distribution)
+
+<!-- -->
+
+b.  Perfectionism
+c.  OCD symtpoms
+
+<!-- -->
+
+3.  Examine discriminant validity:
+
+<!-- -->
+
+a.  OCD symptoms
+
+<!-- -->
+
+4.  Examine prevalence of differing constructs
+
+<!-- -->
+
+a.  In overall sample
+b.  Among diagnostic groups
+
+<!-- -->
+
+5.  Examine associations with illness history, other symptoms
+    [correlations]
