@@ -182,7 +182,7 @@ Considering across diagnosis, the following describes rates of (1) maladaptive e
 
 ## Diagnosis Groups
 
-History of Maladaptive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment. Maladaptive exercise was also reported in half of those with BN-BED (50%) and a portion (20%) of those with BED. 
+History of Maladaptive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups. Maladaptive exercise was also reported in half of those with BN-BED (50%) and a portion (20%) of those with BED. 
 
 ```{r}
 ct <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_exercise_icb_factor)
