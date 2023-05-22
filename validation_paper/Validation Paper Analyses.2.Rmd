@@ -116,11 +116,11 @@ to exercise.
 Using a more strict definition of compulsive exercise than having ever
 endorsed this behavior, 'regular compulsive exercisers' were defined as those who endorsed using exercise as a weight control behavior 'more often', with symptoms lasted least three months in duration.
 `r frq(exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`% of those who reported any exercise to control weight and shape and the vast majority
-(`r frq(regular_exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`% of individuals who endorsed exercising 'more often' met this strict definition, highlighting that (1) most individuals with eating disorders who report compulsive exercise are engaging in this behaivor regularly, and (2) further indicating high convergent validity of the first question regarding regular exercise to control weight and subsequent questions which further define compulsive exercise. Specifically, individuals eating disorders who endorse using exercise to intentionally control weight 'more often' are indeed engaging in this behavior for a substantive period of time (\> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors). Further exploration of duration of compulsive exercise 
-`r round(frq(EDGI_exercise_cleaned$ED100k_ex_dur)[[1]]$frq[[7]]/(nrow(EDGI_exercise_cleaned) - frq(EDGI_exercise_cleaned$ED100k_ex_dur)[[1]]$frq[[1]])*100,2)`% missing values. Among those who responded, the majority reported compulsive exercise lasting > 1 year (see figure 1)
+(`r frq(regular_exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`% of individuals who endorsed exercising 'more often' met this strict definition, highlighting that (1) most individuals with eating disorders who report compulsive exercise are engaging in this behaivor regularly, and (2) further indicating high convergent validity of the first question regarding regular exercise to control weight and subsequent questions which further define compulsive exercise. Specifically, individuals eating disorders who endorse using exercise to intentionally control weight 'more often' are indeed engaging in this behavior for a substantive period of time (\> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors). Further exploration of duration of compulsive exercise indicated that the majority of individuals in the sample reported compulsive exercise lasting > 1 year (see figure 1)
 
 
 ```{r}
+
 ex_dur_frqs <- frq(EDGI_exercise_cleaned$ED100k_ex_dur)[[1]] %>% 
   filter(!is.na(val))
 

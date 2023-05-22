@@ -46,10 +46,7 @@ and available ED100k items which captures and defines rates of:
 
 -   Ever and Regular Compulsive Exercise
 
--   Duration
-
--   Highest Frequency
-
+-   Duration, Frequency, Age of Onset, and current rates
 
 2\. Exercise Addiction
 
@@ -87,15 +84,15 @@ During recoding, those (n =
 Q1 - exercise to control shape and weight, were marked as '0' for
 follow-up questions. Those who reported that they had engaged in
 exercise to for weight and shape control but 'No' to both Q2 & Q3 (n =
-`r sum(exercisers$ED100k_ex_compulsive == 0, na.rm = TRUE))` were marked
+`r sum(exercisers$ED100k_ex_compulsive == 0, na.rm = TRUE)`) were marked
 as '0' for Q4-Q11.
 
 ## 1. Compulsive Exercise
 
-Individuals were classified as compulsive exercisers if they
-reported any exercise to intentionally control weight and shape AND
-either feeling compelled to exercise or distress if unable to exercise
-for any amount of time -- this included
+Individuals were classified as compulsive exercisers if they reported
+any exercise to intentionally control weight and shape AND either
+feeling compelled to exercise or distress if unable to exercise for any
+amount of time -- this included
 `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive)[[1]]$valid.prc[[2]]`%
 of the US EDGI sample. Amongst those who reported ANY exercise for shape
 and weight control and were asked explicitly about compulsive exercise
@@ -114,13 +111,33 @@ either feeling compelled to exercise or feeling distressed when unable
 to exercise.
 
 Using a more strict definition of compulsive exercise than having ever
-endorsed this behavior, 'regular compulsive exercisers' were defined as those who endorsed using exercise as a weight control behavior 'more often', with symptoms lasted least three months in duration.
-`r frq(exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`% of those who reported any exercise to control weight and shape and the vast majority
-(`r frq(regular_exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`% of individuals who endorsed exercising 'more often' met this strict definition, highlighting that (1) most individuals with eating disorders who report compulsive exercise are engaging in this behaivor regularly, and (2) further indicating high convergent validity of the first question regarding regular exercise to control weight and subsequent questions which further define compulsive exercise. Specifically, individuals eating disorders who endorse using exercise to intentionally control weight 'more often' are indeed engaging in this behavior for a substantive period of time (\> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors). Further exploration of duration of compulsive exercise 
-`r round(frq(EDGI_exercise_cleaned$ED100k_ex_dur)[[1]]$frq[[7]]/(nrow(EDGI_exercise_cleaned) - frq(EDGI_exercise_cleaned$ED100k_ex_dur)[[1]]$frq[[1]])*100,2)`% missing values. Among those who responded, the majority reported compulsive exercise lasting > 1 year (see figure 1)
+endorsed this behavior, 'regular compulsive exercisers' were defined as
+those who endorsed using exercise as a weight control behavior 'more
+often', with symptoms lasted least three months in duration.
+`r frq(exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`%
+of those who reported any exercise to control weight and shape and the
+vast majority
+(`r frq(regular_exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`%
+of individuals who endorsed exercising 'more often' met this strict
+definition, highlighting that (1) most individuals with eating disorders
+who report compulsive exercise are engaging in this behaivor regularly,
+and (2) further indicating high convergent validity of the first
+question regarding regular exercise to control weight and subsequent
+questions which further define compulsive exercise. Specifically,
+individuals eating disorders who endorse using exercise to intentionally
+control weight 'more often' are indeed engaging in this behavior for a
+substantive period of time (\> 3 months; a time period of equivalent to
+diagnostic levels of other intentional weight control behaviors).
+Further exploration of duration of compulsive exercise indicated that
+the majority of individuals in the sample reported compulsive exercise
+lasting \> 1 year (see @fig-durplot).
 
 
 ```{r}
+#| label: fig-durplot
+#| fig-cap: "Duration of Compulsive Exercise Reported in EDGI US sample"
+
+
 ex_dur_frqs <- frq(EDGI_exercise_cleaned$ED100k_ex_dur)[[1]] %>% 
   filter(!is.na(val))
 
@@ -132,66 +149,46 @@ ggplot(ex_dur_frqs, aes(x = '', y = frq, fill = reorder(label, text_y))) +
   theme(axis.text.x = element_blank(), panel.border = element_blank(), panel.grid = element_blank())+
   geom_text(aes(label = paste0(round(valid.prc,0), '%')), 
             position = position_stack(vjust = 0.8)) +
-  theme(axis.title = element_blank(), legend.title = element_blank()) + 
-  ggtitle("Duration of Compulsive Exercise Reported in EDGI US sample") +
+  theme(axis.title = element_blank(), legend.title = element_blank())  +
   scale_fill_discrete(breaks = c('No compulsive exercise', 'Less than 1 month', '1 to 2 months', '3 to 5 months', '6-12 months', 'More than 1 year')) 
  
   
 ```
-
-#### Age of Onset and Age of Last Reported Compulsive Exercise
-
-For those who reported  engaging in compulsive exercise, the
-reported median age at the last time they engaged in this behavior was
-`r median(regular_compulsive_exercisers$ex_age_last, na.rm = TRUE)`
-(current median age =
-`r median(regular_compulsive_exercisers$age, na.rm = TRUE)`. About half
-(`r round(sum(is.na(regular_compulsive_exercisers$ex_age_last))*100/nrow(regular_compulsive_exercisers),1)`%)
-of the sample reporting regular compulsive exercise did not report age
+Regarding age, for those engaging in compulsive exercise, the reported
+median age at the last time they engaged in this behavior was
+`r median(compulsive_exercisers$ex_age_last, na.rm = TRUE)` (current
+median age = `r median(compulsive_exercisers$age, na.rm = TRUE)`. About
+half
+(`r round(sum(is.na(compulsive_exercisers$ex_age_last))*100/nrow(compulsive_exercisers),1)`%)
+of the sample reporting compulsive exercise did not report age
 of last compulsive exercise -- potentially indicative of ongoing
-engagment in this symptom. Median age of first engaging in compulsive
+engagement in this symptom. Median age of first engaging in compulsive
 exercise in the sample who reported this behavior regularly was
-`r median(regular_compulsive_exercisers$ex_age, na.rm = TRUE)`. Among
-those who reported regular compulsive exercise, all participants
-reporting regular compulsive exercise reporting age of onset.
-
-#### Current Compulsive Exercise
-
-In addition to history of compulsive exercise, individuals were asked if
-they currently engage in this behavior (`ex_current`), which was recoded
-to impute 0 values for those with no history of compulsive exercise
-prior to analysis (`ED100k_ex_compulsive_current`).
+`r median(compulsive_exercisers$ex_age, na.rm = TRUE)` years old.
 `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current)[[1]]$valid.prc[[2]]`%
 of the overall sample and
 `r frq(regular_compulsive_exercisers$ED100k_ex_compulsive_current)[[1]]$valid.prc[[2]]`%
-of those reporting regular compulsive exercise reported that this was an
-ongoing eating disorder symptom.
+of those reporting regular compulsive exercise reported that compulsive exercise was an
+*ongoing* eating disorder symptom.
 
 ## 2. Exercise Addiction
 
-We defined exercise addiction as having regular compulsive exercise for
-at least three months AND having exercise interfere with one's life.
-Individuals with any compulsive exercise symptoms were also asked
-whether this interfered with their life in a series of 3 questions --
+Individuals with any compulsive exercise symptoms were also asked whether this interfered with their life in a series of 3 questions --
 whether it caused them to change eating habits, decline opportunities to
 be with friends, or whether they exercised despite illness or injury.
-Overall,
-`r frq(EDGI_exercise_cleaned$ED100k_ex_interfere)[[1]]$valid.prc[[2]]`%
-of individualsin the overall sample reported at least one of these three
-life interfering symptoms. Among only those reporting regular exercise
-for weight control, rates of endorsement of life interfering symptoms
-were
-`r frq(regular_exercisers$ED100k_ex_interfere)[[1]]$valid.prc[[2]]`%,
+Overall, `r frq(EDGI_exercise_cleaned$ED100k_ex_interfere)[[1]]$valid.prc[[2]]`%
+of individuals in the overall sample reported at least one of these three
+life interfering symptoms. Among only those reporting exercising for weight control 'more often' in Q1, rates of endorsement of life interfering symptoms
+were `r frq(regular_exercisers$ED100k_ex_interfere)[[1]]$valid.prc[[2]]`%,
 providing further validation for the first item assessing frequency of
 exercise to control weight and shape, and indicating that the vast
-majority of individuals reporting regular exercise for weight loss to
-control weight and shape also experienced life interfering sequellae of
+majority of individuals with eating disorders who reporting regular exercise for weight loss to control weight and shape have also experienced life interfering sequellae of
 this behavior. Further, in both the overall sample as well as those with
 regular exercise for weight control, the modal number of exercise
 interference items was all 3.
 
 Exercise Addiction was defined in the ED100k as engaging in regular
-('more often) exercise for weight or shape control coupled with feeling
+('more often') exercise for weight or shape control coupled with feeling
 compelled to exercise or distressed if unable to exercise, which lasted
 for at least 3 months and included at least one life interfering
 symptom.`r frq(EDGI_exercise_cleaned$ED100k_ex_addictive)[[1]]$valid.prc[[2]]`%
@@ -220,7 +217,7 @@ universal as other symptoms that were assessed.
 
 ## 5. Compensatory Exercise
 
-All participants were asked about compensatory exercise (`be_icb__5`),
+All participants were asked about compensatory exercise,
 with `r frq(EDGI_exercise_cleaned$be_icb___5)[[1]]$valid.prc[[2]]`% of
 the sample reporting compensatory exercise. Among those with regular
 exercise, rates were somehwat higher
@@ -232,9 +229,9 @@ maladaptive exercise behaviors.
 
 A broad 'Maladaptive Exercise' variable was the final exercise
 definition that was derived, which included individuals who reported
-regular compulsive exercise OR any compensatory exercise. Among the full
+any compulsive exercise OR any compensatory exercise. Among the full
 sample,
-`r frq(EDGI_exercise_cleaned$ED100k_ex_maladaptive)[[1]]$valid.prc[[2]]`%
+`r frq(EDGI_exercise_cleaned$ED100k_ex_maladaptive_1)[[1]]$valid.prc[[2]]`%
 of individuals met criteria for this broad definition.
 
 # Convergent Validity

@@ -11,7 +11,7 @@ WtHx_outliers <- WtHx |>
   filter(currentbmi > 70 | #current bmi > 70
            currentbmi < 10 |  # current bmi < 10
            ED100k_wt_suppress_curr_low > 250 |  # difference between current weight and lowest ever weight > 250 lb
-           ED100k_wt_suppress_high_current > 250 # current weight suppression (difference between highest ever weight and current weight > 250 lb)
+           ED100k_wt_suppress_high_current > 250 | # current weight suppression (difference between highest ever weight and current weight > 250 lb)
            ED100k_wt_suppress_high_current < 0 | # current weight reported to be higher than highest ever weight
            ED100k_wt_suppress_curr_low < 0) # lowest ever weight reported to be higher than current weight
 

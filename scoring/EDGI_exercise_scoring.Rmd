@@ -22,9 +22,9 @@ library(expss)
 ## loads raw data and scoresheets. data needs to be loaded into data/ folder prior to running below
 
 EDGI_raw <- read_sas('data/exercise.sas7bdat') 
-ED100k_score <- read_excel("EDGI_exercise_scoresheet.xlsx", 'ED100k')
-EDEQ_score <- read_excel("EDGI_exercise_scoresheet.xlsx", 'EDEQ')
-CET_score <- read_excel("EDGI_exercise_scoresheet.xlsx", 'CET')
+ED100k_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'ED100k')
+EDEQ_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'EDEQ')
+CET_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'CET')
 
 ```
 
