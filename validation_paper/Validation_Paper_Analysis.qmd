@@ -85,202 +85,142 @@ as '0' for Q4-Q11.
 
 Scoring algorithms for each subconstruct are presented in Table 1.
 
-## 1. Compulsive Exercise
++---------------------+----------------------+---------------------+
+| Construct           | Criteria             | Nested Within       |
++=====================+======================+=====================+
+|                     |                      |                     |
++---------------------+----------------------+---------------------+
+| Exercise for Weight |                      |                     |
+| Control             |                      |                     |
++---------------------+----------------------+---------------------+
+| Regular Exercise    |                      |                     |
+| for Weight Control  |                      |                     |
++---------------------+----------------------+---------------------+
+| Compulsive Exercsie | Exercise for Weight  | Exercise for Weight |
+|                     | Control (Q1) = 'A    | Control             |
+|                     | few times, but never |                     |
+|                     | became a habit' OR   |                     |
+|                     | More Often'          |                     |
+|                     |                      |                     |
+|                     | (Ever felt compelled |                     |
+|                     | to exercise == 'YES' |                     |
+|                     | OR Ever uneasy or    |                     |
+|                     | distressed when      |                     |
+|                     | unable to exercise   |                     |
+|                     | == 'YES')            |                     |
++---------------------+----------------------+---------------------+
+| Regular Compulsive  | Exercise for Weight  | Exercise for Weight |
+| Exercise            | Control (Q1) ==      | Control             |
+|                     | 'More often'         |                     |
+|                     |                      | Regular Exercise    |
+|                     | (Ever felt compelled | for Weight Control  |
+|                     | to exercise OR Ever  |                     |
+|                     | uneasy or distressed | Compulsive Exercise |
+|                     | when unable to       |                     |
+|                     | exercise)            |                     |
++---------------------+----------------------+---------------------+
+| Addictive Exercise  | > Regular Compulsive | Exercise for Weight |
+|                     | > Exercise lasting   | Control             |
+|                     | > at Least 3 month   |                     |
+|                     |                      | Regular Exercise    |
+|                     | > 1 or more of the   | for Weight Control  |
+|                     | > following: caused  |                     |
+|                     | > them to change     | Compulsive Exercise |
+|                     | > eating habits      |                     |
+|                     |                      | Regular Compulsive  |
+|                     | -decline             | Exercise            |
+|                     | opportunities to be  |                     |
+|                     | with friends         |                     |
+|                     |                      |                     |
+|                     | -exercised despite   |                     |
+|                     | illness or injury    |                     |
++---------------------+----------------------+---------------------+
+| Excessive Exercise  | > Compulsive         | Compulsive Exercise |
+|                     | > Exercise           |                     |
+|                     |                      |                     |
+|                     | > Duration \>= 1     |                     |
+|                     | > month              |                     |
+|                     |                      |                     |
+|                     | > Frequency = 'Every |                     |
+|                     | > Day' or 'Nearly    |                     |
+|                     | > Every Day'         |                     |
++---------------------+----------------------+---------------------+
+| Compensatory        |                      | None                |
+| Exercise            |                      |                     |
++---------------------+----------------------+---------------------+
+| Maladaptive         | Compulsive Exercise  | None                |
+| Exericse            | == 'Yes' OR          |                     |
+|                     | Compensatory         |                     |
+|                     | Exercise == 'Yes'    |                     |
++---------------------+----------------------+---------------------+
 
-`r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive)[[1]]$valid.prc[[2]]`%
-of the US EDGI sample reported ever engaging for compulsive exercise.
-Amongst those who reported ANY exercise for shape and weight control in
-Q1,`r frq(exercisers$ED100k_ex_compulsive)[[1]]$valid.prc[[2]]`%
-endorsed compulsive exercise follow-up questions; among those who
-reported exercise for shape and weight control 'more often', endorsement
-was
-`r frq(regular_exercisers$ED100k_ex_compulsive)[[1]]$valid.prc[[2]]`% --
-indicating that these two questions may be unnecessary for defining
-compulsive exercise *within* eating disordered samples -- those who
-report ever using exercise to intentionally control shape and weight,
-particularly if that was reported regularly, almost universally report
-either feeling compelled to exercise or feeling distressed when unable
-to exercise.
+: Table 1. Algorithm defining exercise-related constructs in the ED100k
 
-`r frq(exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`%
-of those who reported any exercise to control weight and shape and the
-vast majority
-(`r frq(regular_exercisers$ED100k_ex_compulsive_strict_3mo)[[1]]$valid.prc[[2]]`%
-of individuals who endorsed exercising 'more often' met a more strict
-definition of 'Regular Compulsive Exercise,' further highlighting that
-most individuals with eating disorders who report compulsive exercise
-are engaging in this behaivor regularly.
+# Aim 1. Evaluate patterns of response across multiple exercise constructs, to identify the degree to which these constructs overlap in membership or capture distinct groups
 
-Overall, there was high convergent validity for Q1 with Q2-Q3.
+We hypothesize that those indicating that they have \'exercise
+excessively\' more often in the initial screening item will also be
+likely to meet criteria for compulsive exercise, exercise addiction, and
+excessive exercise (high sensitivity), and moderately likely to meet
+criteria for compensatory exercise (moderate sensitivity; high negative
+predictive value).
+
+Figure 1 presents the proportion of the full sample along with
+subsamples meeting criteria for each (sub)construct
+
+![Figure 1. Heatmap with percentage of (sub)samples (horizontal axis)
+meeting criteria for each (sub)construct (vertical
+axis).](ex_heatmap.png){#heatmap}
+
+## Sensitivity of Q1 - Excessive Exercise 
+
+Overall, there was high convergent validity for Q1 with Q2-Q6.
 Specifically, individuals eating disorders who endorse using exercise to
-intentionally control weight 'more often' are indeed engaging in this
-behavior for a substantive period of time (\> 3 months; a time period of
+intentionally control weight 'more often' are indeed highly likely to
+engage in this behavior for a substantive period of time (xx% of those
+reporting exercise to intentionally control weight 'more often' reported
+a duration of compulsive exercise \> 3 months; a time period of
 equivalent to diagnostic levels of other intentional weight control
-behaviors). Further exploration of duration of compulsive exercise
-indicated that the majority of individuals in the sample reported
-compulsive exercise lasting \> 1 year (see @fig-durplot).
+behaviors), and to report symptoms consistent with a definition of both
+compulsive and addictive exercise. Regarding the sensitivity of Q1 to
+detect compulsive, addictive, and excessive exericse, xxxx (add
+confusion matrix statistics here). Overall, the vast majority of
+individuals with eating disorders who reporting regular exercise for
+weight loss to control weight and shape report that this exercise was
+compulsive, and that they also experienced life interfering sequellae of
+this behavior. Regarding specific addictive exercise symptoms, the modal
+number of exercise interference items was all 3. Findings suggest high
+sensitivity of Q1 to additional follow-up questions regarding addictive
+and compulsive exercise, with slightly less sensitivity to excessive
+exercise (high frequency)
 
-```{r}
-#| label: fig-durplot
-#| fig-cap: "Duration of Compulsive Exercise Reported in EDGI US sample"
+With regards to compensatory exercise, about
+(`r frq(regular_exercisers$be_icb___5)[[1]]$valid.prc[[2]]`)% of
+individuals who reported maladpative exercising 'more often' in Q1 also
+reported a history of compensatory exercise (sensitivity = ). Among the
+group reporting compensatory exercise, xx% reported exercising for
+weight loss at all in Q1, (NPV = ), and xx% reported exercising for
+weight loss 'more often' in Q1 (NPV = ). In sum, compensatory exercise
+was common, but somewhat less prevalent than other maladaptive exercise
+behaviors, and there was high sensitivity to detect compensatory
+exercise for those who reported any exercise for weight control in Q1.
 
+# **Aim 2. Evaluate Convergent and Discriminant Validity between history of *maladaptive* and c*ompulsive* exercise and: current compulsive exercise, perfectionism, and OCD sympotms** 
 
-ex_dur_frqs <- frq(EDGI_exercise_cleaned$ED100k_ex_dur)[[1]] %>% 
-  filter(!is.na(val))
+H2a: Individuals who do not report *any* *history* of maladaptive and
+compulsive exercise will not report current compulsive exercise (high
+negative predictive value). *\>90% negative predictive value of history
+to 1. Current compulsive exercise on the EDEQ, 2. Current compulsive
+exercise on the CET*
 
-ex_dur_frqs$text_y <- 100 - (cumsum(ex_dur_frqs$valid.prc) - ex_dur_frqs$valid.prc/2)
-
-ggplot(ex_dur_frqs, aes(x = '', y = frq, fill = reorder(label, text_y))) +
-  geom_bar(width = 1, stat = 'identity') + 
-  coord_polar('y', start = 0) + 
-  theme(axis.text.x = element_blank(), panel.border = element_blank(), panel.grid = element_blank())+
-  geom_text(aes(label = paste0(round(valid.prc,0), '%')), 
-            position = position_stack(vjust = 0.8)) +
-  theme(axis.title = element_blank(), legend.title = element_blank())  +
-  scale_fill_discrete(breaks = c('No compulsive exercise', 'Less than 1 month', '1 to 2 months', '3 to 5 months', '6-12 months', 'More than 1 year')) 
- 
-  
-```
-
-Regarding age, for those engaging in compulsive exercise, the reported
-median age at the last time they engaged in this behavior was
-`r median(compulsive_exercisers$ex_age_last, na.rm = TRUE)` (current
-median age = `r median(compulsive_exercisers$age, na.rm = TRUE)`. About
-half
-(`r round(sum(is.na(compulsive_exercisers$ex_age_last))*100/nrow(compulsive_exercisers),1)`%)
-of the sample reporting compulsive exercise did not report age of last
-compulsive exercise -- potentially indicative of ongoing engagement in
-this symptom. Median age of first engaging in compulsive exercise in the
-sample who reported this behavior regularly was
-`r median(compulsive_exercisers$ex_age, na.rm = TRUE)` years old.
-`r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current)[[1]]$valid.prc[[2]]`%
-of the overall sample and
-`r frq(regular_compulsive_exercisers$ED100k_ex_compulsive_current)[[1]]$valid.prc[[2]]`%
-of those reporting regular compulsive exercise reported that compulsive
-exercise was an *ongoing* eating disorder symptom.
-
-## 2. Exercise Addiction
-
-Individuals with any compulsive exercise symptoms were also asked
-whether this interfered with their life in a series of 3 questions --
-whether it caused them to change eating habits, decline opportunities to
-be with friends, or whether they exercised despite illness or injury.
-Overall,
-`r frq(EDGI_exercise_cleaned$ED100k_ex_interfere)[[1]]$valid.prc[[2]]`%
-of individuals in the overall sample reported at least one of these
-three life interfering symptoms. Among only those reporting exercising
-for weight control 'more often' in Q1, rates of endorsement of life
-interfering symptoms were
-`r frq(regular_exercisers$ED100k_ex_interfere)[[1]]$valid.prc[[2]]`%,
-providing further validation for the first item assessing frequency of
-exercise to control weight and shape, and indicating that the vast
-majority of individuals with eating disorders who reporting regular
-exercise for weight loss to control weight and shape have also
-experienced life interfering sequellae of this behavior. Further, in
-both the overall sample as well as those with regular exercise for
-weight control, the modal number of exercise interference items was all
-3.
-
-Exercise Addiction was defined in the ED100k as engaging in regular
-('more often') exercise for weight or shape control coupled with feeling
-compelled to exercise or distressed if unable to exercise, which lasted
-for at least 3 months and included at least one life interfering
-symptom.`r frq(EDGI_exercise_cleaned$ED100k_ex_addictive)[[1]]$valid.prc[[2]]`%
-of individuals in the overall sample,
-`r frq(exercisers$ED100k_ex_addictive)[[1]]$valid.prc[[2]]`% of those
-reporting any exercise for weight control, and almost all of those who
-reported exercising for weight control 'more often'
-(`r frq(regular_exercisers$ED100k_ex_addictive)[[1]]$valid.prc[[2]]`%)
-met this criteria.
-
-## 4. Excessive Exercise
-
-Excessive exercise was defined as compulsive exercise occurring for at
-least one month, every day or nearly ever day. Among the whole sample,
-rates are
-`r frq(EDGI_exercise_cleaned$ED100k_ex_excessive)[[1]]$valid.prc[[2]]`,
-and among the subsample who reported exercising for weight loss 'more
-often',
-`r frq(regular_exercisers$ED100k_ex_excessive)[[1]]$valid.prc[[2]]`% met
-criteria for this exercise being excessive. While the majority of
-individuals reporting regular exercise for weight and shape control at
-some point (along with the highly overlapping samples meeting
-'compulsive exercise' and 'exercise addiction') also report exercise
-that occurs with high frequency (nearly every day), this is not as
-universal as other symptoms that were assessed.
-
-## 5. Compensatory Exercise
-
-All participants were asked about compensatory exercise, with
-`r frq(EDGI_exercise_cleaned$be_icb___5)[[1]]$valid.prc[[2]]`% of the
-sample reporting compensatory exercise. Among those with regular
-exercise, rates were somehwat higher
-(`r frq(regular_exercisers$be_icb___5)[[1]]$valid.prc[[2]]`). Overall,
-compensatory exercise was common, but somewhat less prevlant than other
-maladaptive exercise behaviors.
-
-## Broad Maladaptive Exercise
-
-A broad 'Maladaptive Exercise' variable was the final exercise
-definition that was derived, which included individuals who reported any
-compulsive exercise OR any compensatory exercise. Among the full sample,
-`r frq(EDGI_exercise_cleaned$ED100k_ex_maladaptive_1)[[1]]$valid.prc[[2]]`%
-of individuals met criteria for this broad definition.
-
-# Convergent Validity
-
-## Exercise History Definitions
-
-When examining overlap in compensatory and compulsive exercise, the vast
-majority of individuals endorsing compensatory exercise also endorsed
-compulsive exercise, with very few indivdiuals endorsing compensatory
-exercise without also endorsing compulsive exercise
-
-```{r}
-#create a table of the two variables of interest
-ct <- table(EDGI_exercise_cleaned$ED100k_ex_compulsive, EDGI_exercise_cleaned$ED100k_ex_compensatory) 
-
-ex_row_percents <- prop.table (ct, 1)
-
-ex_row_percents <- as.data.frame(ex_row_percents)  |> 
- rename(`Compulsive Exercise` = Var1) |> 
- rename(`Compensatory Exercise` = Var2)  |> 
-filter(`Compensatory Exercise` == 1)
-
-ggplot(ex_row_percents, aes( x = `Compulsive Exercise`, y = Freq*100, fill = `Compulsive Exercise` )) + 
-  geom_col()+
-  labs(title = 'Compensatory vs. Compulsive Exercise', x = 'Compulsive Exercise', y = 'Percent Endorsing Compensatory Exercise') + 
-  scale_x_discrete(labels = c('No', 'Yes')) +
-  theme(legend.position = 'none') +
-  geom_text(aes(x  = `Compulsive Exercise`, y = (Freq*100)-3, label = paste0(round(Freq*100,2),'%'), size = 3))
-  
-
-```
-
-```{r}
-#create a table of the two variables of interest
-ct2 <- table(EDGI_exercise_cleaned$ED100k_ex_compensatory, EDGI_exercise_cleaned$ED100k_ex_compulsive)
-
-ex_row_percents <- prop.table (ct2, 1)
-
-ex_row_percents <- as.data.frame(ex_row_percents) |> 
- rename(`Compensatory Exercise` = Var1) |> 
- rename(`Compulsive Exercise` = Var2) |> 
-filter(`Compulsive Exercise` == 1)
-
-ggplot(ex_row_percents, aes( x = `Compensatory Exercise`, y = Freq*100, fill = `Compensatory Exercise` )) + 
-  geom_col()+
-  labs(title = 'Compulsive vs. Compensatory Exercise', x = 'Compensatory Exercise', y = 'Percent Endorsing Compulsive Exercise') + 
-  scale_x_discrete(labels = c('No', 'Yes')) +
-  theme(legend.position = 'none') +
-  geom_text(aes(x  = `Compensatory Exercise`, y = (Freq*100)-3, label = paste0(round(Freq*100,2),'%'), size = 3))
-# change colour
-  
-```
-
-```{r}
-confusionMatrix(as.factor(EDGI_exercise_cleaned$ED100k_ex_compulsive), as.factor(EDGI_exercise_cleaned$ED100k_ex_compensatory), positive = '1')
-```
+H2b: Comparing those with and without history of compulsive exercise,
+those with history of compulsive exercise will report higher current
+compulsive exercise symptoms (all CET subscales) than those without.
+Those reporting current compulsive exercise will report the highest CET
+scores. *ANOVA comparing those with no compulsive exercise, history of
+compulsive exercise only, and current compulsive exercise on current
+CET, p \< .05 for all subscales and global[,]{.underline} and
+calculation of Cohen\'s d effect sizes.*
 
 ## Current Exercise
 
@@ -319,7 +259,7 @@ cet_total_plot
 
 ```
 
-## Proportion meeting CET Clinical Cutoff based on Driven Exercise History
+## Proportion meeting CET Clinical Cutoff based on Maladaptive Exercise History
 
 ```{r}
 
@@ -368,11 +308,32 @@ ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_exercise_current), y = mean_edeq_
   geom_text(data = mean_edeq_ex, aes(x  = ED100k_exercise_current+1.2, y = mean_edeq_ex+3, label = paste0('M =', round(mean_edeq_ex,2)), size = 3))
 ```
 
-# Discriminant Validity
-
 ## Perfectionism and OCD Symptoms
 
-# Prevalence Across Diagnostic Groups
+H2c: Within diagnostic groups - those with vs. without history of
+maladaptive exercise will report higher Frost MPS and OCD symptoms.
+*t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12
+subscale scores, p \< 0.05, and calculation of Cohen\'s d effect sizes*
+
+H2d: Associations with the MPS and OCD measure will be weaker than with
+the CET. *Interpret patterns of ES*
+
+t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12
+subscale scores, p \< 0.05[, and calculation of Cohen\'s d effect
+sizes]{.underline}
+
+# Aim 3. Demonstrate Prevalence of Maladaptive (Broad), Compulsive, Addictive, Excessive, and Compensatory Exercise across Diagnostic Groups
+
+H3a. Maladaptive exercise, compulsive exercise, and exercise addiction
+will be a common symptom across diagnoses. More common in AN and BN than
+BED. *Rates of maladaptive exercise, compulsive exercise, excessive
+exercise, and exercise addiction will all be \> 50% in AN and BN
+presentations; \> 20% in BED*
+
+H3b. Compensatory exercise will be more common among those with AN mixed
+and BN as compared to AN only . *Multinomial* *logistic regression with
+AN group as reference -- BN groups will not differ but BED will? (or
+some other way to use dummy coding to compare groups )*
 
 ```{r, results = 'hide'}
 # Below makes the 5 case status diagnosis groups
@@ -496,77 +457,4 @@ ggplot(dx_row_percents, aes( x = `History of Compensatory Exercise`, y = Freq*10
     theme(legend.position = 'none') +
     geom_text(aes(x  = `History of Compensatory Exercise`, y = (Freq*100)-5, label = paste0(round(Freq*100,2),'%'), size = 3))
 
-```
-
-# Associations with Illness History
-
-## Associations with Binge Eating, Purging, and Fasting
-
-### Historical
-
-```{r}
-ED_Behave<- as.data.frame(EDGI_exercise_cleaned$record_id)
-
-ED_Behave$fasting <- if_else(EDGI_exercise_cleaned$ED100k_fasting_icb == 2, 1, 0)
-ED_Behave$vomitting <- if_else(EDGI_exercise_cleaned$ED100k_vomit_icb == 2, 1, 0)
-ED_Behave$binge_eating <- EDGI_exercise_cleaned$ED100k_binge
-ED_Behave$exercise <- EDGI_exercise_cleaned$ED100k_ex_compulsive
-
-ED_Behave <- ED_Behave |> pivot_longer(cols = c('fasting', 'vomitting', 'binge_eating'), names_to = 'behavior')
-
-behave_x <- ED_Behave |> 
-  select(c(2:4)) |> 
-  group_by(exercise, behavior, value) |> 
-  summarise(n = n())  |> 
-  filter(!is.na(exercise))
-
-ggplot(behave_x, aes (x = as.factor(exercise), y = n, fill = as.factor(value))) +
-  geom_col() +
-  facet_wrap (~behavior)
-```
-
-```{r}
-behave_props <- behave_x |> 
-  group_by(behavior, exercise) |> 
-  mutate(prop = n/sum(n)) |> 
-  ungroup()
-  
-
-ggplot(behave_props, aes (x = as.factor(exercise), y = prop*100, fill = as.factor(value))) +
-  geom_col() +
-  facet_wrap (~behavior)  
-  
-```
-
-### Current
-
-```{r}
-ED_Behave_Hx <- as.data.frame(EDGI_exercise_cleaned$record_id)
-
-ED_Behave_Hx$lax_current <- EDGI_exercise_cleaned$lax_current_1
-ED_Behave_Hx$vom_current <-  EDGI_exercise_cleaned$vom_current_1
-ED_Behave_Hx$binge_current <- EDGI_exercise_cleaned$binge_current_1
-ED_Behave_Hx$ex_current <- EDGI_exercise_cleaned$ED100k_exercise_current
-
-ED_Behave_Hx <- ED_Behave_Hx |> pivot_longer(cols = c('lax_current', 'vom_current', 'binge_current'), names_to = 'behavior')
-
-behave_hx <- ED_Behave_Hx |> 
-  select(c(2:4)) |> 
-  group_by(ex_current, behavior, value) |> 
-  summarise(n = n())  |> 
-  drop_na()  
-
-ggplot(behave_hx, aes (x = as.factor(ex_current), y = n, fill = as.factor(value))) +
-  geom_col() +
-  facet_wrap (~behavior)
-
-behave_hx_props <- behave_hx |> 
-  group_by(behavior, ex_current) |> 
-  mutate(prop = n/sum(n)) |> 
-  ungroup()
-  
-
-ggplot(behave_hx_props, aes (x = as.factor(ex_current), y = prop*100, fill = as.factor(value))) +
-  geom_col() +
-  facet_wrap (~behavior)  
 ```

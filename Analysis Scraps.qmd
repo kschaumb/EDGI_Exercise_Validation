@@ -1,0 +1,160 @@
+---
+title: "Untitled"
+format: html
+editor: visual
+---
+
+## 4. Excessive Exercise
+
+Excessive exercise was defined as compulsive exercise occurring for at least one month, every day or nearly ever day. Among the whole sample, rates are `r frq(EDGI_exercise_cleaned$ED100k_ex_excessive)[[1]]$valid.prc[[2]]`, and among the subsample who reported exercising for weight loss 'more often', `r frq(regular_exercisers$ED100k_ex_excessive)[[1]]$valid.prc[[2]]`% met criteria for this exercise being excessive. While the majority of individuals reporting regular exercise for weight and shape control at some point (along with the highly overlapping samples meeting 'compulsive exercise' and 'exercise addiction') also report exercise that occurs with high frequency (nearly every day), this is not as universal as other symptoms that were assessed.
+
+## Overall, compensatory exercise was common, but somewhat less prevlant than other maladaptive exercise behaviors.
+
+## Broad Maladaptive Exercise
+
+A broad 'Maladaptive Exercise' variable was the final exercise definition that was derived, which included individuals who reported any compulsive exercise OR any compensatory exercise. Among the full sample, `r frq(EDGI_exercise_cleaned$ED100k_ex_maladaptive_1)[[1]]$valid.prc[[2]]`% of individuals met criteria for this broad definition.
+
+## Exercise History Definitions
+
+When examining overlap in compensatory and compulsive exercise, the vast majority of individuals endorsing compensatory exercise also endorsed compulsive exercise, with very few indivdiuals endorsing compensatory exercise without also endorsing compulsive exercise
+
+```{r}
+#create a table of the two variables of interest
+ct <- table(EDGI_exercise_cleaned$ED100k_ex_compulsive, EDGI_exercise_cleaned$ED100k_ex_compensatory) 
+
+ex_row_percents <- prop.table (ct, 1)
+
+ex_row_percents <- as.data.frame(ex_row_percents)  |> 
+ rename(`Compulsive Exercise` = Var1) |> 
+ rename(`Compensatory Exercise` = Var2)  |> 
+filter(`Compensatory Exercise` == 1)
+
+ggplot(ex_row_percents, aes( x = `Compulsive Exercise`, y = Freq*100, fill = `Compulsive Exercise` )) + 
+  geom_col()+
+  labs(title = 'Compensatory vs. Compulsive Exercise', x = 'Compulsive Exercise', y = 'Percent Endorsing Compensatory Exercise') + 
+  scale_x_discrete(labels = c('No', 'Yes')) +
+  theme(legend.position = 'none') +
+  geom_text(aes(x  = `Compulsive Exercise`, y = (Freq*100)-3, label = paste0(round(Freq*100,2),'%'), size = 3))
+  
+
+```
+
+```{r}
+#create a table of the two variables of interest
+ct2 <- table(EDGI_exercise_cleaned$ED100k_ex_compensatory, EDGI_exercise_cleaned$ED100k_ex_compulsive)
+
+ex_row_percents <- prop.table (ct2, 1)
+
+ex_row_percents <- as.data.frame(ex_row_percents) |> 
+ rename(`Compensatory Exercise` = Var1) |> 
+ rename(`Compulsive Exercise` = Var2) |> 
+filter(`Compulsive Exercise` == 1)
+
+ggplot(ex_row_percents, aes( x = `Compensatory Exercise`, y = Freq*100, fill = `Compensatory Exercise` )) + 
+  geom_col()+
+  labs(title = 'Compulsive vs. Compensatory Exercise', x = 'Compensatory Exercise', y = 'Percent Endorsing Compulsive Exercise') + 
+  scale_x_discrete(labels = c('No', 'Yes')) +
+  theme(legend.position = 'none') +
+  geom_text(aes(x  = `Compensatory Exercise`, y = (Freq*100)-3, label = paste0(round(Freq*100,2),'%'), size = 3))
+# change colour
+  
+```
+
+```{r}
+confusionMatrix(as.factor(EDGI_exercise_cleaned$ED100k_ex_compulsive), as.factor(EDGI_exercise_cleaned$ED100k_ex_compensatory), positive = '1')
+```
+
+## 
+
+{r} #\| label: fig-durplot #\| fig-cap: "Duration of Compulsive Exercise Reported in EDGI US sample"
+
+ex_dur_frqs \<- frq(EDGI_exercise_cleaned\$ED100k_ex_dur)\[\[1\]\] %\>% filter(!is.na(val))
+
+ex_dur_frqs\$text_y \<- 100 - (cumsum(ex_dur_frqs\$valid.prc) - ex_dur_frqs\$valid.prc/2)
+
+ggplot(ex_dur_frqs, aes(x = '', y = frq, fill = reorder(label, text_y))) + geom_bar(width = 1, stat = 'identity') + coord_polar('y', start = 0) + theme(axis.text.x = element_blank(), panel.border = element_blank(), panel.grid = element_blank())+ geom_text(aes(label = paste0(round(valid.prc,0), '%')), position = position_stack(vjust = 0.8)) + theme(axis.title = element_blank(), legend.title = element_blank()) + scale_fill_discrete(breaks = c('No compulsive exercise', 'Less than 1 month', '1 to 2 months', '3 to 5 months', '6-12 months', 'More than 1 year'))
+
+Regarding age, for those engaging in compulsive exercise, the reported median age at the last time they engaged in this behavior was `r median(compulsive_exercisers$ex_age_last, na.rm = TRUE)` (current median age = `r median(compulsive_exercisers$age, na.rm = TRUE)`. About half (`r round(sum(is.na(compulsive_exercisers$ex_age_last))*100/nrow(compulsive_exercisers),1)`%) of the sample reporting compulsive exercise did not report age of last compulsive exercise -- potentially indicative of ongoing engagement in this symptom. Median age of first engaging in compulsive exercise in the sample who reported this behavior regularly was `r median(compulsive_exercisers$ex_age, na.rm = TRUE)` years old. `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current)[[1]]$valid.prc[[2]]`% of the overall sample and `r frq(regular_compulsive_exercisers$ED100k_ex_compulsive_current)[[1]]$valid.prc[[2]]`% of those reporting regular compulsive exercise reported that compulsive exercise was an *ongoing* eating disorder symptom.
+
+## 
+
+## 2. Exercise Addiction
+
+Overall, `r frq(EDGI_exercise_cleaned$ED100k_ex_interfere)[[1]]$valid.prc[[2]]`% of individuals in the overall sample reported at least one of these three life interfering symptoms. Among only those reporting exercising for weight control 'more often' in Q1, rates of endorsement of life interfering symptoms were `r frq(regular_exercisers$ED100k_ex_interfere)[[1]]$valid.prc[[2]]`%, providing further validation for the first item assessing frequency of exercise to control weight and shape, and indicating that
+
+Exercise Addiction was defined in the ED100k as engaging in regular ('more often') exercise for weight or shape control coupled with feeling compelled to exercise or distressed if unable to exercise, which lasted for at least 3 months and included at least one life interfering symptom.`r frq(EDGI_exercise_cleaned$ED100k_ex_addictive)[[1]]$valid.prc[[2]]`% of individuals in the overall sample, `r frq(exercisers$ED100k_ex_addictive)[[1]]$valid.prc[[2]]`% of those reporting any exercise for weight control, and almost all of those who reported exercising for weight control 'more often' (`r frq(regular_exercisers$ED100k_ex_addictive)[[1]]$valid.prc[[2]]`%) met this criteria.
+
+## 
+
+# Associations with Illness History
+
+## Associations with Binge Eating, Purging, and Fasting
+
+### Historical
+
+```{r}
+ED_Behave<- as.data.frame(EDGI_exercise_cleaned$record_id)
+
+ED_Behave$fasting <- if_else(EDGI_exercise_cleaned$ED100k_fasting_icb == 2, 1, 0)
+ED_Behave$vomitting <- if_else(EDGI_exercise_cleaned$ED100k_vomit_icb == 2, 1, 0)
+ED_Behave$binge_eating <- EDGI_exercise_cleaned$ED100k_binge
+ED_Behave$exercise <- EDGI_exercise_cleaned$ED100k_ex_compulsive
+
+ED_Behave <- ED_Behave |> pivot_longer(cols = c('fasting', 'vomitting', 'binge_eating'), names_to = 'behavior')
+
+behave_x <- ED_Behave |> 
+  select(c(2:4)) |> 
+  group_by(exercise, behavior, value) |> 
+  summarise(n = n())  |> 
+  filter(!is.na(exercise))
+
+ggplot(behave_x, aes (x = as.factor(exercise), y = n, fill = as.factor(value))) +
+  geom_col() +
+  facet_wrap (~behavior)
+```
+
+```{r}
+behave_props <- behave_x |> 
+  group_by(behavior, exercise) |> 
+  mutate(prop = n/sum(n)) |> 
+  ungroup()
+  
+
+ggplot(behave_props, aes (x = as.factor(exercise), y = prop*100, fill = as.factor(value))) +
+  geom_col() +
+  facet_wrap (~behavior)  
+  
+```
+
+### Current
+
+```{r}
+ED_Behave_Hx <- as.data.frame(EDGI_exercise_cleaned$record_id)
+
+ED_Behave_Hx$lax_current <- EDGI_exercise_cleaned$lax_current_1
+ED_Behave_Hx$vom_current <-  EDGI_exercise_cleaned$vom_current_1
+ED_Behave_Hx$binge_current <- EDGI_exercise_cleaned$binge_current_1
+ED_Behave_Hx$ex_current <- EDGI_exercise_cleaned$ED100k_exercise_current
+
+ED_Behave_Hx <- ED_Behave_Hx |> pivot_longer(cols = c('lax_current', 'vom_current', 'binge_current'), names_to = 'behavior')
+
+behave_hx <- ED_Behave_Hx |> 
+  select(c(2:4)) |> 
+  group_by(ex_current, behavior, value) |> 
+  summarise(n = n())  |> 
+  drop_na()  
+
+ggplot(behave_hx, aes (x = as.factor(ex_current), y = n, fill = as.factor(value))) +
+  geom_col() +
+  facet_wrap (~behavior)
+
+behave_hx_props <- behave_hx |> 
+  group_by(behavior, ex_current) |> 
+  mutate(prop = n/sum(n)) |> 
+  ungroup()
+  
+
+ggplot(behave_hx_props, aes (x = as.factor(ex_current), y = prop*100, fill = as.factor(value))) +
+  geom_col() +
+  facet_wrap (~behavior)  
+```
