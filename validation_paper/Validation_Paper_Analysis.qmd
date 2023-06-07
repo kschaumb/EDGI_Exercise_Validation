@@ -1,8 +1,7 @@
 ---
 title: EDGI Exercise Validation Paper Results
 author: Katherine Schaumberg
-output:
-  bookdown::html_document2: default
+format: docx
 editor_options: 
   markdown: 
     wrap: 72
@@ -85,81 +84,118 @@ as '0' for Q4-Q11.
 
 Scoring algorithms for each subconstruct are presented in Table 1.
 
-+---------------------+----------------------+---------------------+
-| Construct           | Criteria             | Nested Within       |
-+=====================+======================+=====================+
-|                     |                      |                     |
-+---------------------+----------------------+---------------------+
-| Exercise for Weight |                      |                     |
-| Control             |                      |                     |
-+---------------------+----------------------+---------------------+
-| Regular Exercise    |                      |                     |
-| for Weight Control  |                      |                     |
-+---------------------+----------------------+---------------------+
-| Compulsive Exercsie | Exercise for Weight  | Exercise for Weight |
-|                     | Control (Q1) = 'A    | Control             |
-|                     | few times, but never |                     |
-|                     | became a habit' OR   |                     |
-|                     | More Often'          |                     |
-|                     |                      |                     |
-|                     | (Ever felt compelled |                     |
-|                     | to exercise == 'YES' |                     |
-|                     | OR Ever uneasy or    |                     |
-|                     | distressed when      |                     |
-|                     | unable to exercise   |                     |
-|                     | == 'YES')            |                     |
-+---------------------+----------------------+---------------------+
-| Regular Compulsive  | Exercise for Weight  | Exercise for Weight |
-| Exercise            | Control (Q1) ==      | Control             |
-|                     | 'More often'         |                     |
-|                     |                      | Regular Exercise    |
-|                     | (Ever felt compelled | for Weight Control  |
-|                     | to exercise OR Ever  |                     |
-|                     | uneasy or distressed | Compulsive Exercise |
-|                     | when unable to       |                     |
-|                     | exercise)            |                     |
-+---------------------+----------------------+---------------------+
-| Addictive Exercise  | > Regular Compulsive | Exercise for Weight |
-|                     | > Exercise lasting   | Control             |
-|                     | > at Least 3 month   |                     |
-|                     |                      | Regular Exercise    |
-|                     | > 1 or more of the   | for Weight Control  |
-|                     | > following: caused  |                     |
-|                     | > them to change     | Compulsive Exercise |
-|                     | > eating habits      |                     |
-|                     |                      | Regular Compulsive  |
-|                     | -decline             | Exercise            |
-|                     | opportunities to be  |                     |
-|                     | with friends         |                     |
-|                     |                      |                     |
-|                     | -exercised despite   |                     |
-|                     | illness or injury    |                     |
-+---------------------+----------------------+---------------------+
-| Excessive Exercise  | > Compulsive         | Compulsive Exercise |
-|                     | > Exercise           |                     |
-|                     |                      |                     |
-|                     | > Duration \>= 1     |                     |
-|                     | > month              |                     |
-|                     |                      |                     |
-|                     | > Frequency = 'Every |                     |
-|                     | > Day' or 'Nearly    |                     |
-|                     | > Every Day'         |                     |
-+---------------------+----------------------+---------------------+
-| Compensatory        |                      | None                |
-| Exercise            |                      |                     |
-+---------------------+----------------------+---------------------+
-| Maladaptive         | Compulsive Exercise  | None                |
-| Exericse            | == 'Yes' OR          |                     |
-|                     | Compensatory         |                     |
-|                     | Exercise == 'Yes'    |                     |
-+---------------------+----------------------+---------------------+
++----------------------+----------------------+----------------------+
+| Construct            | Criteria             | Nested Within        |
++======================+======================+======================+
+| Exercise for Weight  | To control weight    | NA                   |
+| Control              | and shape --         |                      |
+|                      | participant endorses |                      |
+|                      | that they have       |                      |
+|                      | exercised            |                      |
+|                      | excessively (e.g.    |                      |
+|                      | felt compelled to    |                      |
+|                      | exercise, felt       |                      |
+|                      | uneasy or distressed |                      |
+|                      | if unable to         |                      |
+|                      | exercise) = 'a few   |                      |
+|                      | times, but it never  |                      |
+|                      | became a habit' or   |                      |
+|                      | more                 |                      |
++----------------------+----------------------+----------------------+
+| Regular Exercise for | To control weight    | NA                   |
+| Weight Control       | and shape --         |                      |
+|                      | participant endorses |                      |
+|                      | that they have       |                      |
+|                      | exercised            |                      |
+|                      | excessively  (e.g.   |                      |
+|                      | felt compelled to    |                      |
+|                      | exercise, felt       |                      |
+|                      | uneasy or distressed |                      |
+|                      | if unable to         |                      |
+|                      | exercise) = 'more    |                      |
+|                      | often'               |                      |
++----------------------+----------------------+----------------------+
+| Compulsive Exercise  | Exercise for Weight  | Exercise for Weight  |
+|                      | Control +            | Control              |
+|                      |                      |                      |
+|                      | Ever felt compelled  |                      |
+|                      | to exercise == 'YES' |                      |
+|                      | OR Ever uneasy or    |                      |
+|                      | distressed when      |                      |
+|                      | unable to exercise   |                      |
+|                      | == 'YES'             |                      |
++----------------------+----------------------+----------------------+
+| Regular Compulsive   | Regular Exercise for | Exercise for Weight  |
+| Exercise             | Weight Control       | Control              |
+|                      |                      |                      |
+|                      | Ever felt compelled  | Regular Exercise for |
+|                      | to exercise == 'YES' | Weight Control       |
+|                      | OR Ever uneasy or    |                      |
+|                      | distressed when      | Compulsive Exercise  |
+|                      | unable to exercise   |                      |
+|                      | == 'YES'             |                      |
++----------------------+----------------------+----------------------+
+| Current Compulsive   | Compulsive Exercise  | Compulsive Exercise  |
+| Exercise             |                      |                      |
+|                      | Do you currently     |                      |
+|                      | exercise to control  |                      |
+|                      | weight and shape AND |                      |
+|                      | feel compelled to    |                      |
+|                      | exercise or distress |                      |
+|                      | if unable to         |                      |
+|                      | exercise? == 'YES'   |                      |
++----------------------+----------------------+----------------------+
+| Addictive Exercise   | Regular Compulsive   | Exercise for Weight  |
+|                      | Exercise lasting at  | Control              |
+|                      | Least 3 month        |                      |
+|                      |                      | Regular Exercise for |
+|                      | 1 or more of the     | Weight Control       |
+|                      | following: caused    |                      |
+|                      | them to change       | Compulsive Exercise  |
+|                      | eating habits        |                      |
+|                      |                      | Regular Compulsive   |
+|                      | -decline             | Exercise             |
+|                      | opportunities to be  |                      |
+|                      | with friends         |                      |
+|                      |                      |                      |
+|                      | -exercised despite   |                      |
+|                      | illness or injury    |                      |
++----------------------+----------------------+----------------------+
+| Excessive Exercise   | Compulsive Exercise  | Exercise for Weight  |
+|                      |                      | Control              |
+|                      | Duration \>= 1 month |                      |
+|                      |                      | Compulsive Exercise  |
+|                      | Frequency = 'Every   |                      |
+|                      | Day' or 'Nearly      |                      |
+|                      | Every Day'           |                      |
++----------------------+----------------------+----------------------+
+| Compensatory         | Have you ever used   | NA                   |
+| Exercise             | any of the following |                      |
+|                      | to compensate for    |                      |
+|                      | episodes of binge    |                      |
+|                      | eating or            |                      |
+|                      | overeating? (Mark    |                      |
+|                      | all that apply)      |                      |
+|                      | (choice=Exercised    |                      |
+|                      | excessively (e.g.,   |                      |
+|                      | felt compelled to    |                      |
+|                      | exercise, felt       |                      |
+|                      | uneasy or distressed |                      |
+|                      | if unable to         |                      |
+|                      | exercise))           |                      |
++----------------------+----------------------+----------------------+
+| Maladaptive Exercise | Compulsive Exercise  | NA                   |
+|                      | == 'Yes' OR          |                      |
+|                      | Compensatory         |                      |
+|                      | Exercise == 'Yes'    |                      |
++----------------------+----------------------+----------------------+
 
 : Table 1. Algorithm defining exercise-related constructs in the ED100k
 
 # Aim 1. Evaluate patterns of response across multiple exercise constructs, to identify the degree to which these constructs overlap in membership or capture distinct groups
 
-We hypothesize that those indicating that they have \'exercise
-excessively\' more often in the initial screening item will also be
+We hypothesize that those indicating that they have 'exercise
+excessively' more often in the initial screening item will also be
 likely to meet criteria for compulsive exercise, exercise addiction, and
 excessive exercise (high sensitivity), and moderately likely to meet
 criteria for compensatory exercise (moderate sensitivity; high negative
@@ -172,7 +208,7 @@ subsamples meeting criteria for each (sub)construct
 meeting criteria for each (sub)construct (vertical
 axis).](ex_heatmap.png){#heatmap}
 
-## Sensitivity of Q1 - Excessive Exercise 
+## Sensitivity of Q1 - Excessive Exercise
 
 Overall, there was high convergent validity for Q1 with Q2-Q6.
 Specifically, individuals eating disorders who endorse using exercise to
@@ -205,7 +241,7 @@ was common, but somewhat less prevalent than other maladaptive exercise
 behaviors, and there was high sensitivity to detect compensatory
 exercise for those who reported any exercise for weight control in Q1.
 
-# **Aim 2. Evaluate Convergent and Discriminant Validity between history of *maladaptive* and c*ompulsive* exercise and: current compulsive exercise, perfectionism, and OCD sympotms** 
+# **Aim 2. Evaluate Convergent and Discriminant Validity between history of *maladaptive* and c*ompulsive* exercise and: current compulsive exercise, perfectionism, and OCD sympotms**
 
 H2a: Individuals who do not report *any* *history* of maladaptive and
 compulsive exercise will not report current compulsive exercise (high
@@ -220,7 +256,7 @@ Those reporting current compulsive exercise will report the highest CET
 scores. *ANOVA comparing those with no compulsive exercise, history of
 compulsive exercise only, and current compulsive exercise on current
 CET, p \< .05 for all subscales and global[,]{.underline} and
-calculation of Cohen\'s d effect sizes.*
+calculation of Cohen's d effect sizes.*
 
 ## Current Exercise
 
@@ -313,13 +349,13 @@ ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_exercise_current), y = mean_edeq_
 H2c: Within diagnostic groups - those with vs. without history of
 maladaptive exercise will report higher Frost MPS and OCD symptoms.
 *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12
-subscale scores, p \< 0.05, and calculation of Cohen\'s d effect sizes*
+subscale scores, p \< 0.05, and calculation of Cohen's d effect sizes*
 
 H2d: Associations with the MPS and OCD measure will be weaker than with
 the CET. *Interpret patterns of ES*
 
 t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12
-subscale scores, p \< 0.05[, and calculation of Cohen\'s d effect
+subscale scores, p \< 0.05[, and calculation of Cohen's d effect
 sizes]{.underline}
 
 # Aim 3. Demonstrate Prevalence of Maladaptive (Broad), Compulsive, Addictive, Excessive, and Compensatory Exercise across Diagnostic Groups
