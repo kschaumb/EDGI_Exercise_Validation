@@ -2,9 +2,10 @@
 title: EDGI Exercise Validation Paper Results
 author: Katherine Schaumberg
 format: docx
+
 ---
 
-```{r, setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, message = FALSE,  warning = FALSE)
 library(expss)
 library(bookdown)
@@ -20,6 +21,10 @@ library(wesanderson)
 library(tidyr)
 library(caret)
 library(broom)
+library(nnet)
+library(pscl)
+library(boot)
+library(tibble)
 load('../data/EDGI_exercise_cleaned.RData') 
 
 exercisers <- EDGI_exercise_cleaned |> 
@@ -109,16 +114,15 @@ We hypothesize that those indicating that they have 'exercise excessively' more 
 
 ## Accuracy of Q1 - 'Excessive Exercise' for Weight Control to Detect Different Exercise Constructs
 
-```{r}
-#makes 3 month duration statistic for inclusion in paragrph below
-regular_exercisers <- regular_exercisers %>% 
-  mutate(ex_dur_3m = case_when(ED100k_ex_dur > 2 ~ 1,
-                               ED100k_ex_dur <= 2 ~ 0))
-```
 
 ```{r}
 #| label: fig-Q1sensitivity
 #| fig-cap: Accuracy of Q1 in Detecting Compulsive, Addictive, and Excessive Exercise
+#makes 3 month duration statistic for inclusion in paragrph below
+regular_exercisers <- regular_exercisers %>% 
+  mutate(ex_dur_3m = case_when(ED100k_ex_dur > 2 ~ 1,
+                               ED100k_ex_dur <= 2 ~ 0))
+
 
 Any.Addictive <- caret::confusionMatrix(as.factor(EDGI_exercise_cleaned$ED100k_ex_any), as.factor(EDGI_exercise_cleaned$ED100k_ex_addictive), positive = '1')
 
@@ -209,7 +213,12 @@ Overall, there was high convergent validity for Q1 with Q2-Q6. Specifically, ind
 
 H2a: Individuals who do not report *any* *history* of maladaptive and compulsive exercise will not report current compulsive exercise (high negative predictive value). *\>90% negative predictive value of history to 1. Current driven exercise to manage weight/shape on the EDEQ, 2. Current compulsive exercise on the CET*
 
-```{r}
+@fig-npv demonstrates confusion matrix components for history of compulsive and maladaptive exercise endorsement on the ED100k and current compulsive exercise endorsement assessed by 1. meeting CET clinical cutoff and 2. endorsement of EDEQ (any and at least weekly) driven exercise in the past 28 days. As hypothesized, both compulsive and maladaptive exercise had a high negative predictive value -- those who did not endorse any history of compulsive or maladaptive exercise were unlikely to endorse current compulsive or driven exercise on the CET and EDEQ. Negative predictive values for both CET clinical cutoff and weekly or more maladaptive exercise (4x or more over the past 28 days) were > 0.9. Negative predictive values were slightly lower for reports of any driven exercise over the past 28 days (~ 0.85), indicating that some individuals who endorse no history of compulsive exercise may engage in this behavior at relatively low frequency.*Accuracy*, *positive predictive value*, and *specificity* were all low, indicating that many individuals who reported history of compulsive exercise on the ED100k were not engaging in this behavior at the time of assessment. 
+
+```{r sensitivity matricies}
+#| label: fig-npv
+#| fig-cap: Confusion matrix components of compulsive and maladaptive history vs. current CET and EDEQ exercise
+
 Maladaptive.CET <- caret::confusionMatrix(as.factor(EDGI_exercise_cleaned$ED100k_ex_maladaptive_1), as.factor(EDGI_exercise_cleaned$cet_clinical), positive = '1')
 
 Compulsive.CET <- caret::confusionMatrix(as.factor(EDGI_exercise_cleaned$ED100k_ex_compulsive), as.factor(EDGI_exercise_cleaned$cet_clinical), positive = '1')
@@ -277,7 +286,7 @@ confusion_table_long <- pivot_longer(confusion_table, !c(`Q1 Criteria`, `Exercis
 ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   geom_col(position = 'dodge')+
   facet_grid(`Exercise Type` ~ `Q1 Criteria`) +
-  labs(title = 'Confusion Matrix Componenets by Answer to Q1', x = 'Metric', y = 'Value') + 
+  labs(title = 'Compulsive and Maladaptive Exercise History vs CET and EDEQ', x = 'Metric', y = 'Value') + 
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
     theme(legend.position = 'none') +
     geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3)), size = 3)) + 
@@ -295,7 +304,6 @@ H2b: Comparing across groups who report no history of compulsive exercise, histo
 Overall, `r frq(EDGI_exercise_cleaned$ED100k_exercise_current)[[1]]$valid.prc[[1]]`% of the sample reported No history of compulsive exercise, `r frq(EDGI_exercise_cleaned$ED100k_exercise_current)[[1]]$valid.prc[[2]]`% reported a history of compulsive exercise that was not current, and `r frq(EDGI_exercise_cleaned$ED100k_exercise_current)[[1]]$valid.prc[[3]]`% reported current compulsive exercise. 
 
 Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETsubs. To formally test the hypothesis that those with reporting ED100k current compulsive exercise would also report the highest scores on the CET, we completed a series of ANOVAs comparing those with reporting no compulsive exercise, history of compulsive exercise only, and current compulsive exercise on current CET scores, p \< .05 for all subscales and global, and calculation of Cohen's d effect sizes.*
-
 
 ```{r}
 #| label: fig-CETsubs
@@ -331,7 +339,6 @@ ggplot(Current_Exercise, aes(x = as.factor(ED100k_exercise_current), y = val, co
   scale_color_manual(values = wes_palette("Darjeeling1"))
 
 ```
-
 
 @tbl-CETANOVA reports ANOVA output for each CET subscale, comparing across the three groups of individuals who report no compulsive exercise, compulsive exercise history but not current compulsive exercise, and both history and current compulsive exercise on the ED100k. All omnibus tests reach significance. 
 
@@ -379,9 +386,7 @@ summary_table$statistic <- round(summary_table$statistic, 2)
 knitr::kable(summary_table)
 ```
 
-
 @tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with adjusted p-values. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of compulsive exercise to those with a history, but not current, compulsive exercise and when comparing those with history vs. current compulsive exercise. Comparison of those with no history of compulsive exercise vs. current compulsive exercise consistently demonstrated large effects. For all subscales with the exception of the enjoyment subscale, effects indicated that those with current compulsive exercise scored highest, while those with no history of compuslive exercise scored the highest on the lack of exercise enjoyment subscale. 
-
 
 ```{r}
 #| label: tbl-CETcontrasts
@@ -489,31 +494,36 @@ Contrasts <- Contrasts %>%
 knitr::kable(Contrasts)
 ```
 
-
-
-
-
-```{r}
+```{r CET table, results='hide',message=FALSE}
 
 ct3 <- table(EDGI_exercise_cleaned$ED100k_exercise_current, EDGI_exercise_cleaned$cet_clinical)
 ex_current_cet <- prop.table (ct3, 1)
 ex_current_cet <- as.data.frame(ex_current_cet) |> 
  rename(`Current Driven Exercise [ED100k]` = Var1) |> 
  rename(`CET Clinical Met` = Var2)   |> 
- filter (`CET Clinical Met` == 1)
+ filter (`CET Clinical Met` == 1) %>% 
+  mutate(Freq = round(Freq*100,2))
 
-ggplot(ex_current_cet, aes( x = `Current Driven Exercise [ED100k]`, y = Freq*100, fill = `Current Driven Exercise [ED100k]` )) + 
-  geom_col()+
-  labs(title = 'ED100k Drive Exercise vs Clinical CET Cutoff', x = 'Compulsive Exercise  [ED100k]', y = 'Percent Meeting CET Cutoff') + 
-  scale_x_discrete(labels = c('No History', 'History, Not Current', 'Current')) +
-  theme(legend.position = 'none') +
-  geom_text(aes(x  = `Current Driven Exercise [ED100k]`, y = (Freq*100)-3, label = paste0(round(Freq*100,2),'%'), size = 3))+
-    scale_fill_manual(values = wes_palette("Darjeeling1"))
+CET_ED100k <- EDGI_exercise_cleaned |> 
+  select(c(ED100k_exercise_current, cet_clinical, ED100k_exercise_icb)) |> 
+  mutate(ED100k_exercise_current = as.factor (ED100k_exercise_current))  
 
-# change colour
+
+CET_ED100k$ED100k_exercise_current <- relevel(CET_ED100k$ED100k_exercise_current, ref = "0") 
+multinomial_lr <- multinom(cet_clinical ~ ED100k_exercise_current, data = CET_ED100k)
+
+ORs <- exp(coef(multinomial_lr))
+ORs <- as.data.frame(ORs) |> 
+mutate(ORs = round(ORs, 2))
+
+
 ```
 
+The proportion of individuals meeting the clinical cutoff for current compulsive exericse on the CET varied as expected by endorsement of historical and current endorsement of compulsive exercise on the ED100k. Only `r ex_current_cet$Freq[1]`% of individuals who reported no history of compuslive exercise met current CET clinical cutoff, while `r ex_current_cet$Freq[2]`% of those reporting history, but not current compulsive exercise met clinical cutoff on the CET, and `r ex_current_cet$Freq[3]`% of individuals reporting both historical and current compulsive exercise on the ED100k met clinical cutoff for compulsive exercise on the CET. Using a multinomial logistic regression approach with 'No Compulsive Exercise History' on the ED100k coded as the reference category, those reporting compulsive exercise history, but not current exercise had an odds ratio of `r ORs$ORs[[2]]` and those reporting current compulsive exercise had an odds ratio of `r ORs$ORs[[3]]`, indicating significant convergent validity of reports of current compulsive exericse on the ED100k (4 items comprising the historical and current compulsive exercise definition) and meeting clinical cutoff clinical cutoff on the 24-item CET. Regarding the number of days in the past 28 that participants reported engaging in 'driven' or 'compulsive exercise on the EDEQ, outcomes were zero-inflated in the 'No History of Compulsive Exercise' and 'History but No Current Compulsive Exercise' groups (see @fig-EDEQplot).
+
 ```{r}
+#| label: fig-EDEQplot
+#| fig-cap:  ED100k Compulsive Exercise vs. EDEQ Exercise Frequency
 
 mean_edeq_ex <- EDGI_exercise_cleaned|> 
   group_by (ED100k_exercise_current) |> 
@@ -531,9 +541,65 @@ ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_exercise_current), y = mean_edeq_
 
 ```
 
+ A zero-inflated negative binomial regression model compared those with "History, but Not Current' and those with 'Current Compulsive Exercise' to the 'No History of Compulsive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin and indicate that those who report current compulsive exercise on the ED100k are less likely to hvae zero values for EDEQ-assessed exericse in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, compulsive exericse on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of compulsive exercise, though the count portion of the model indicates that those reporting history, but not current, compulsive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of compulsive exercise.
+
+
+```{r EDEQ ZIN Model}
+#| label: tbl-EDEQZin
+#| tbl-cap: Zero-inflated Model Coefficients for ED100k Compulsive Exercise Predicting EDEQ Driven Exercise Days (past 28 days)
+
+EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>% 
+  mutate(ex_current_dummy4 = case_when(ED100k_exercise_current == 0 ~ 0, 
+                                        ED100k_exercise_current == 1 ~ 1,
+                                       ED100k_exercise_current == 2 ~ 0),
+         ex_current_dummy5 = case_when(ED100k_exercise_current == 0 ~ 0, 
+                                        ED100k_exercise_current == 1 ~ 0,
+                                       ED100k_exercise_current == 2 ~ 1))
+
+EDEQ_zin1 <- zeroinfl(edeq_ex_driven_freq_28 ~ ex_current_dummy4 + ex_current_dummy5 | ex_current_dummy4 + ex_current_dummy5,
+  data = EDGI_exercise_cleaned, dist = "negbin")
+
+EDEQ_zin1_coefs <- summary(EDEQ_zin1)$coefficients
+
+Counts <- as.data.frame(EDEQ_zin1_coefs$count) |> 
+  mutate(`Model Part` = 'Count') |> 
+  mutate(IRR = exp(Estimate)) |> 
+  rownames_to_column (var = 'Term')  
+
+Zeros <- as.data.frame(EDEQ_zin1_coefs$zero) |> 
+  mutate(`Model Part` = 'Zero') |> 
+  mutate(OR = exp(Estimate)) |> 
+  rownames_to_column (var = 'Term') 
+
+
+
+Zeros <- Zeros [, c(1, 6, 2,3, 7, 4:5)] 
+Counts <- Counts [, c(1, 6, 2,3, 7, 4:5)]
+
+ZIN_table <- full_join(Counts, Zeros) 
+
+ZIN_table <- ZIN_table [, c(1,2,3,4,5,8,6:7)] 
+
+ZIN_table$`Pr(>|z|)` <- sprintf('%.2e', ZIN_table$`Pr(>|z|)`)
+
+vars <- c('Estimate', 'IRR', 'OR', 'Std. Error', 'z value')
+
+ZIN_table[, vars] <- round(ZIN_table[, vars], digits = 3)
+
+ZIN_table<- ZIN_table |> 
+  filter(Term != 'Log(theta)') |> 
+  mutate(Term = recode(Term, 'ex_current_dummy4' = 'History vs. No History', 'ex_current_dummy5' = 'Current vs. No History'))
+
+knitr::kable(ZIN_table)
+```
+
 ## Perfectionism and OCD Symptoms
 
-H2c: Within diagnostic groups - those with vs. without history of maladaptive exercise will report higher Frost MPS and OCD symptoms. *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores, p \< 0.05, and calculation of Cohen's d effect sizes*
+In addition to convergent validity across current exercise measures, we also examined both convert and discriminant validity by examining those with vs. without history of maladaptive and compulsive exercise on subscales of the Frost MPS indexing maladaptive perfectionism along with subscale and total scores for the OCI-R 
+
+
+
+H2c: Within diagnostic groups - those with vs. without history of maladaptive exercise will report higher Frost MPS (Maladaptive) and OCD symptoms. *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores, p \< 0.05 adjusted for multiple comparisons across subscales, and calculation of Cohen's d effect sizes*
 
 H2d: Associations with the MPS and OCD measure will be weaker than with the CET. *Interpret patterns of ES*
 
@@ -563,6 +629,8 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
                                       bn_case == 1 ~ 'BN', 
                                       bed_case == 1 ~ 'BED'))
 ```
+
+
 
 ```{r}
 ct <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_compulsive)

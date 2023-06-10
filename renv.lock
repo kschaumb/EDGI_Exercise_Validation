@@ -1,6 +1,6 @@
 {
   "R": {
-    "Version": "4.1.2",
+    "Version": "4.2.3",
     "Repositories": [
       {
         "Name": "CRAN",
@@ -19,10 +19,10 @@
     },
     "MASS": {
       "Package": "MASS",
-      "Version": "7.3-54",
+      "Version": "7.3-60",
       "Source": "Repository",
       "Repository": "CRAN",
-      "Hash": "0e59129db205112e3963904db67fd0dc",
+      "Hash": "a56a6365b3fa73293ea8d084be0d9bb0",
       "Requirements": []
     },
     "Matrix": {
@@ -127,6 +127,14 @@
         "xfun",
         "yaml"
       ]
+    },
+    "boot": {
+      "Package": "boot",
+      "Version": "1.3-28.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "9a052fbcbe97a98ceb18dbfd30ebd96e",
+      "Requirements": []
     },
     "broom": {
       "Package": "broom",
@@ -1038,6 +1046,16 @@
       "Repository": "CRAN",
       "Hash": "e0ef355c12942cf7a6b91a6cfaea8b3e",
       "Requirements": []
+    },
+    "pscl": {
+      "Package": "pscl",
+      "Version": "1.5.5.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "9f0b86478998d1dbb01fbce8720a3d01",
+      "Requirements": [
+        "MASS"
+      ]
     },
     "psych": {
       "Package": "psych",
