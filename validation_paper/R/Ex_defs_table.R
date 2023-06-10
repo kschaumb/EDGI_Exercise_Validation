@@ -93,4 +93,4 @@ ggplot(result_df_long, aes(x = Sample, y = Trait)) +
   ggtitle(stringr::str_wrap("Percentage within subsamples endorsing each exercise construct", width = 45))+
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
-ggsave('validation_paper/ex_heatmap.png')  
+ggsave('validation_paper/figs/ex_heatmap.png')  
