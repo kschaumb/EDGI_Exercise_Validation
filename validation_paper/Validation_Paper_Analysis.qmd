@@ -1,7 +1,7 @@
 ---
 title: EDGI Exercise Validation Paper Results
 author: Katherine Schaumberg
-format: docx
+format: html
 
 ---
 
@@ -386,7 +386,7 @@ summary_table$statistic <- round(summary_table$statistic, 2)
 knitr::kable(summary_table)
 ```
 
-@tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with adjusted p-values. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of compulsive exercise to those with a history, but not current, compulsive exercise and when comparing those with history vs. current compulsive exercise. Comparison of those with no history of compulsive exercise vs. current compulsive exercise consistently demonstrated large effects. For all subscales with the exception of the enjoyment subscale, effects indicated that those with current compulsive exercise scored highest, while those with no history of compuslive exercise scored the highest on the lack of exercise enjoyment subscale. 
+@tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of compulsive exercise to those with a history, but not current, compulsive exercise and when comparing those with history vs. current compulsive exercise. Comparison of those with no history of compulsive exercise vs. current compulsive exercise consistently demonstrated large effects. For all subscales with the exception of the enjoyment subscale, effects indicated that those with current compulsive exercise scored highest, while those with no history of compulsive exercise scored the highest on the lack of exercise enjoyment subscale. 
 
 ```{r}
 #| label: tbl-CETcontrasts
@@ -434,8 +434,6 @@ Tukey_join <- full_join(Tukey_join, Tukey_Avoidance)
 Tukey_join <- full_join(Tukey_join, Tukey_Enjoyment)
 Tukey_join <- full_join(Tukey_join, Tukey_Total)
 
-
-
 library(effsize)
 
 
@@ -458,8 +456,6 @@ for (i in seq_along(variables)) {
 CET_Subscales <- c('Enjoy', 'Mood Improve', 'Rigidity', 'Avoidance', 'Wt Control', 'Total')
 colnames(results) <- c('ex_current_dummy1', 'ex_current_dummy2', 'ex_current_dummy3')
 
-# Print the results
-
 CET_effects <- as.data.frame(results) 
 CET_effects <- cbind(CET_Subscales, CET_effects)
 
@@ -480,15 +476,20 @@ Contrasts <- Contrasts %>%
   select(-Variable) %>%
   mutate(Variable = Contrasts$Variable) %>%
   select(Variable, everything()) %>% 
-  select(-`p adj`)
+  select(-`p adj`) |> 
+  mutate (alpha = 0.05/18) |> 
+  mutate(z_score  = qnorm(1 - alpha/2)) |> 
+  mutate (se = (diff - lwr)/1.96) |> 
+  mutate (new_lwr = round(diff-(z_score*se), 3)) |> 
+  mutate(new_upr = round(diff + (z_score*se),3))
 
-Contrasts$CI <- paste(Contrasts$lwr, Contrasts$upr, sep = ', ')
+Contrasts$CI <- paste(Contrasts$new_lwr, Contrasts$new_upr, sep = ', ')
 addparens <- function(x){paste('(',x,')')}
 Contrasts$CI <- addparens(Contrasts$CI)
 Contrasts$diff<- paste(Contrasts$diff, Contrasts$CI, sep = ' ')
 
 Contrasts <- Contrasts %>% 
-  select(-c(CI, lwr, upr)) %>% 
+  select(-c(CI, lwr, upr, new_lwr, new_upr, alpha, z_score, se)) %>% 
   rename ('Difference' = diff)
 
 knitr::kable(Contrasts)
@@ -598,20 +599,21 @@ knitr::kable(ZIN_table)
 In addition to convergent validity across current exercise measures, we also examined both convert and discriminant validity by examining those with vs. without history of maladaptive and compulsive exercise on subscales of the Frost MPS indexing maladaptive perfectionism along with subscale and total scores for the OCI-R 
 
 
+H2c: Within diagnostic groups - those with vs. without history of maladaptive exercise will report higher Frost MPS (Maladaptive) and OCD symptoms. *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores across those with vs. without history of maladpative exercise, expected p \< 0.05 adjusted for multiple comparisons across subscale. We also include  calculation of Cohen's d effect sizes*
 
-H2c: Within diagnostic groups - those with vs. without history of maladaptive exercise will report higher Frost MPS (Maladaptive) and OCD symptoms. *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores, p \< 0.05 adjusted for multiple comparisons across subscales, and calculation of Cohen's d effect sizes*
+H2d: Associations with the MPS and OCD measure will be weaker than with the CET and EDEQ exercise item. *We will interpret patterns of ES across these scales*
 
-H2d: Associations with the MPS and OCD measure will be weaker than with the CET. *Interpret patterns of ES*
-
-t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores, p \< 0.05[, and calculation of Cohen's d effect sizes]{.underline}
+KS Note -- Currently do not have access to this data in the dataset
 
 # Aim 3. Demonstrate Prevalence of Maladaptive (Broad), Compulsive, Addictive, Excessive, and Compensatory Exercise across Diagnostic Groups
 
-H3a. Maladaptive exercise, compulsive exercise, and exercise addiction will be a common symptom across diagnoses. More common in AN and BN than BED. *Rates of maladaptive exercise, compulsive exercise, excessive exercise, and exercise addiction will all be \> 50% in AN and BN presentations; \> 20% in BED*
+H3a. Maladaptive exercise, compulsive exercise, and exercise addiction will be a common symptom across diagnoses. We expect that these constructs will be more common in AN and BN than BED. *Rates of maladaptive exercise, compulsive exercise, excessive exercise, and exercise addiction will all be \> 50% in AN and BN presentations; \> 20% in BED. Multinomial logisitc regression with AN only as reference group will show higher rates in AN only as compared to BN only, BN-BED, and BED only groups*
 
-H3b. Compensatory exercise will be more common among those with AN mixed and BN as compared to AN only . *Multinomial* *logistic regression with AN group as reference -- BN groups will not differ but BED will? (or some other way to use dummy coding to compare groups )*
+H3b. Compensatory exercise will be more common among those with AN mixed and BN as compared to AN only . *Multinomial logistic regression with AN group as reference -- AN mixed, BN, and BN-BED mixed groups will report higher levels of compensatory exercise than the AN only group. BED only will report similar levels of compensatory exercise to AN only*
 
-```{r, Diagnostic-Groups, results = 'hide'}
+```{r, Diagnostic-Groups}
+#| label: fig-dxgroups
+#| fig-cap: Percentage within each diganostic group reporting differing exercise constructs
 # Below makes the 5 case status diagnosis groups
 
 DG_prop_table <- as.data.frame(table(EDGI_exercise_cleaned[c('an_case', 'bn_case', 'bed_case')])) |>
@@ -628,8 +630,12 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
   mutate (case_heirarchy = case_when (an_case == 1 ~ 'AN', 
                                       bn_case == 1 ~ 'BN', 
                                       bed_case == 1 ~ 'BED'))
+
+dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
+
 ```
 
+Among individuals in the US EDGI data, `r dx_frqs$raw.prc[1]`% of the sample reported AN as their only diagnosis, `r dx_frqs$raw.prc[2]`% of the sample reported AN plus another diagnosis (AN mixed),`r dx_frqs$raw.prc[4]` reported a diagnosis of BN only, `r dx_frqs$raw.prc[3]` reported a diagnosis of BED only (the smallest cell size: `r dx_frqs$frq[3]`), and `r dx_frqs$raw.prc[5]` reported both a BN and BED diagnosis.
 
 
 ```{r}
@@ -638,6 +644,8 @@ ct2 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_
 ct3 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_addictive)
 ct4 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_excessive)
 ct5 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_compensatory)
+ct6 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$cet_clinical)
+ct7 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_maladaptive_1)
 
 dx_row_percents_1 <- as.data.frame(prop.table (ct, 1)) |> 
   filter (Var2 == 1) |> 
@@ -659,16 +667,26 @@ dx_row_percents_5 <- as.data.frame(prop.table (ct5, 1)) |>
   filter (Var2 == 1) |> 
   select(c(1,3)) |> 
   rename(`Compensatory` = Freq)
+dx_row_percents_6 <- as.data.frame(prop.table (ct6, 1)) |> 
+  filter (Var2 == 1) |> 
+  select(c(1,3)) |> 
+  rename(`CET Clinical` = Freq)
+dx_row_percents_7 <- as.data.frame(prop.table (ct7, 1)) |> 
+  filter (Var2 == 1) |> 
+  select(c(1,3)) |> 
+  rename(`Maladaptive (Broad)` = Freq)
 
 dx_row_percents <- full_join(dx_row_percents_1, dx_row_percents_2) 
 dx_row_percents <- full_join(dx_row_percents, dx_row_percents_3) 
 dx_row_percents <- full_join(dx_row_percents, dx_row_percents_4) 
-dx_row_percents <- full_join(dx_row_percents, dx_row_percents_5)|> 
+dx_row_percents <- full_join(dx_row_percents, dx_row_percents_5)
+dx_row_percents <- full_join(dx_row_percents, dx_row_percents_6)
+dx_row_percents <- full_join(dx_row_percents, dx_row_percents_7)|> 
   rename(`Diagnosis Group` = Var1) 
 
 
 
-dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory') )
+dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory', 'CET Clinical', 'Maladaptive (Broad)'))
 
 ggplot(dx_row_percents, aes(x = name, y = value*100, fill = `name` )) +
   geom_col()+
@@ -676,8 +694,93 @@ ggplot(dx_row_percents, aes(x = name, y = value*100, fill = `name` )) +
   labs(title = 'Percentages by Diagnosis Group and Exercise Group', x = 'Exercise Group', y = 'Percentage (within Diagnosis Group)') + 
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
     theme(legend.position = 'none') +
-    geom_text(aes(x  = name, y = (value*100)-5, label = paste0(round(value*100,0),'%'), size = 3))
+  geom_text(aes(x = name, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3))
 
 ```
 
-History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment. Compulsive exercise was also reported in half of those with BN-BED (50%) and a portion (20%) of those with BED.
+Rates of addictive, compensatory, compulsive, excessive, and regular compulsive exercise across diagnostic groups are presented in @fig-dxgroups. History of addictive, regular compuslive, and excessive exercise were all highest in an absolute sense among groups reporting history of AN. History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment of compulsive exericse, and the majority reporting at least some history of this behavior. Output from multinomial logistic regression mdoels using AN only as the reference group are presented in @tbl-dxgroups. An adjusted p-value of 0.0017 was used to account for 28 multiple comparisons in the multinomial models. Overall, all other diagnostic groups were substantially more likely to engage in compensatory exercise, with the AN Mixed diagnosis group showing similar odds of engagement in compulsive, regular compulsive, addictive, and excessive exercise relative to AN only. The BN, BED, and BN-BED mixed groups were less likely than the AN only group to report history of addictive, compulsive, regular compulsive, and excessive exercise. With regards to overall maladaptive exericse, the BN-BED and BED only groups showed lower engagement in any form of maladaptive exercise relative to the AN only group. 
+
+
+```{r dx table prep, results = 'hide'}
+library(nnet)
+library(dplyr)
+library(broom)
+
+Dx_table <- EDGI_exercise_cleaned %>%
+  select(case_status, cet_clinical, ED100k_ex_addictive, ED100k_ex_compensatory, ED100k_ex_compulsive, ED100k_ex_compulsive_strict, ED100k_ex_excessive, ED100k_ex_maladaptive_1)
+
+Dx_table$case_status <- factor(Dx_table$case_status)
+
+# Create an empty list to store the models
+model_list <- list()
+OR_list <- list()
+
+formulas <- c("ED100k_ex_compensatory ~ case_status",
+              "ED100k_ex_compulsive ~ case_status",
+              "cet_clinical ~ case_status",
+              "ED100k_ex_addictive ~ case_status",
+              "ED100k_ex_compulsive_strict ~ case_status",
+              "ED100k_ex_excessive ~ case_status",
+              "ED100k_ex_maladaptive_1 ~ case_status")
+
+dv_labels <- c("Compensatory", "Compulsive", "CET Clinical Cutoff", "Addictive", "Regular Compulsive", "Excessive", "Maladaptive")
+
+# Loop through the formulas
+for (i in seq_along(formulas)) {
+  # Fit the multinomial regression model
+  model <- multinom(as.formula(formulas[i]), data = Dx_table)
+  model$DV <- dv_labels[i]
+  
+  # Store the model in the list
+  model_list[[length(model_list) + 1]] <- model
+}
+
+# Create an empty data frame to store the results
+results_df <- data.frame()
+
+# Loop through the models in the model_list
+for (i in seq_along(model_list)) {
+  # Convert the model to tidy format
+  tidy_model <- tidy(model_list[[i]], conf.int = TRUE, conf.level = 0.9982)
+  
+  # Add a column for the DV label
+  tidy_model$DV <- model_list[[i]]$DV
+  
+  # Append the tidy model results to the overall results data frame
+  results_df <- bind_rows(results_df, tidy_model)
+}
+
+results_df <- results_df |> 
+  mutate(`Odds Ratio` = exp(estimate)) |> 
+  filter(term != '(Intercept)') |> 
+  mutate(`Case Status` = recode(term, "case_statusAN Mixed" = "AN Mixed", 'cased_statusBED' = 'BED', 'case_statusBN' = 'BN', 'case_statusBN-BED Mixed' = 'BN-BED Mixed', 'case_statusBED' = 'BED')) |> 
+  select (-c(term, y.level, statistic)) 
+  
+results_df$p.value <- sprintf('%.2e', results_df$p.value)
+
+results_df <- results_df[, c(6,8,7,1:5)] 
+results_df[, sapply(results_df, is.numeric)] <- round(results_df[, sapply(results_df, is.numeric)], digits = 3)
+
+```
+
+
+
+```{r multinomial dx groups}
+#| label: tbl-dxgroups
+#| tbl-cap: Multinomial Logisitc Regression Output and Odds Ratios (Compared to AN only) for each exercise construct. 
+
+library(kableExtra)
+# Create Kable table and highlight rows with confidence intervals not overlapping 0
+results_df %>%
+  mutate(across(everything(), as.character)) %>%
+  mutate(across(contains("estimate"), function(x) ifelse(as.numeric(x) != 0, x, x))) %>%
+  mutate(p.value = as.numeric(p.value)) %>%
+  mutate(across(contains("Odds Ratio"), ~ifelse(p.value < 0.0018, cell_spec(., bold = TRUE), .))) %>%
+  mutate(p.value = sprintf('%.2e', p.value)) |> 
+  kable("html", escape = FALSE) %>%
+  kable_styling()
+
+
+```
+
+
