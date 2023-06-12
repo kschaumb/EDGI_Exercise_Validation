@@ -1,8 +1,7 @@
 ---
 title: EDGI Exercise Validation Paper Results
 author: Katherine Schaumberg
-format: html
-
+format: docx
 ---
 
 ```{r setup, include=FALSE}
@@ -52,8 +51,6 @@ regular_compulsive_exercisers <- EDGI_exercise_cleaned |>
 
 Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see [scoring](sec:scoring)) are provide in @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was `r round(median(EDGI_exercise_cleaned$ex_age, na.rm = TRUE), 2)` years and the median age of last report of compulsive exercise was `r round(median(EDGI_exercise_cleaned$ex_age_1, na.rm = TRUE), 2)` years. Among those who reported any compulsive exercise, `r frq(compulsive_exercisers$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported that this was an ongoing symptom.
 
-
-
 ```{r}
 #| label: tbl-ed100kItems
 #| tbl-cap: Item-level descriptives for ED100k Exercise Items
@@ -96,7 +93,6 @@ combined_table <- bind_rows(factor_frequencies, .id = "Variable") %>%
 knitr::kable(combined_table, row.names = FALSE)
 ```
 
-
 # Preliminary Aim - Develop a scoring algorithm
 
 The first aim of this paper is to develop a scoring algorithm for a ED100k exercise items in an ED sample based on theoretical literature and available ED100k items which captures and defines rates of:
@@ -119,7 +115,7 @@ The first aim of this paper is to develop a scoring algorithm for a ED100k exerc
 
 The ED100k included 12 questions assessing maladaptive exercise. The first question, which all participants were asked, inquires as to whether individuals ever exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported ever exercising to intentionally control weight and shape and answered 'Yes' to either Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their compulsive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, all participants were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (n = `r sum(EDGI_exercise_cleaned$ED100k_ex_any == 0)`) who reported no to Q1 - exercise to control shape and weight, were marked as '0' for all follow-up questions, with the exception of ages (Q10-11), which were retained as missing. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (n = `r sum(exercisers$ED100k_ex_compulsive == 0, na.rm = TRUE)`) were marked as '0' for Q4-Q9.
 
-Scoring algorithms for each subconstruct are presented in Table 1.
+Scoring algorithms for each subconstruct are presented in @tbl-defs.
 
 +-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
 | Construct                           | Criteria                                                                                                                                                                                                                                   | Nested Within                       |
@@ -161,7 +157,7 @@ Scoring algorithms for each subconstruct are presented in Table 1.
 | Maladaptive Exercise                | Compulsive Exercise == 'Yes' OR Compensatory Exercise == 'Yes'                                                                                                                                                                             | NA                                  |
 +-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
 
-: Table 1. Algorithm defining exercise-related constructs in the ED100k
+: Algorithm defining exercise-related constructs in the ED100k {#tbl-defs}
 
 # Aim 1. Evaluate patterns of response across multiple exercise constructs, to identify the degree to which these constructs overlap in membership or capture distinct groups
 
@@ -172,7 +168,6 @@ We hypothesize that those indicating that they have 'exercise excessively' more 
 ![Figure 1. Heatmap with percentage of (sub)samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis).](figs/ex_heatmap.png){#fig-heatmap}
 
 ## Accuracy of Q1 - 'Excessive Exercise' for Weight Control to Detect Different Exercise Constructs
-
 
 ```{r}
 #| label: fig-Q1sensitivity
@@ -272,7 +267,7 @@ Overall, there was high convergent validity for Q1 with Q2-Q6. Specifically, ind
 
 H2a: Individuals who do not report *any* *history* of maladaptive and compulsive exercise will not report current compulsive exercise (high negative predictive value). *\>90% negative predictive value of history to 1. Current driven exercise to manage weight/shape on the EDEQ, 2. Current compulsive exercise on the CET*
 
-@fig-npv demonstrates confusion matrix components for history of compulsive and maladaptive exercise endorsement on the ED100k and current compulsive exercise endorsement assessed by 1. meeting CET clinical cutoff and 2. endorsement of EDEQ (any and at least weekly) driven exercise in the past 28 days. As hypothesized, both compulsive and maladaptive exercise had a high negative predictive value -- those who did not endorse any history of compulsive or maladaptive exercise were unlikely to endorse current compulsive or driven exercise on the CET and EDEQ. Negative predictive values for both CET clinical cutoff and weekly or more maladaptive exercise (4x or more over the past 28 days) were > 0.9. Negative predictive values were slightly lower for reports of any driven exercise over the past 28 days (~ 0.85), indicating that some individuals who endorse no history of compulsive exercise may engage in this behavior at relatively low frequency.*Accuracy*, *positive predictive value*, and *specificity* were all low, indicating that many individuals who reported history of compulsive exercise on the ED100k were not engaging in this behavior at the time of assessment. 
+@fig-npv demonstrates confusion matrix components for history of compulsive and maladaptive exercise endorsement on the ED100k and current compulsive exercise endorsement assessed by 1. meeting CET clinical cutoff and 2. endorsement of EDEQ (any and at least weekly) driven exercise in the past 28 days. As hypothesized, both compulsive and maladaptive exercise had a high negative predictive value -- those who did not endorse any history of compulsive or maladaptive exercise were unlikely to endorse current compulsive or driven exercise on the CET and EDEQ. Negative predictive values for both CET clinical cutoff and weekly or more maladaptive exercise (4x or more over the past 28 days) were \> 0.9. Negative predictive values were slightly lower for reports of any driven exercise over the past 28 days (\~ 0.85), indicating that some individuals who endorse no history of compulsive exercise may engage in this behavior at relatively low frequency.*Accuracy*, *positive predictive value*, and *specificity* were all low, indicating that many individuals who reported history of compulsive exercise on the ED100k were not engaging in this behavior at the time of assessment.
 
 ```{r sensitivity matricies}
 #| label: fig-npv
@@ -354,15 +349,13 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
 
 ```
 
-
 ## CET scores and EDEQ driven exercise across ED100k compulsive exercise history and current endorsement
 
-H2b: Comparing across groups who report no history of compulsive exercise, history of, but not current, compulsive exercise, and those with current compulsive exercise on the ED100k, those who report ED100k current compulsive exercise will report highest CET scores (total, and all subscales except for exercise enjoyment). Those reporting history of, but not current, compulsive exercise will report intermediate CET scores -- higher than those reporting no history of compulsive exercise on the ED100k but lower than those reporting current compulsive exercise. We also expect thsoe reporting current compulsive exercise on the ED100k to be more likely to reach the CET clinical cutoff and report more days of driven exercise over the past 28 days on the EDEQ. 
+H2b: Comparing across groups who report no history of compulsive exercise, history of, but not current, compulsive exercise, and those with current compulsive exercise on the ED100k, those who report ED100k current compulsive exercise will report highest CET scores (total, and all subscales except for exercise enjoyment). Those reporting history of, but not current, compulsive exercise will report intermediate CET scores -- higher than those reporting no history of compulsive exercise on the ED100k but lower than those reporting current compulsive exercise. We also expect thsoe reporting current compulsive exercise on the ED100k to be more likely to reach the CET clinical cutoff and report more days of driven exercise over the past 28 days on the EDEQ.
 
+Overall, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[1]]`% of the sample reported No history of compulsive exercise, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported a history of compulsive exercise that was not current, and `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[3]]`% reported current compulsive exercise.
 
-Overall, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[1]]`% of the sample reported No history of compulsive exercise, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported a history of compulsive exercise that was not current, and `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[3]]`% reported current compulsive exercise. 
-
-Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETsubs. To formally test the hypothesis that those with reporting ED100k current compulsive exercise would also report the highest scores on the CET, we completed a series of ANOVAs comparing those with reporting no compulsive exercise, history of compulsive exercise only, and current compulsive exercise on current CET scores, p \< .05 for all subscales and global, and calculation of Cohen's d effect sizes.*
+Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETsubs. To formally test the hypothesis that those with reporting ED100k current compulsive exercise would also report the highest scores on the CET, we completed a series of ANOVAs comparing those with reporting no compulsive exercise, history of compulsive exercise only, and current compulsive exercise on current CET scores, p \< .05 for all subscales and global, and calculation of Cohen's d effect sizes.\*
 
 ```{r}
 #| label: fig-CETsubs
@@ -399,7 +392,7 @@ ggplot(Current_Exercise, aes(x = as.factor(ED100k_ex_compulsive_current2), y = v
 
 ```
 
-@tbl-CETANOVA reports ANOVA output for each CET subscale, comparing across the three groups of individuals who report no compulsive exercise, compulsive exercise history but not current compulsive exercise, and both history and current compulsive exercise on the ED100k. All omnibus tests reach significance. 
+@tbl-CETANOVA reports ANOVA output for each CET subscale, comparing across the three groups of individuals who report no compulsive exercise, compulsive exercise history but not current compulsive exercise, and both history and current compulsive exercise on the ED100k. All omnibus tests reach significance.
 
 ```{r}
 #| label: tbl-CETANOVA
@@ -445,7 +438,7 @@ summary_table$statistic <- round(summary_table$statistic, 2)
 knitr::kable(summary_table)
 ```
 
-@tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of compulsive exercise to those with a history, but not current, compulsive exercise and when comparing those with history vs. current compulsive exercise. Comparison of those with no history of compulsive exercise vs. current compulsive exercise consistently demonstrated large effects. For all subscales with the exception of the enjoyment subscale, effects indicated that those with current compulsive exercise scored highest, while those with no history of compulsive exercise scored the highest on the lack of exercise enjoyment subscale. 
+@tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of compulsive exercise to those with a history, but not current, compulsive exercise and when comparing those with history vs. current compulsive exercise. Comparison of those with no history of compulsive exercise vs. current compulsive exercise consistently demonstrated large effects. For all subscales with the exception of the enjoyment subscale, effects indicated that those with current compulsive exercise scored highest, while those with no history of compulsive exercise scored the highest on the lack of exercise enjoyment subscale.
 
 ```{r}
 #| label: tbl-CETcontrasts
@@ -601,8 +594,7 @@ ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_ex_compulsive_current2), y = mean
 
 ```
 
- A zero-inflated poisson regression model compared those with "History, but Not Current' and those with 'Current Compulsive Exercise' to the 'No History of Compulsive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin (including odds ratios (ORs) for the zero portion of the model and incident risk ratios (IRRs) for the count portion). Results indicate that those who report current compulsive exercise on the ED100k are less likely to hvae zero values for EDEQ-assessed exericse in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, compulsive exericse on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of compulsive exercise, though the count portion of the model indicates that those reporting history, but not current, compulsive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of compulsive exercise.
-
+A zero-inflated poisson regression model compared those with "History, but Not Current' and those with 'Current Compulsive Exercise' to the 'No History of Compulsive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin (including odds ratios (ORs) for the zero portion of the model and incident risk ratios (IRRs) for the count portion). Results indicate that those who report current compulsive exercise on the ED100k are less likely to hvae zero values for EDEQ-assessed exericse in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, compulsive exericse on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of compulsive exercise, though the count portion of the model indicates that those reporting history, but not current, compulsive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of compulsive exercise.
 
 ```{r EDEQ ZIN Model}
 #| label: tbl-EDEQZin
@@ -655,10 +647,9 @@ knitr::kable(ZIN_table)
 
 ## Perfectionism and OCD Symptoms
 
-In addition to convergent validity across current exercise measures, we also examined both convert and discriminant validity by examining those with vs. without history of maladaptive and compulsive exercise on subscales of the Frost MPS indexing maladaptive perfectionism along with subscale and total scores for the OCI-R 
+In addition to convergent validity across current exercise measures, we also examined both convert and discriminant validity by examining those with vs. without history of maladaptive and compulsive exercise on subscales of the Frost MPS indexing maladaptive perfectionism along with subscale and total scores for the OCI-R
 
-
-H2c: Within diagnostic groups - those with vs. without history of maladaptive exercise will report higher Frost MPS (Maladaptive) and OCD symptoms. *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores across those with vs. without history of maladpative exercise, expected p \< 0.05 adjusted for multiple comparisons across subscale. We also include  calculation of Cohen's d effect sizes*
+H2c: Within diagnostic groups - those with vs. without history of maladaptive exercise will report higher Frost MPS (Maladaptive) and OCD symptoms. *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores across those with vs. without history of maladpative exercise, expected p \< 0.05 adjusted for multiple comparisons across subscale. We also include calculation of Cohen's d effect sizes*
 
 H2d: Associations with the MPS and OCD measure will be weaker than with the CET and EDEQ exercise item. *We will interpret patterns of ES across these scales*
 
@@ -694,7 +685,6 @@ dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
 ```
 
 Among individuals in the US EDGI data, `r dx_frqs$raw.prc[1]`% of the sample reported AN as their only diagnosis, `r dx_frqs$raw.prc[2]`% of the sample reported AN plus another diagnosis (AN mixed),`r dx_frqs$raw.prc[4]`% reported a diagnosis of BN only, `r dx_frqs$raw.prc[3]`% reported a diagnosis of BED only (the smallest cell size: `r dx_frqs$frq[3]`), and `r dx_frqs$raw.prc[5]`% reported both a BN and BED diagnosis.
-
 
 ```{r}
 #| label: fig-dxgroups
@@ -758,8 +748,7 @@ ggplot(dx_row_percents, aes(x = name, y = value*100, fill = `name` )) +
 
 ```
 
-Rates of addictive, compensatory, compulsive, excessive, and regular compulsive exercise across diagnostic groups are presented in @fig-dxgroups. History of addictive, regular compuslive, and excessive exercise were all highest in an absolute sense among groups reporting history of AN. History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment of compulsive exericse, and the majority reporting at least some history of this behavior. Output from multinomial logistic regression mdoels using AN only as the reference group are presented in @tbl-dxgroups. An adjusted p-value of 0.0017 was used to account for 28 multiple comparisons in the multinomial models. Overall, all other diagnostic groups were substantially more likely to engage in compensatory exercise, with the AN Mixed diagnosis group showing similar odds of engagement in compulsive, regular compulsive, addictive, and excessive exercise relative to AN only. The BN, BED, and BN-BED mixed groups were less likely than the AN only group to report history of addictive, compulsive, regular compulsive, and excessive exercise. With regards to overall maladaptive exericse, the BN-BED and BED only groups showed lower engagement in any form of maladaptive exercise relative to the AN only group. 
-
+Rates of addictive, compensatory, compulsive, excessive, and regular compulsive exercise across diagnostic groups are presented in @fig-dxgroups. History of addictive, regular compuslive, and excessive exercise were all highest in an absolute sense among groups reporting history of AN. History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment of compulsive exericse, and the majority reporting at least some history of this behavior. Output from multinomial logistic regression mdoels using AN only as the reference group are presented in @tbl-dxgroups. An adjusted p-value of 0.0017 was used to account for 28 multiple comparisons in the multinomial models. Overall, all other diagnostic groups were substantially more likely to engage in compensatory exercise, with the AN Mixed diagnosis group showing similar odds of engagement in compulsive, regular compulsive, addictive, and excessive exercise relative to AN only. The BN, BED, and BN-BED mixed groups were less likely than the AN only group to report history of addictive, compulsive, regular compulsive, and excessive exercise. With regards to overall maladaptive exericse, the BN-BED and BED only groups showed lower engagement in any form of maladaptive exercise relative to the AN only group.
 
 ```{r dx table prep, results = 'hide'}
 library(nnet)
@@ -823,24 +812,22 @@ results_df[, sapply(results_df, is.numeric)] <- round(results_df[, sapply(result
 
 ```
 
-
-
 ```{r multinomial dx groups}
 #| label: tbl-dxgroups
 #| tbl-cap: Multinomial Logisitc Regression Output and Odds Ratios (Compared to AN only) for each exercise construct. 
 
-library(kableExtra)
-# Create Kable table and highlight rows with confidence intervals not overlapping 0
-results_df %>%
-  mutate(across(everything(), as.character)) %>%
-  mutate(across(contains("estimate"), function(x) ifelse(as.numeric(x) != 0, x, x))) %>%
-  mutate(p.value = as.numeric(p.value)) %>%
-  mutate(across(contains("Odds Ratio"), ~ifelse(p.value < 0.0018, cell_spec(., bold = TRUE), .))) %>%
-  mutate(p.value = sprintf('%.2e', p.value)) |> 
-  kable("html", escape = FALSE) %>%
-  kable_styling()
+kable(results_df)
+#commented out below - html table
+# library(kableExtra)
+# # Create Kable table and highlight rows with confidence intervals not overlapping 0
+# results_df %>%
+#   mutate(across(everything(), as.character)) %>%
+#   mutate(across(contains("estimate"), function(x) ifelse(as.numeric(x) != 0, x, x))) %>%
+#   mutate(p.value = as.numeric(p.value)) %>%
+#   mutate(across(contains("Odds Ratio"), ~ifelse(p.value < 0.0018, cell_spec(., bold = TRUE), .))) %>%
+#   mutate(p.value = sprintf('%.2e', p.value)) |> 
+#   kable("html", escape = FALSE) %>%
+#   kable_styling()
 
 
 ```
-
-
