@@ -27,16 +27,75 @@ library(boot)
 library(tibble)
 load('../data/EDGI_exercise_cleaned.RData') 
 
+
+```
+
+# Sample Descriptives
+
+```{r}
+EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>% 
+  mutate(ED100k_ex_compulsive_current2 = case_when(ED100k_ex_compulsive_current == 1 ~ 2, 
+                                                 ED100k_ex_compulsive == 1 & ED100k_ex_compulsive_current == 0 ~ 1, 
+                                                 ED100k_ex_compulsive == 0 ~ 0)) %>% 
+  mutate(ex_age_1 = if_else(ED100k_ex_compulsive_current2 == 2, age, ex_age_last))
+compulsive_exercisers <- EDGI_exercise_cleaned |> 
+  filter(ED100k_ex_compulsive >0)
+
+
 exercisers <- EDGI_exercise_cleaned |> 
   filter(ED100k_exercise_icb > 0)
 regular_exercisers <- EDGI_exercise_cleaned |> 
   filter(ED100k_exercise_icb == 2)
-compulsive_exercisers <- EDGI_exercise_cleaned |> 
-  filter(ED100k_ex_compulsive >0)
 regular_compulsive_exercisers <- EDGI_exercise_cleaned |> 
   filter (ED100k_ex_compulsive_strict == 1)
-
 ```
+
+Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see [scoring](sec:scoring)) are provide in @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was `r round(median(EDGI_exercise_cleaned$ex_age, na.rm = TRUE), 2)` years and the median age of last report of compulsive exercise was `r round(median(EDGI_exercise_cleaned$ex_age_1, na.rm = TRUE), 2)` years. Among those who reported any compulsive exercise, `r frq(compulsive_exercisers$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported that this was an ongoing symptom.
+
+
+
+```{r}
+#| label: tbl-ed100kItems
+#| tbl-cap: Item-level descriptives for ED100k Exercise Items
+
+ed100k_items <- c('exercise', 'ED100k_ex_compensatory_factor', 'ED100k_ex_compulsive_current2', 'ED100k_ex_dur_factor', 'ED100k_ex_freq_factor', 'ex_friend_2_factor', 'ex_ill_2_factor', 'ex_diet_2_factor', 'ex_distress_2_factor', 'ex_compel_2_factor', 'ex_age', 'ex_age_last')
+
+ed100k_ex_data <- EDGI_exercise_cleaned %>% 
+  select(ed100k_items)
+
+ed100k_ex_data$exercise <- factor(ed100k_ex_data$exercise,
+                      levels = c(1, 2, 3),
+                      labels = c("no", "sometimes", "more often"))
+
+ed100k_ex_data$ED100k_ex_compulsive_current2 <- factor(ed100k_ex_data$ED100k_ex_compulsive_current2,
+                      levels = c(0, 1, 2),
+                      labels = c("No History", "History, Not Current", "Current"))
+
+
+factor_frequencies <- lapply(ed100k_ex_data, function(x) {
+  if (is.factor(x)) {
+    tbl <- table(x)
+    percent <- prop.table(tbl) * 100
+    data.frame(Response = names(tbl), Freq = as.vector(tbl), Percent = as.vector(percent))
+  } else {
+    NULL
+  }
+})
+
+
+factor_frequencies <- factor_frequencies[sapply(factor_frequencies, Negate(is.null))]
+
+
+combined_table <- bind_rows(factor_frequencies, .id = "Variable") %>% 
+  mutate(Variable = recode(Variable, 'exercise' = '1. Exercised excessively', 'ED100k_ex_compensatory_factor' = 'Q12. Compensatory Exercise', 'ED100k_ex_compulsive_current2' = '9. Current Exercise', 'ED100k_ex_dur_factor' = '7. Exercise Duration', 'ED100k_ex_freq_factor' = '8. Exercise Frequency', 'ex_friend_2_factor' = '4. Interfering with Friendship', 'ex_ill_2_factor' = '5. Exercising when ill', 'ex_diet_2_factor' = '6. Modified Diet if unable to Exercise', 'ex_distress_2_factor' = '3. Distressed when unable to exercise', 'ex_compel_2_factor' = '2. Compelled to Exercise')) %>% 
+  sort_asc(Variable) %>% 
+  mutate(Response = recode(Response, 'NaN' = 'Missing', 'no' = 'No', 'sometimes' = 'Sometimes', 'more often' = 'More Often')) %>% 
+  mutate(Percent = round(Percent, 2))
+
+
+knitr::kable(combined_table, row.names = FALSE)
+```
+
 
 # Preliminary Aim - Develop a scoring algorithm
 
@@ -56,9 +115,9 @@ The first aim of this paper is to develop a scoring algorithm for a ED100k exerc
 
 5\. Maladaptive Exercise (Broad)
 
-## Scoring
+## Scoring {#sec:scoring}
 
-The ED100k included 12 questions assessing maladaptive exercise. The first question, which all participants were asked, inquires as to whether individuals ever exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported ever exercising to intentionally control weight and shape and answered 'Yes' to either Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their compulsive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, all participants were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (n = `r sum(EDGI_exercise_cleaned$ED100k_ex_any == 0)`) who reported no to Q1 - exercise to control shape and weight, were marked as '0' for follow-up questions. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (n = `r sum(exercisers$ED100k_ex_compulsive == 0, na.rm = TRUE)`) were marked as '0' for Q4-Q11.
+The ED100k included 12 questions assessing maladaptive exercise. The first question, which all participants were asked, inquires as to whether individuals ever exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported ever exercising to intentionally control weight and shape and answered 'Yes' to either Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their compulsive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, all participants were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (n = `r sum(EDGI_exercise_cleaned$ED100k_ex_any == 0)`) who reported no to Q1 - exercise to control shape and weight, were marked as '0' for all follow-up questions, with the exception of ages (Q10-11), which were retained as missing. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (n = `r sum(exercisers$ED100k_ex_compulsive == 0, na.rm = TRUE)`) were marked as '0' for Q4-Q9.
 
 Scoring algorithms for each subconstruct are presented in Table 1.
 
@@ -301,7 +360,7 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
 H2b: Comparing across groups who report no history of compulsive exercise, history of, but not current, compulsive exercise, and those with current compulsive exercise on the ED100k, those who report ED100k current compulsive exercise will report highest CET scores (total, and all subscales except for exercise enjoyment). Those reporting history of, but not current, compulsive exercise will report intermediate CET scores -- higher than those reporting no history of compulsive exercise on the ED100k but lower than those reporting current compulsive exercise. We also expect thsoe reporting current compulsive exercise on the ED100k to be more likely to reach the CET clinical cutoff and report more days of driven exercise over the past 28 days on the EDEQ. 
 
 
-Overall, `r frq(EDGI_exercise_cleaned$ED100k_exercise_current)[[1]]$valid.prc[[1]]`% of the sample reported No history of compulsive exercise, `r frq(EDGI_exercise_cleaned$ED100k_exercise_current)[[1]]$valid.prc[[2]]`% reported a history of compulsive exercise that was not current, and `r frq(EDGI_exercise_cleaned$ED100k_exercise_current)[[1]]$valid.prc[[3]]`% reported current compulsive exercise. 
+Overall, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[1]]`% of the sample reported No history of compulsive exercise, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported a history of compulsive exercise that was not current, and `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[3]]`% reported current compulsive exercise. 
 
 Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETsubs. To formally test the hypothesis that those with reporting ED100k current compulsive exercise would also report the highest scores on the CET, we completed a series of ANOVAs comparing those with reporting no compulsive exercise, history of compulsive exercise only, and current compulsive exercise on current CET scores, p \< .05 for all subscales and global, and calculation of Cohen's d effect sizes.*
 
@@ -312,7 +371,7 @@ Boxplots with median standardized scores on all CET subscales along with CET tot
 # Insert ggplots here showing association between current exercise (ED100k), CET total and subscale scores *mean + SD, CET clinical cutoff, and EDEQ item
 
 Current_Exercise <- EDGI_exercise_cleaned |> 
-  select(record_id, cet_total_weighted_sum, cet_mood, cet_enjoy, cet_avoid, cet_rigid, cet_wtcontrol, cet_clinical, edeq_ex_driven_freq_28, ED100k_exercise_current)  |>  filter(!is.na(ED100k_exercise_current)) |> 
+  select(record_id, cet_total_weighted_sum, cet_mood, cet_enjoy, cet_avoid, cet_rigid, cet_wtcontrol, cet_clinical, edeq_ex_driven_freq_28, ED100k_ex_compulsive_current2)  |>  filter(!is.na(ED100k_ex_compulsive_current2)) |> 
   mutate(`Total` = scale(cet_total_weighted_sum),
          `Mood Improve` = scale(cet_mood),
          `Enjoyment` = scale(cet_enjoy), 
@@ -325,17 +384,17 @@ Current_Exercise <- Current_Exercise |> pivot_longer(cols = c(Total:`Wt Control`
   # rename current maladaptive exercise 
 
 median_stds <- Current_Exercise |> 
-  group_by (ED100k_exercise_current, variable) |> 
+  group_by (ED100k_ex_compulsive_current2, variable) |> 
   summarize (med_val = median(val, na.rm = TRUE))
 
-ggplot(Current_Exercise, aes(x = as.factor(ED100k_exercise_current), y = val, color = as.factor(ED100k_exercise_current))) +
+ggplot(Current_Exercise, aes(x = as.factor(ED100k_ex_compulsive_current2), y = val, color = as.factor(ED100k_ex_compulsive_current2))) +
   facet_wrap(~variable)+
   geom_jitter(size = 0.3) +
   geom_boxplot(alpha = 0.5, color= 'black') +
   scale_x_discrete(labels = c('No Hx', 'Hx only', 'Current')) +
   labs(title = 'Median CET standard scores based on ED100k compulsive exercise', x = 'Compulsive Exercise [ED100k]', y = 'CET Standardized Score') + 
   theme(legend.position = 'none') +
-  geom_text(data = median_stds, aes(x = as.factor(ED100k_exercise_current), y = med_val + 0.3, label = round(med_val, 1)), size = 3, color = 'black', fontface ='bold') +
+  geom_text(data = median_stds, aes(x = as.factor(ED100k_ex_compulsive_current2), y = med_val + 0.3, label = round(med_val, 1)), size = 3, color = 'black', fontface ='bold') +
   scale_color_manual(values = wes_palette("Darjeeling1"))
 
 ```
@@ -348,12 +407,12 @@ ggplot(Current_Exercise, aes(x = as.factor(ED100k_exercise_current), y = val, co
 
 
 
-Enjoyment <- aov(cet_enjoy ~ as.factor(ED100k_exercise_current), data = EDGI_exercise_cleaned)
-Mood_Improve <- aov(cet_mood ~ as.factor(ED100k_exercise_current), data = EDGI_exercise_cleaned)
-Avoidance <- aov(cet_avoid ~ as.factor(ED100k_exercise_current), data = EDGI_exercise_cleaned)
-Rigidity <- aov(cet_rigid ~ as.factor(ED100k_exercise_current), data = EDGI_exercise_cleaned)
-Wt_Control <- aov(cet_wtcontrol ~ as.factor(ED100k_exercise_current), data = EDGI_exercise_cleaned)
-Total <- aov(cet_total ~ as.factor(ED100k_exercise_current), data = EDGI_exercise_cleaned)
+Enjoyment <- aov(cet_enjoy ~ as.factor(ED100k_ex_compulsive_current2), data = EDGI_exercise_cleaned)
+Mood_Improve <- aov(cet_mood ~ as.factor(ED100k_ex_compulsive_current2), data = EDGI_exercise_cleaned)
+Avoidance <- aov(cet_avoid ~ as.factor(ED100k_ex_compulsive_current2), data = EDGI_exercise_cleaned)
+Rigidity <- aov(cet_rigid ~ as.factor(ED100k_ex_compulsive_current2), data = EDGI_exercise_cleaned)
+Wt_Control <- aov(cet_wtcontrol ~ as.factor(ED100k_ex_compulsive_current2), data = EDGI_exercise_cleaned)
+Total <- aov(cet_total ~ as.factor(ED100k_ex_compulsive_current2), data = EDGI_exercise_cleaned)
 
 
 # List of ANOVA objects
@@ -376,7 +435,7 @@ summary_table <- summary_table %>%
 
 # Print the summary table
 summary_table <- summary_table %>% 
-  mutate(term = recode(term,  'as.factor(ED100k_exercise_current)' = 'ED100k History/Current Compulsive Exercise', 'Residuals' = 'Residual'))
+  mutate(term = recode(term,  'as.factor(ED100k_ex_compulsive_current2)' = 'ED100k History/Current Compulsive Exercise', 'Residuals' = 'Residual'))
 
 summary_table$p.value <- sprintf('%.3e', summary_table$`p.value`)
 summary_table$sumsq <- round(summary_table$sumsq, 2)
@@ -395,34 +454,34 @@ knitr::kable(summary_table)
 dummy_variables <- c("ex_current_dummy1", "ex_current_dummy2", "ex_current_dummy3")
 
 EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>% 
-  mutate(ex_current_dummy1 = case_when(ED100k_exercise_current == 0 ~ 0, 
-                                        ED100k_exercise_current == 1 ~ 1),
-         ex_current_dummy2 = case_when(ED100k_exercise_current == 0 ~ 0, 
-                                        ED100k_exercise_current == 2 ~ 1),
-         ex_current_dummy3 = case_when(ED100k_exercise_current == 1 ~ 0, 
-                                        ED100k_exercise_current == 2 ~ 1))
+  mutate(ex_current_dummy1 = case_when(ED100k_ex_compulsive_current2 == 0 ~ 0, 
+                                        ED100k_ex_compulsive_current2 == 1 ~ 1),
+         ex_current_dummy2 = case_when(ED100k_ex_compulsive_current2 == 0 ~ 0, 
+                                        ED100k_ex_compulsive_current2 == 2 ~ 1),
+         ex_current_dummy3 = case_when(ED100k_ex_compulsive_current2 == 1 ~ 0, 
+                                        ED100k_ex_compulsive_current2 == 2 ~ 1))
 
-Tukey_Enjoyment <- as.data.frame(TukeyHSD(Enjoyment)$`as.factor(ED100k_exercise_current)`)
+Tukey_Enjoyment <- as.data.frame(TukeyHSD(Enjoyment)$`as.factor(ED100k_ex_compulsive_current2)`)
 Tukey_Enjoyment <- cbind(dummy_variables, Tukey_Enjoyment) %>% 
   mutate(Variable = 'Enjoy')
 
-Tukey_Mood_Improve <- as.data.frame(TukeyHSD(Mood_Improve)$`as.factor(ED100k_exercise_current)`)
+Tukey_Mood_Improve <- as.data.frame(TukeyHSD(Mood_Improve)$`as.factor(ED100k_ex_compulsive_current2)`)
 Tukey_Mood_Improve<- cbind(dummy_variables, Tukey_Mood_Improve) %>% 
   mutate(Variable = 'Mood Improve')
 
-Tukey_Avoidance <- as.data.frame(TukeyHSD(Avoidance)$`as.factor(ED100k_exercise_current)`)
+Tukey_Avoidance <- as.data.frame(TukeyHSD(Avoidance)$`as.factor(ED100k_ex_compulsive_current2)`)
 Tukey_Avoidance<- cbind(dummy_variables, Tukey_Avoidance) %>% 
   mutate(Variable = 'Avoidance')
 
-Tukey_Rigidity <- as.data.frame(TukeyHSD(Rigidity)$`as.factor(ED100k_exercise_current)`)
+Tukey_Rigidity <- as.data.frame(TukeyHSD(Rigidity)$`as.factor(ED100k_ex_compulsive_current2)`)
 Tukey_Rigidity<- cbind(dummy_variables, Tukey_Rigidity) %>% 
   mutate(Variable = 'Rigidity')
 
-Tukey_Wt_Control <- as.data.frame(TukeyHSD(Wt_Control)$`as.factor(ED100k_exercise_current)`)
+Tukey_Wt_Control <- as.data.frame(TukeyHSD(Wt_Control)$`as.factor(ED100k_ex_compulsive_current2)`)
 Tukey_Wt_Control<- cbind(dummy_variables, Tukey_Wt_Control) %>% 
   mutate(Variable = 'Wt Control')
 
-Tukey_Total <- as.data.frame(TukeyHSD(Total)$`as.factor(ED100k_exercise_current)`)
+Tukey_Total <- as.data.frame(TukeyHSD(Total)$`as.factor(ED100k_ex_compulsive_current2)`)
 Tukey_Total<- cbind(dummy_variables, Tukey_Total) %>% 
   mutate(Variable = 'Total')
 
@@ -497,7 +556,7 @@ knitr::kable(Contrasts)
 
 ```{r CET table, results='hide',message=FALSE}
 
-ct3 <- table(EDGI_exercise_cleaned$ED100k_exercise_current, EDGI_exercise_cleaned$cet_clinical)
+ct3 <- table(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2, EDGI_exercise_cleaned$cet_clinical)
 ex_current_cet <- prop.table (ct3, 1)
 ex_current_cet <- as.data.frame(ex_current_cet) |> 
  rename(`Current Driven Exercise [ED100k]` = Var1) |> 
@@ -506,12 +565,12 @@ ex_current_cet <- as.data.frame(ex_current_cet) |>
   mutate(Freq = round(Freq*100,2))
 
 CET_ED100k <- EDGI_exercise_cleaned |> 
-  select(c(ED100k_exercise_current, cet_clinical, ED100k_exercise_icb)) |> 
-  mutate(ED100k_exercise_current = as.factor (ED100k_exercise_current))  
+  select(c(ED100k_ex_compulsive_current2, cet_clinical, ED100k_exercise_icb)) |> 
+  mutate(ED100k_ex_compulsive_current2 = as.factor (ED100k_ex_compulsive_current2))  
 
 
-CET_ED100k$ED100k_exercise_current <- relevel(CET_ED100k$ED100k_exercise_current, ref = "0") 
-multinomial_lr <- multinom(cet_clinical ~ ED100k_exercise_current, data = CET_ED100k)
+CET_ED100k$ED100k_ex_compulsive_current2 <- relevel(CET_ED100k$ED100k_ex_compulsive_current2, ref = "0") 
+multinomial_lr <- multinom(cet_clinical ~ ED100k_ex_compulsive_current2, data = CET_ED100k)
 
 ORs <- exp(coef(multinomial_lr))
 ORs <- as.data.frame(ORs) |> 
@@ -527,22 +586,22 @@ The proportion of individuals meeting the clinical cutoff for current compulsive
 #| fig-cap:  ED100k Compulsive Exercise vs. EDEQ Exercise Frequency
 
 mean_edeq_ex <- EDGI_exercise_cleaned|> 
-  group_by (ED100k_exercise_current) |> 
-  filter(!is.na(ED100k_exercise_current)) |> 
+  group_by (ED100k_ex_compulsive_current2) |> 
+  filter(!is.na(ED100k_ex_compulsive_current2)) |> 
   summarize (mean_edeq_ex = mean(edeq_ex_driven_freq_28, na.rm = TRUE))
 
-ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_exercise_current), y = mean_edeq_ex))  +
+ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_ex_compulsive_current2), y = mean_edeq_ex))  +
   geom_point()+
-  geom_boxplot(data = EDGI_exercise_cleaned, aes( x = as.factor(ED100k_exercise_current), y = edeq_ex_driven_freq_28, fill = as.factor(ED100k_exercise_current))) +
+  geom_boxplot(data = EDGI_exercise_cleaned, aes( x = as.factor(ED100k_ex_compulsive_current2), y = edeq_ex_driven_freq_28, fill = as.factor(ED100k_ex_compulsive_current2))) +
   labs(title = 'ED100k Compulsive Exercise vs EDEQ Exercise Frequency (Past 28 days)', x = 'Complusive Exercise [ED100k]', y = 'Number of Driven Exercise Episodes in Past 28 days [EDEQ]') + 
   scale_x_discrete(labels = c('No History', 'History, Not Current', 'Current')) +
   theme(legend.position = 'none') +
-  geom_text(data = mean_edeq_ex, aes(x  = ED100k_exercise_current+1.2, y = mean_edeq_ex+3, label = paste0('M =', round(mean_edeq_ex,2)), size = 3)) + 
+  geom_text(data = mean_edeq_ex, aes(x  = ED100k_ex_compulsive_current2+1.2, y = mean_edeq_ex+3, label = paste0('M =', round(mean_edeq_ex,2)), size = 3)) + 
   scale_fill_manual(values = wes_palette("Darjeeling1"))
 
 ```
 
- A zero-inflated negative binomial regression model compared those with "History, but Not Current' and those with 'Current Compulsive Exercise' to the 'No History of Compulsive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin and indicate that those who report current compulsive exercise on the ED100k are less likely to hvae zero values for EDEQ-assessed exericse in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, compulsive exericse on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of compulsive exercise, though the count portion of the model indicates that those reporting history, but not current, compulsive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of compulsive exercise.
+ A zero-inflated poisson regression model compared those with "History, but Not Current' and those with 'Current Compulsive Exercise' to the 'No History of Compulsive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin (including odds ratios (ORs) for the zero portion of the model and incident risk ratios (IRRs) for the count portion). Results indicate that those who report current compulsive exercise on the ED100k are less likely to hvae zero values for EDEQ-assessed exericse in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, compulsive exericse on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of compulsive exercise, though the count portion of the model indicates that those reporting history, but not current, compulsive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of compulsive exercise.
 
 
 ```{r EDEQ ZIN Model}
@@ -550,15 +609,15 @@ ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_exercise_current), y = mean_edeq_
 #| tbl-cap: Zero-inflated Model Coefficients for ED100k Compulsive Exercise Predicting EDEQ Driven Exercise Days (past 28 days)
 
 EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>% 
-  mutate(ex_current_dummy4 = case_when(ED100k_exercise_current == 0 ~ 0, 
-                                        ED100k_exercise_current == 1 ~ 1,
-                                       ED100k_exercise_current == 2 ~ 0),
-         ex_current_dummy5 = case_when(ED100k_exercise_current == 0 ~ 0, 
-                                        ED100k_exercise_current == 1 ~ 0,
-                                       ED100k_exercise_current == 2 ~ 1))
+  mutate(ex_current_dummy4 = case_when(ED100k_ex_compulsive_current2 == 0 ~ 0, 
+                                        ED100k_ex_compulsive_current2 == 1 ~ 1,
+                                       ED100k_ex_compulsive_current2 == 2 ~ 0),
+         ex_current_dummy5 = case_when(ED100k_ex_compulsive_current2 == 0 ~ 0, 
+                                        ED100k_ex_compulsive_current2 == 1 ~ 0,
+                                       ED100k_ex_compulsive_current2 == 2 ~ 1))
 
 EDEQ_zin1 <- zeroinfl(edeq_ex_driven_freq_28 ~ ex_current_dummy4 + ex_current_dummy5 | ex_current_dummy4 + ex_current_dummy5,
-  data = EDGI_exercise_cleaned, dist = "negbin")
+  data = EDGI_exercise_cleaned)
 
 EDEQ_zin1_coefs <- summary(EDEQ_zin1)$coefficients
 
@@ -612,8 +671,7 @@ H3a. Maladaptive exercise, compulsive exercise, and exercise addiction will be a
 H3b. Compensatory exercise will be more common among those with AN mixed and BN as compared to AN only . *Multinomial logistic regression with AN group as reference -- AN mixed, BN, and BN-BED mixed groups will report higher levels of compensatory exercise than the AN only group. BED only will report similar levels of compensatory exercise to AN only*
 
 ```{r, Diagnostic-Groups}
-#| label: fig-dxgroups
-#| fig-cap: Percentage within each diganostic group reporting differing exercise constructs
+
 # Below makes the 5 case status diagnosis groups
 
 DG_prop_table <- as.data.frame(table(EDGI_exercise_cleaned[c('an_case', 'bn_case', 'bed_case')])) |>
@@ -635,10 +693,12 @@ dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
 
 ```
 
-Among individuals in the US EDGI data, `r dx_frqs$raw.prc[1]`% of the sample reported AN as their only diagnosis, `r dx_frqs$raw.prc[2]`% of the sample reported AN plus another diagnosis (AN mixed),`r dx_frqs$raw.prc[4]` reported a diagnosis of BN only, `r dx_frqs$raw.prc[3]` reported a diagnosis of BED only (the smallest cell size: `r dx_frqs$frq[3]`), and `r dx_frqs$raw.prc[5]` reported both a BN and BED diagnosis.
+Among individuals in the US EDGI data, `r dx_frqs$raw.prc[1]`% of the sample reported AN as their only diagnosis, `r dx_frqs$raw.prc[2]`% of the sample reported AN plus another diagnosis (AN mixed),`r dx_frqs$raw.prc[4]`% reported a diagnosis of BN only, `r dx_frqs$raw.prc[3]`% reported a diagnosis of BED only (the smallest cell size: `r dx_frqs$frq[3]`), and `r dx_frqs$raw.prc[5]`% reported both a BN and BED diagnosis.
 
 
 ```{r}
+#| label: fig-dxgroups
+#| fig-cap: Percentage within each diganostic group reporting differing exercise constructs
 ct <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_compulsive)
 ct2 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_compulsive_strict_3mo)
 ct3 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_addictive)
