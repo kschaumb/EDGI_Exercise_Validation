@@ -1,7 +1,7 @@
 ---
 title: EDGI Exercise Validation Paper Results
 author: Katherine Schaumberg
-format: docx
+format: html
 ---
 
 ```{r setup, include=FALSE}
@@ -24,8 +24,14 @@ library(nnet)
 library(pscl)
 library(boot)
 library(tibble)
-load('../data/EDGI_exercise_cleaned.RData') 
+library(psych)
+library(caret)
+library(viridis)  
+library(kableExtra)
 
+load('../data/EDGI_exercise_cleaned.RData') 
+exercisers <- EDGI_exercise_cleaned |> 
+  filter(ED100k_exercise_icb > 0)
 
 ```
 
@@ -40,13 +46,6 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>%
 compulsive_exercisers <- EDGI_exercise_cleaned |> 
   filter(ED100k_ex_compulsive >0)
 
-
-exercisers <- EDGI_exercise_cleaned |> 
-  filter(ED100k_exercise_icb > 0)
-regular_exercisers <- EDGI_exercise_cleaned |> 
-  filter(ED100k_exercise_icb == 2)
-regular_compulsive_exercisers <- EDGI_exercise_cleaned |> 
-  filter (ED100k_ex_compulsive_strict == 1)
 ```
 
 Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see [scoring](sec:scoring)) are provide in @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was `r round(median(EDGI_exercise_cleaned$ex_age, na.rm = TRUE), 2)` years and the median age of last report of compulsive exercise was `r round(median(EDGI_exercise_cleaned$ex_age_1, na.rm = TRUE), 2)` years. Among those who reported any compulsive exercise, `r frq(compulsive_exercisers$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported that this was an ongoing symptom.
@@ -90,7 +89,9 @@ combined_table <- bind_rows(factor_frequencies, .id = "Variable") %>%
   mutate(Percent = round(Percent, 2))
 
 
-knitr::kable(combined_table, row.names = FALSE)
+x <- kable(combined_table, row.names = FALSE) 
+x
+
 ```
 
 # Preliminary Aim - Develop a scoring algorithm
@@ -163,15 +164,108 @@ Scoring algorithms for each subconstruct are presented in @tbl-defs.
 
 We hypothesize that those indicating that they have 'exercise excessively' more often in the initial screening item will also be likely to meet criteria for compulsive exercise, exercise addiction, and excessive exercise (high sensitivity), and moderately likely to meet criteria for compensatory exercise (moderate sensitivity; high negative predictive value). Specficially, we hypotehsize ensitivity for compulsive exercise, exercise addiction, and excessive exercise based on item 1 will be \> 80%. Sensitivity for compensatory exercise from item 1 will be \> 60%, with \> 80% negative predictive value.
 
-@fig-heatmap presents the proportion of the full sample along with subsamples meeting criteria for each (sub)construct
+```{r}
+#| label: fig-heatmap
+#| fig-cap: Heatmap with percentage of (sub)samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis)
 
-![Figure 1. Heatmap with percentage of (sub)samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis).](figs/ex_heatmap.png){#fig-heatmap}
+traits <- c('ED100k_ex_compulsive', 'ED100k_ex_compulsive_strict_3mo', 'ED100k_ex_addictive', 'ED100k_ex_excessive', 'ED100k_ex_compensatory', 'ED100k_ex_maladaptive_1')
+traits_clean <- c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory', 'Maladaptive (Broad)')
+
+full_sample <- EDGI_exercise_cleaned %>%
+  select(all_of(traits))
+
+exercisers <- EDGI_exercise_cleaned %>%
+  filter(ED100k_exercise_icb > 0) %>%
+  select(all_of(traits))
+
+compulsive_exercisers <- EDGI_exercise_cleaned %>%
+  filter(ED100k_ex_compulsive > 0) %>%
+  select(all_of(traits))
+
+regular_exercisers <- EDGI_exercise_cleaned %>%
+  filter(ED100k_exercise_icb > 1) %>%
+  select(all_of(traits))
+
+regular_compulsive_exercisers <- EDGI_exercise_cleaned %>%
+  filter(ED100k_ex_compulsive_strict_3mo == 1) %>%
+  select(all_of(traits))
+
+addictive_exercisers <- EDGI_exercise_cleaned %>%
+  filter(ED100k_ex_addictive == 1) %>%
+  select(all_of(traits))
+
+excessive_exercisers <- EDGI_exercise_cleaned %>%
+  filter(ED100k_ex_excessive == 1) %>%
+  select(all_of(traits))
+
+compensatory_exercisers <- EDGI_exercise_cleaned %>%
+  filter(ED100k_ex_compensatory== 1) %>%
+  select(all_of(traits))
+
+samples <- list(full_sample, exercisers, regular_exercisers, compulsive_exercisers, regular_compulsive_exercisers, addictive_exercisers, excessive_exercisers, compensatory_exercisers)
+sample_names <- c('1. Full Sample', '2. Exercisers (Q1)', '3. Regular Exercisers (Q1)', '4. Compulsive Exercisers', '5. Regular Compulsive Exercisers', '6. Addictive Exercisers', '7. Excessive Exercisers', '8. Compensatory Exercisers')
+
+calculate_valid_percent <- function(sample, trait) {
+  valid_percent <- sum(!is.na(sample[[trait]]) & sample[[trait]] == 1) / sum(!is.na(sample[[trait]])) * 100
+  return(valid_percent)
+}
+
+result_df <- data.frame(stringsAsFactors = FALSE)
+
+for (i in seq_along(samples)) {
+  sample <- samples[[i]]
+  valid_percent <- sapply(traits, calculate_valid_percent, sample = sample)
+  result_df <- rbind(result_df, c(names(samples)[i], t(valid_percent)))
+}
+
+# Assign column names directly
+colnames(result_df) <- traits_clean
+
+# Name the rows with sample names
+rownames(result_df) <- sample_names
+result_df <- result_df[, c(6, 1:5)]
+
+result_df <- round(result_df, 2)
+
+result_df$Sample <- rownames(result_df)
+
+# recodes 100% values as NA
+result_df[result_df == 100] <- NA 
+
+
+# Reshape the data frame into long format
+result_df_long <- tidyr::pivot_longer(result_df, cols = -Sample, names_to = "Trait", values_to = "Percentage")
+
+trait_order <- c("Maladaptive (Broad)", "Compulsive", "Regular Compulsive", 'Addictive', 'Excessive', 'Compensatory')  # Replace with the desired order of traits
+result_df_long$Trait <- factor(result_df_long$Trait, levels = trait_order)
+
+# Create the heatmap using ggplot and geom_tile
+ggplot(result_df_long, aes(x = Sample, y = Trait)) +
+  geom_tile(aes(fill = Percentage), color = "white") +
+  geom_text(aes(label = sprintf("%.2f", Percentage)), color = "white") +
+  scale_fill_viridis_c(option = "viridis", begin = 0.1, end = 0.85, direction = -1) +
+  labs(x = "Sample", y = "Exercise Construct") +
+  ggtitle(stringr::str_wrap("Percentage within subsamples endorsing each exercise construct", width = 45))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
+
+
+```
+
+@fig-heatmap presents the proportion of the full sample along with subsamples meeting criteria for each (sub)construct
 
 ## Accuracy of Q1 - 'Excessive Exercise' for Weight Control to Detect Different Exercise Constructs
 
 ```{r}
 #| label: fig-Q1sensitivity
 #| fig-cap: Accuracy of Q1 in Detecting Compulsive, Addictive, and Excessive Exercise
+
+
+
+regular_exercisers <- EDGI_exercise_cleaned |> 
+  filter(ED100k_exercise_icb == 2)
+regular_compulsive_exercisers <- EDGI_exercise_cleaned |> 
+  filter (ED100k_ex_compulsive_strict == 1)
+
 #makes 3 month duration statistic for inclusion in paragrph below
 regular_exercisers <- regular_exercisers %>% 
   mutate(ex_dur_3m = case_when(ED100k_ex_dur > 2 ~ 1,
@@ -254,9 +348,10 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   labs(title = 'Confusion Matrix Componenets by Answer to Q1', x = 'Metric', y = 'Value') + 
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
     theme(legend.position = 'none') +
-    geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3)), size = 3)) + 
+    geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(3)) + 
    scale_fill_manual(values = wes_palette("Moonrise3")) 
 # Increase the plot area by changing the margins
+
 
 
 ```
@@ -343,9 +438,8 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   labs(title = 'Compulsive and Maladaptive Exercise History vs CET and EDEQ', x = 'Metric', y = 'Value') + 
     theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
     theme(legend.position = 'none') +
-    geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3)), size = 3)) + 
+    geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(3)) + 
    scale_fill_manual(values = wes_palette("Moonrise3")) 
-# Increase the plot area by changing the margins
 
 ```
 
@@ -389,6 +483,8 @@ ggplot(Current_Exercise, aes(x = as.factor(ED100k_ex_compulsive_current2), y = v
   theme(legend.position = 'none') +
   geom_text(data = median_stds, aes(x = as.factor(ED100k_ex_compulsive_current2), y = med_val + 0.3, label = round(med_val, 1)), size = 3, color = 'black', fontface ='bold') +
   scale_color_manual(values = wes_palette("Darjeeling1"))
+
+
 
 ```
 
@@ -435,7 +531,9 @@ summary_table$sumsq <- round(summary_table$sumsq, 2)
 summary_table$meansq <- round(summary_table$meansq, 2)
 summary_table$statistic <- round(summary_table$statistic, 2)
 
-knitr::kable(summary_table)
+sum_table <- knitr::kable(summary_table)
+sum_table
+
 ```
 
 @tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of compulsive exercise to those with a history, but not current, compulsive exercise and when comparing those with history vs. current compulsive exercise. Comparison of those with no history of compulsive exercise vs. current compulsive exercise consistently demonstrated large effects. For all subscales with the exception of the enjoyment subscale, effects indicated that those with current compulsive exercise scored highest, while those with no history of compulsive exercise scored the highest on the lack of exercise enjoyment subscale.
@@ -544,7 +642,9 @@ Contrasts <- Contrasts %>%
   select(-c(CI, lwr, upr, new_lwr, new_upr, alpha, z_score, se)) %>% 
   rename ('Difference' = diff)
 
-knitr::kable(Contrasts)
+Contrast_table <- knitr::kable(Contrasts)
+Contrast_table
+
 ```
 
 ```{r CET table, results='hide',message=FALSE}
@@ -569,7 +669,6 @@ ORs <- exp(coef(multinomial_lr))
 ORs <- as.data.frame(ORs) |> 
 mutate(ORs = round(ORs, 2))
 
-
 ```
 
 The proportion of individuals meeting the clinical cutoff for current compulsive exericse on the CET varied as expected by endorsement of historical and current endorsement of compulsive exercise on the ED100k. Only `r ex_current_cet$Freq[1]`% of individuals who reported no history of compuslive exercise met current CET clinical cutoff, while `r ex_current_cet$Freq[2]`% of those reporting history, but not current compulsive exercise met clinical cutoff on the CET, and `r ex_current_cet$Freq[3]`% of individuals reporting both historical and current compulsive exercise on the ED100k met clinical cutoff for compulsive exercise on the CET. Using a multinomial logistic regression approach with 'No Compulsive Exercise History' on the ED100k coded as the reference category, those reporting compulsive exercise history, but not current exercise had an odds ratio of `r ORs$ORs[[2]]` and those reporting current compulsive exercise had an odds ratio of `r ORs$ORs[[3]]`, indicating significant convergent validity of reports of current compulsive exericse on the ED100k (4 items comprising the historical and current compulsive exercise definition) and meeting clinical cutoff clinical cutoff on the 24-item CET. Regarding the number of days in the past 28 that participants reported engaging in 'driven' or 'compulsive exercise on the EDEQ, outcomes were zero-inflated in the 'No History of Compulsive Exercise' and 'History but No Current Compulsive Exercise' groups (see @fig-EDEQplot).
@@ -591,6 +690,7 @@ ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_ex_compulsive_current2), y = mean
   theme(legend.position = 'none') +
   geom_text(data = mean_edeq_ex, aes(x  = ED100k_ex_compulsive_current2+1.2, y = mean_edeq_ex+3, label = paste0('M =', round(mean_edeq_ex,2)), size = 3)) + 
   scale_fill_manual(values = wes_palette("Darjeeling1"))
+
 
 ```
 
@@ -642,7 +742,9 @@ ZIN_table<- ZIN_table |>
   filter(Term != 'Log(theta)') |> 
   mutate(Term = recode(Term, 'ex_current_dummy4' = 'History vs. No History', 'ex_current_dummy5' = 'Current vs. No History'))
 
-knitr::kable(ZIN_table)
+ZIN_tab <- knitr::kable(ZIN_table)
+ZIN_tab
+
 ```
 
 ## Perfectionism and OCD Symptoms
@@ -681,6 +783,7 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
                                       bed_case == 1 ~ 'BED'))
 
 dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
+
 
 ```
 
@@ -746,6 +849,8 @@ ggplot(dx_row_percents, aes(x = name, y = value*100, fill = `name` )) +
     theme(legend.position = 'none') +
   geom_text(aes(x = name, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3))
 
+
+
 ```
 
 Rates of addictive, compensatory, compulsive, excessive, and regular compulsive exercise across diagnostic groups are presented in @fig-dxgroups. History of addictive, regular compuslive, and excessive exercise were all highest in an absolute sense among groups reporting history of AN. History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment of compulsive exericse, and the majority reporting at least some history of this behavior. Output from multinomial logistic regression mdoels using AN only as the reference group are presented in @tbl-dxgroups. An adjusted p-value of 0.0017 was used to account for 28 multiple comparisons in the multinomial models. Overall, all other diagnostic groups were substantially more likely to engage in compensatory exercise, with the AN Mixed diagnosis group showing similar odds of engagement in compulsive, regular compulsive, addictive, and excessive exercise relative to AN only. The BN, BED, and BN-BED mixed groups were less likely than the AN only group to report history of addictive, compulsive, regular compulsive, and excessive exercise. With regards to overall maladaptive exericse, the BN-BED and BED only groups showed lower engagement in any form of maladaptive exercise relative to the AN only group.
@@ -809,6 +914,8 @@ results_df$p.value <- sprintf('%.2e', results_df$p.value)
 
 results_df <- results_df[, c(6,8,7,1:5)] 
 results_df[, sapply(results_df, is.numeric)] <- round(results_df[, sapply(results_df, is.numeric)], digits = 3)
+
+
 
 ```
 
