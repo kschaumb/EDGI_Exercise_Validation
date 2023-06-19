@@ -3,20 +3,6 @@
 # tbl-cap: Item-level descriptives for ED100k Exercise Items
 
 
-library(expss)
-library(dplyr)
-library(haven)
-library(sjmisc)
-library(psych)
-library(ggplot2)
-library(tidyr)
-library(caret)
-library(ggplot2)
-library(viridis)  
-
-
-load('data/EDGI_exercise_cleaned.RData') 
-
 ed100k_items <- c('exercise', 'ED100k_ex_compensatory_factor', 'ED100k_ex_compulsive_current2', 'ED100k_ex_dur_factor', 'ED100k_ex_freq_factor', 'ex_friend_2_factor', 'ex_ill_2_factor', 'ex_diet_2_factor', 'ex_distress_2_factor', 'ex_compel_2_factor', 'ex_age', 'ex_age_last')
 
 ed100k_ex_data <- EDGI_exercise_cleaned %>% 
@@ -44,14 +30,13 @@ factor_frequencies <- lapply(ed100k_ex_data, function(x) {
 
 factor_frequencies <- factor_frequencies[sapply(factor_frequencies, Negate(is.null))]
 
+library(haven)
 
-combined_table <- bind_rows(factor_frequencies, .id = "Variable") %>% 
-  mutate(Variable = recode(Variable, 'exercise' = '1. Exercised excessively', 'ED100k_ex_compensatory_factor' = 'Q12. Compensatory Exercise', 'ED100k_ex_compulsive_current2' = '9. Current Exercise', 'ED100k_ex_dur_factor' = '7. Exercise Duration', 'ED100k_ex_freq_factor' = '8. Exercise Frequency', 'ex_friend_2_factor' = '4. Interfering with Friendship', 'ex_ill_2_factor' = '5. Exercising when ill', 'ex_diet_2_factor' = '6. Modified Diet if unable to Exercise', 'ex_distress_2_factor' = '3. Distressed when unable to exercise', 'ex_compel_2_factor' = '2. Compelled to Exercise')) %>% 
+ed100k_items_table <- bind_rows(factor_frequencies, .id = "Variable") %>% 
+  mutate(Variable = dplyr::recode(Variable, 'exercise' = '1. Exercised excessively', 'ED100k_ex_compensatory_factor' = 'Q12. Compensatory Exercise', 'ED100k_ex_compulsive_current2' = '9. Current Exercise', 'ED100k_ex_dur_factor' = '7. Exercise Duration', 'ED100k_ex_freq_factor' = '8. Exercise Frequency', 'ex_friend_2_factor' = '4. Interfering with Friendship', 'ex_ill_2_factor' = '5. Exercising when ill', 'ex_diet_2_factor' = '6. Modified Diet if unable to Exercise', 'ex_distress_2_factor' = '3. Distressed when unable to exercise', 'ex_compel_2_factor' = '2. Compelled to Exercise')) %>% 
   sort_asc(Variable) %>% 
-  mutate(Response = recode(Response, 'NaN' = 'Missing', 'no' = 'No', 'sometimes' = 'Sometimes', 'more often' = 'More Often')) %>% 
+  mutate(Response = dplyr::recode(Response, 'NaN' = 'Missing', 'no' = 'No', 'sometimes' = 'Sometimes', 'more often' = 'More Often')) %>% 
   mutate(Percent = round(Percent, 2))
 
-
-x <- kable(combined_table, row.names = FALSE) 
-save(x, file = 'validation_paper/tabs/ED100k_items.RData')
-x
+ED100k_items_file <- paste0("validation_paper/tabs/ED100k_items_", cohort, ".RData") 
+save(ed100k_items_table, file = ED100k_items_file)

@@ -25,8 +25,7 @@ ct2 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_
 ct3 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_addictive)
 ct4 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_excessive)
 ct5 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_compensatory)
-ct6 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$cet_clinical)
-ct7 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_maladaptive_1)
+ct6 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_maladaptive_1)
 
 dx_row_percents_1 <- as.data.frame(prop.table (ct, 1)) |> 
   filter (Var2 == 1) |> 
@@ -51,23 +50,18 @@ dx_row_percents_5 <- as.data.frame(prop.table (ct5, 1)) |>
 dx_row_percents_6 <- as.data.frame(prop.table (ct6, 1)) |> 
   filter (Var2 == 1) |> 
   select(c(1,3)) |> 
-  rename(`CET Clinical` = Freq)
-dx_row_percents_7 <- as.data.frame(prop.table (ct7, 1)) |> 
-  filter (Var2 == 1) |> 
-  select(c(1,3)) |> 
   rename(`Maladaptive (Broad)` = Freq)
 
 dx_row_percents <- full_join(dx_row_percents_1, dx_row_percents_2) 
 dx_row_percents <- full_join(dx_row_percents, dx_row_percents_3) 
 dx_row_percents <- full_join(dx_row_percents, dx_row_percents_4) 
 dx_row_percents <- full_join(dx_row_percents, dx_row_percents_5)
-dx_row_percents <- full_join(dx_row_percents, dx_row_percents_6)
-dx_row_percents <- full_join(dx_row_percents, dx_row_percents_7)|> 
+dx_row_percents <- full_join(dx_row_percents, dx_row_percents_6) |> 
   rename(`Diagnosis Group` = Var1) 
 
 
 
-dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory', 'CET Clinical', 'Maladaptive (Broad)'))
+dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory', 'Maladaptive (Broad)'))
 
 ggplot(dx_row_percents, aes(x = name, y = value*100, fill = `name` )) +
   geom_col()+
@@ -77,11 +71,9 @@ ggplot(dx_row_percents, aes(x = name, y = value*100, fill = `name` )) +
   theme(legend.position = 'none') +
   geom_text(aes(x = name, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3))
 
-ggsave(file = 'validation_paper/figs/dx_groups.png')
+dx_groups_fig <- paste0("validation_paper/figs/dx_groups_", cohort, ".png")
+ggsave(file = dx_groups_fig)
 
-library(nnet)
-library(dplyr)
-library(broom)
 
 Dx_table <- EDGI_exercise_cleaned %>%
   select(case_status, cet_clinical, ED100k_ex_addictive, ED100k_ex_compensatory, ED100k_ex_compulsive, ED100k_ex_compulsive_strict, ED100k_ex_excessive, ED100k_ex_maladaptive_1)
@@ -94,13 +86,12 @@ OR_list <- list()
 
 formulas <- c("ED100k_ex_compensatory ~ case_status",
               "ED100k_ex_compulsive ~ case_status",
-              "cet_clinical ~ case_status",
               "ED100k_ex_addictive ~ case_status",
               "ED100k_ex_compulsive_strict ~ case_status",
               "ED100k_ex_excessive ~ case_status",
               "ED100k_ex_maladaptive_1 ~ case_status")
 
-dv_labels <- c("Compensatory", "Compulsive", "CET Clinical Cutoff", "Addictive", "Regular Compulsive", "Excessive", "Maladaptive")
+dv_labels <- c("Compensatory", "Compulsive", "Addictive", "Regular Compulsive", "Excessive", "Maladaptive")
 
 # Loop through the formulas
 for (i in seq_along(formulas)) {
@@ -130,7 +121,7 @@ for (i in seq_along(model_list)) {
 results_df <- results_df |> 
   mutate(`Odds Ratio` = exp(estimate)) |> 
   filter(term != '(Intercept)') |> 
-  mutate(`Case Status` = recode(term, "case_statusAN Mixed" = "AN Mixed", 'cased_statusBED' = 'BED', 'case_statusBN' = 'BN', 'case_statusBN-BED Mixed' = 'BN-BED Mixed', 'case_statusBED' = 'BED')) |> 
+  mutate(`Case Status` = dplyr::recode(term, "case_statusAN Mixed" = "AN Mixed", 'cased_statusBED' = 'BED', 'case_statusBN' = 'BN', 'case_statusBN-BED Mixed' = 'BN-BED Mixed', 'case_statusBED' = 'BED')) |> 
   select (-c(term, y.level, statistic)) 
 
 results_df$p.value <- sprintf('%.2e', results_df$p.value)
@@ -138,4 +129,7 @@ results_df$p.value <- sprintf('%.2e', results_df$p.value)
 results_df <- results_df[, c(6,8,7,1:5)] 
 results_df[, sapply(results_df, is.numeric)] <- round(results_df[, sapply(results_df, is.numeric)], digits = 3)
 
-save(results_df, file = 'validation_paper/tabs/dx_multinom.RData')
+Dx_groups_file <- paste0("validation_paper/tabs/dx_multinom_", cohort, ".RData")
+save(results_df, file = Dx_groups_file)
+
+rm(list = ls())

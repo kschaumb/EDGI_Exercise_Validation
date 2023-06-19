@@ -1,17 +1,5 @@
+ 
 
-library(expss)
-library(dplyr)
-library(haven)
-library(sjmisc)
-library(psych)
-library(ggplot2)
-library(tidyr)
-library(caret)
-library(ggplot2)
-library(viridis)  
-
-
-load('data/EDGI_exercise_cleaned.RData') 
 traits <- c('ED100k_ex_compulsive', 'ED100k_ex_compulsive_strict_3mo', 'ED100k_ex_addictive', 'ED100k_ex_excessive', 'ED100k_ex_compensatory', 'ED100k_ex_maladaptive_1')
 traits_clean <- c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory', 'Maladaptive (Broad)')
 
@@ -92,29 +80,12 @@ ggplot(result_df_long, aes(x = Sample, y = Trait)) +
   ggtitle(stringr::str_wrap("Percentage within subsamples endorsing each exercise construct", width = 45))+
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
-ggsave('validation_paper/figs/ex_heatmap.png')  
+heatmap_file <- paste0("validation_paper/figs/ex_heatmap_", cohort, ".png") 
+ggsave(heatmap_file)  
 
 
 # label: fig-Q1sensitivity
 # fig-cap: Accuracy of Q1 in Detecting Compulsive, Addictive, and Excessive Exercise
-
-library(expss)
-library(bookdown)
-library(dplyr)
-library(haven)
-library(sjmisc)
-library(knitr)
-library(psych)
-library(ggplot2)
-library(ggrepel)
-library(wesanderson)
-library(tidyr)
-library(caret)
-library(tibble)
-library(psych)
-library(viridis)  
-
-load('data/EDGI_exercise_cleaned.RData') 
 
 regular_exercisers <- EDGI_exercise_cleaned |> 
   filter(ED100k_exercise_icb == 2)
@@ -193,7 +164,7 @@ confusion_table <- cbind(confusion_table[, c(6, 7)], confusion_table[, -c(6, 7)]
 
 # Round to two decimals
 confusion_table[] <- lapply(confusion_table, function(x) if(is.numeric(x)) round(x, 3) else x)
-confusion_table$`Q1 Criteria` <- recode(confusion_table$`Q1 Criteria`, Regular = 'More Often') 
+confusion_table$`Q1 Criteria` <- dplyr::recode(confusion_table$`Q1 Criteria`, Regular = 'More Often') 
 confusion_table <- confusion_table %>% arrange(`Exercise Type`)
 confusion_table_long <- pivot_longer(confusion_table, !c(`Q1 Criteria`, `Exercise Type`), names_to = 'metric', values_to = 'value')
 
@@ -207,7 +178,8 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   scale_fill_manual(values = wes_palette("Moonrise3")) 
 # Increase the plot area by changing the margins
 
-ggsave('validation_paper/figs/Q1_sensitivity.png')  
+Q1_sensitivity_file <- paste0("validation_paper/figs/Q1_sensitivity_", cohort, ".png") 
+ggsave(Q1_sensitivity_file)  
 
 # label: fig-npv
 # fig-cap: Confusion matrix components of compulsive and maladaptive history vs. current CET and EDEQ exercise
@@ -272,7 +244,7 @@ confusion_table <- cbind(confusion_table[, c(6, 7)], confusion_table[, -c(6, 7)]
 
 # Round to two decimals
 confusion_table[] <- lapply(confusion_table, function(x) if(is.numeric(x)) round(x, 3) else x)
-confusion_table$`Q1 Criteria` <- recode(confusion_table$`Q1 Criteria`, Regular = 'More Often') 
+confusion_table$`Q1 Criteria` <- dplyr::recode(confusion_table$`Q1 Criteria`, Regular = 'More Often') 
 confusion_table <- confusion_table %>% arrange(`Exercise Type`)
 confusion_table_long <- pivot_longer(confusion_table, !c(`Q1 Criteria`, `Exercise Type`), names_to = 'metric', values_to = 'value')
 
@@ -285,7 +257,7 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(3)) + 
   scale_fill_manual(values = wes_palette("Moonrise3")) 
 
+NPV_file <- paste0("validation_paper/figs/NPV_", cohort, ".png") 
 
-
-ggsave('validation_paper/figs/NPV.png')  
+ggsave(NPV_file)  
 

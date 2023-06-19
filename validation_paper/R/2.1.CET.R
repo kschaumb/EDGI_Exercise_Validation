@@ -30,7 +30,8 @@ ggplot(Current_Exercise, aes(x = as.factor(ED100k_ex_compulsive_current2), y = v
   geom_text(data = median_stds, aes(x = as.factor(ED100k_ex_compulsive_current2), y = med_val + 0.3, label = round(med_val, 1)), size = 3, color = 'black', fontface ='bold') +
   scale_color_manual(values = wes_palette("Darjeeling1"))
 
-ggsave('validation_paper/figs/MedianCET.png')  
+CET_median_file <- paste0("validation_paper/figs/MedianCET_", cohort, ".png") 
+ggsave(CET_median_file)  
 
 # label: tbl-CETANOVA
 # tbl-cap: Omnibus ANOVA results comparing groups with current, history only, and no history of compulsive exercise on the ED100k on CET subscales
@@ -65,16 +66,17 @@ summary_table <- summary_table %>%
 
 # Print the summary table
 summary_table <- summary_table %>% 
-  mutate(term = recode(term,  'as.factor(ED100k_ex_compulsive_current2)' = 'ED100k History/Current Compulsive Exercise', 'Residuals' = 'Residual'))
+  mutate(term = dplyr::recode(term,  'as.factor(ED100k_ex_compulsive_current2)' = 'ED100k History/Current Compulsive Exercise', 'Residuals' = 'Residual'))
 
 summary_table$p.value <- sprintf('%.3e', summary_table$`p.value`)
 summary_table$sumsq <- round(summary_table$sumsq, 2)
 summary_table$meansq <- round(summary_table$meansq, 2)
 summary_table$statistic <- round(summary_table$statistic, 2)
 
-sum_table <- knitr::kable(summary_table)
-save(sum_table, file = 'validation_paper/tabs/CET_Anova.RData')
-sum_table
+
+CET_anova_file <- paste0("validation_paper/tabs/CET_Anova_", cohort, ".RData") 
+save(summary_table, file = CET_anova_file)
+
 
 
 
@@ -153,7 +155,7 @@ CET_effects<- pivot_longer (CET_effects, c(ex_current_dummy1, ex_current_dummy2,
   rename('Variable' = CET_Subscales)
 
 Contrasts <- full_join(Tukey_join, CET_effects) %>% 
-  mutate(dummy_variables = recode(dummy_variables, 'ex_current_dummy1' = 'No vs Hx of Exercise', 'ex_current_dummy2' = 'No vs. Current Exercise', 'ex_current_dummy3' = 'Hx vs. Current Exercise')) %>% 
+  mutate(dummy_variables = dplyr::recode(dummy_variables, 'ex_current_dummy1' = 'No vs Hx of Exercise', 'ex_current_dummy2' = 'No vs. Current Exercise', 'ex_current_dummy3' = 'Hx vs. Current Exercise')) %>% 
   rename('Contrast' = dummy_variables)  
 
 y <- c('diff', 'lwr', 'upr', 'CohensD')
@@ -181,7 +183,6 @@ Contrasts <- Contrasts %>%
   select(-c(CI, lwr, upr, new_lwr, new_upr, alpha, z_score, se)) %>% 
   rename ('Difference' = diff)
 
-Contrast_table <- knitr::kable(Contrasts)
-save(Contrast_table, file = 'validation_paper/tabs/CET_contrasts.RData')
-Contrast_table
+CET_contrast_file <- paste0("validation_paper/tabs/CET_contrasts_", cohort, ".RData") 
+save(Contrasts, file = CET_contrast_file)
 

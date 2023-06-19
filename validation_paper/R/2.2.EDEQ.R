@@ -15,7 +15,9 @@ ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_ex_compulsive_current2), y = mean
   geom_text(data = mean_edeq_ex, aes(x  = ED100k_ex_compulsive_current2+1.2, y = mean_edeq_ex+3, label = paste0('M =', round(mean_edeq_ex,2)), size = 3)) + 
   scale_fill_manual(values = wes_palette("Darjeeling1"))
 
-ggsave('validation_paper/figs/EDEQ_freq.png')
+EDEQ_freq_file <- paste0("validation_paper/figs/EDEQ_freq_", cohort, ".png") 
+
+ggsave(EDEQ_freq_file)
 
 # label: tbl-EDEQZin
 # tbl-cap: Zero-inflated Model Coefficients for ED100k Compulsive Exercise Predicting EDEQ Driven Exercise Days (past 28 days)
@@ -60,8 +62,8 @@ ZIN_table[, vars] <- round(ZIN_table[, vars], digits = 3)
 
 ZIN_table<- ZIN_table |> 
   filter(Term != 'Log(theta)') |> 
-  mutate(Term = recode(Term, 'ex_current_dummy4' = 'History vs. No History', 'ex_current_dummy5' = 'Current vs. No History'))
+  mutate(Term = dplyr::recode(Term, 'ex_current_dummy4' = 'History vs. No History', 'ex_current_dummy5' = 'Current vs. No History'))
 
-ZIN_tab <- knitr::kable(ZIN_table)
-save(ZIN_tab, file = 'validation_paper/tabs/ED100k_items.RData')
-ZIN_tab
+ZIN_tab_file <- paste0("validation_paper/tabs/EDEQ_table_", cohort, ".RData") 
+
+save(ZIN_table, file = ZIN_tab_file)
