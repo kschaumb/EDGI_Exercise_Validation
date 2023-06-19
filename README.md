@@ -4,7 +4,7 @@ Replication Instructions:
 
 In order to replicate analysis in the validation paper, complete the following steps -- 
 
-1. Pull/Copy the ENTIRE Repository and set it up on your computer. Pick out a spot in which it is OK to place data 
+1. Pull/Copy the ENTIRE Repository and set it up on your computer. Pick out a spot in which it is OK to place data. Do not change the folder structure. Keep all of the existing folders.
 2. Make a 'data' folder in the head of the repository. Place your RAW data file here. It is important that the the variable names are all totally raw (straight from EDGI data download), and there has not been pre-processing that has removed any of the original variable names. You will need ONLY the following scales in the raw data file (though fine if you have more): ED100k, OCI12, FrostMPS, EDEQ, and CET. 
 3. Get your R environment set up. Open the 'EDGI_Exercise_Analyses.RProj' file. The first thing you will want to do is download the 'renv' package `install.packages('renv')`. Once you have the renv package installed, run renv::restore() to restore all of the packages needed for analysis on your computer. You should only need to got through this process once. If `renv::restore()` is getting stuck, you may need to install a package directly:  `(install.packages('package'))` for most things, or `library(remotes)` followed by `install_github(embark-lab/scorekeeper)` for the scorekeeper package. 
 4. ALWAYS have the 'EDGI_Exercise_Analyses.RProj' file open! The file paths assume that you are working inside of a project
