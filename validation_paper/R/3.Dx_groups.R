@@ -63,6 +63,9 @@ dx_row_percents <- full_join(dx_row_percents, dx_row_percents_6) |>
 
 dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory', 'Maladaptive (Broad)'))
 
+Dx_percents <- dx_row_percents
+resave(Dx_percents, file = df_file)
+
 ggplot(dx_row_percents, aes(x = name, y = value*100, fill = `name` )) +
   geom_col()+
   facet_wrap (~ `Diagnosis Group`) +
@@ -129,7 +132,8 @@ results_df$p.value <- sprintf('%.2e', results_df$p.value)
 results_df <- results_df[, c(6,8,7,1:5)] 
 results_df[, sapply(results_df, is.numeric)] <- round(results_df[, sapply(results_df, is.numeric)], digits = 3)
 
-Dx_groups_file <- paste0("validation_paper/tabs/dx_multinom_", cohort, ".RData")
-save(results_df, file = Dx_groups_file)
+
+Dx_groups_results_df <- results_df
+resave(Dx_groups_results_df, file = df_file)
 
 rm(list = ls())

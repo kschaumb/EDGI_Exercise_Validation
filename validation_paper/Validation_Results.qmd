@@ -1,6 +1,6 @@
 ---
 title: "EDGI Exercise Validation Paper Results"
-format: docx
+format: html
 editor: visual
 ---
 
@@ -30,6 +30,8 @@ library(viridis)
 library(kableExtra)
 
 load('../data/EDGI_exercise_cleaned_USA.RData') 
+load('tabs/Result_dfs_USA.RData')
+
 exercisers <- EDGI_exercise_cleaned |> 
   filter(ED100k_exercise_icb > 0)
 compulsive_exercisers <- EDGI_exercise_cleaned |> 
@@ -49,8 +51,7 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
 ```{r}
 #| label: tbl-ed100kItems
 #| tbl-cap: Item-level descriptives for ED100k Exercise Items
-load('tabs/ED100k_items_USA.RData')
-knitr::kable(ed100k_items_table)
+knitr::kable(ED100k_items_table)
 ```
 
 Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see [scoring](sec:scoring)) are provide in @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was `r round(median(EDGI_exercise_cleaned$ex_age, na.rm = TRUE), 2)` years and the median age of last report of compulsive exercise was `r round(median(EDGI_exercise_cleaned$ex_age_1, na.rm = TRUE), 2)` years. Among those who reported any compulsive exercise, `r frq(compulsive_exercisers$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported that this was an ongoing symptom.
@@ -160,8 +161,7 @@ Boxplots with median standardized scores on all CET subscales along with CET tot
 ```{r}
 #| label: tbl-CETANOVA
 #| tbl-cap: Omnibus ANOVA results comparing groups with current, history only, and no history of compulsive exercise on the ED100k on CET subscales
-load('tabs/CET_Anova_USA.RData')
-knitr::kable(summary_table)
+knitr::kable(CET_ANOVA_df)
 ```
 
 @tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of compulsive exercise to those with a history, but not current, compulsive exercise and when comparing those with history vs. current compulsive exercise. Comparison of those with no history of compulsive exercise vs. current compulsive exercise consistently demonstrated large effects. For all subscales with the exception of the enjoyment subscale, effects indicated that those with current compulsive exercise scored highest, while those with no history of compulsive exercise scored the highest on the lack of exercise enjoyment subscale.
@@ -170,8 +170,7 @@ knitr::kable(summary_table)
 #| label: tbl-CETcontrasts
 #| tbl-cap: Contrasts for each of the five CET subscales and the CET Total across those with and without history and current compulsive exercise as reported on the ED100k
 
-load('tabs/CET_contrasts_USA.RData')
-knitr::kable(Contrasts)
+knitr::kable(CET_contrast_file)
 
 ```
 
@@ -210,8 +209,7 @@ A zero-inflated poisson regression model compared those with "History, but Not C
 #| label: tbl-EDEQZin
 #| tbl-cap: Zero-inflated Model Coefficients for ED100k Compulsive Exercise Predicting EDEQ Driven Exercise Days (past 28 days)
 
-load('tabs/EDEQ_table_USA.RData')
-knitr::kable(ZIN_table)
+knitr::kable(EDEQ_ZIN_table)
 ```
 
 ## Perfectionism and OCD Symptoms
@@ -220,17 +218,16 @@ In addition to convergent validity across current exercise measures, we also exa
 
 H2c: Within diagnostic groups - those with vs. without history of compulsive exercise will report higher Frost MPS (Maladaptive) and OCD symptoms. *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores across those with vs. without history of maladpative exercise, expected p \< 0.05 adjusted for multiple comparisons across subscales. We also include calculation of Cohen's d effect sizes.*
 
-
-Graphs depicting means and standard deviations for OCI total and subscale scores within diagnostic groups are presented in @fig-OCI-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of subscale and total OCI scores within diagnostic groups is presented in @tbl-oci-USA. Using FDR-adjusted (Benjamini-Hochberg) p-values across all 25 comparisons, OCI subscale and total scores did not significantly differ based on compulsive exercise history for those wtih AN, AN-Mixed, or BN diagnoses; however, those who reported compulsive exercise and a diagnosis of BN-BED mixed or BED only did have higher OCI scores (order, obsession and total for BED-BN mixed; checking, order, and total for BED) than those with similar diagnoses who id not report a history of compulsive exercise. Signficant effect sizes were modes ( *d* ~ 0.2-0.35)
+Graphs depicting means and standard deviations for OCI total and subscale scores within diagnostic groups are presented in @fig-OCI-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of subscale and total OCI scores within diagnostic groups is presented in @tbl-oci-USA. Using FDR-adjusted (Benjamini-Hochberg) p-values across all 25 comparisons, OCI subscale and total scores did not significantly differ based on compulsive exercise history for those wtih AN, AN-Mixed, or BN diagnoses; however, those who reported compulsive exercise and a diagnosis of BN-BED mixed or BED only did have higher OCI scores (order, obsession and total for BED-BN mixed; checking, order, and total for BED) than those with similar diagnoses who id not report a history of compulsive exercise. Signficant effect sizes were modes ( *d* \~ 0.2-0.35)
 
 ![Percentage within each diganostic group reporting differing exercise constructs](figs/OCI_compulsive_USA.png){#fig-OCI-USA}
 
 ```{r OCI-tabs}
 #| label: tbl-oci-USA
 #| tbl-cap: t-test output comparing those with and without compulsive exercise on OCI subscales and total scores within diagnostic groups
-load('tabs/OCI_compulsive_df_USA.RData')
+
 # Create an empty data frame to store the tidy results
-oci_tidy_results <- oci_tidy_results |> 
+oci_tidy_results <- OCI_tidy_results |> 
   mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
   mutate(`t` = as.numeric(`t`)*-1)
 
@@ -242,17 +239,15 @@ knitr::kable(oci_tidy_results)
   
 ```
 
-
-Graphs depicting means and standard deviations for MPS total and subscale scores within diagnostic groups are presented in @fig-MPS-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of MPS subscale scores within diagnostic groups is presented in @tbl-MPS-USA. Using FDR-adjusted (Benjamini-Hochberg) p-values across all 15 comparisons, effect sizes showed significantly higher personal standards subsscales scores in all diagnostic groups for those who reported a history of compulsive exercise. Those with AN, BN-BED Mixed, and BED who reported a history of compulsive exercise had higher levels of concern over mistakes and doubts about action as compared to those with similar diagnoses who did not report a history of compulsive exercise. Cohen's D effect sizes for significant effects ranged from small-to-moderate ( *d* ~ 0.2 - 0.8)
+Graphs depicting means and standard deviations for MPS total and subscale scores within diagnostic groups are presented in @fig-MPS-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of MPS subscale scores within diagnostic groups is presented in @tbl-MPS-USA. Using FDR-adjusted (Benjamini-Hochberg) p-values across all 15 comparisons, effect sizes showed significantly higher personal standards subsscales scores in all diagnostic groups for those who reported a history of compulsive exercise. Those with AN, BN-BED Mixed, and BED who reported a history of compulsive exercise had higher levels of concern over mistakes and doubts about action as compared to those with similar diagnoses who did not report a history of compulsive exercise. Cohen's D effect sizes for significant effects ranged from small-to-moderate ( *d* \~ 0.2 - 0.8)
 
 ![Percentage within each diganostic group reporting differing exercise constructs](figs/MPS_compulsive_USA.png){#fig-MPS-USA}
 
 ```{r MPS-tabs}
 #| label: tbl-MPS-USA
 #| tbl-cap: t-test output comparing those with and without compulsive exercise on MPS subscales and within diagnostic groups
-load('tabs/MPS_compulsive_df_USA.RData')
 # Create an empty data frame to store the tidy results
-mps_tidy_results <- mps_tidy_results |> 
+mps_tidy_results <- MPS_tidy_results |> 
   mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
   mutate(`t` = as.numeric(`t`)*-1)
 
@@ -264,13 +259,12 @@ knitr::kable(mps_tidy_results)
   
 ```
 
-
-
 H2d: Associations with the MPS and OCI will be weaker than with the CET and EDEQ exercise item. *We will interpret patterns of ES across these scales*
 
-When comparing patterns of effect size between CET and EDEQ exercise items with MPS and OCI, the OCI demonstrated the smallest effect sizes. Associations between history of compulsive exercise and OCI subscales were inconsistent and only significant among those with BED presentations. History of compulsive exercise demonstrated small-to-moderate effect sizes with MPS scores, and associations were more consistent across diagnostic groups. High personal standards was a subscale that stood out as having the strongest associations with compulsive exercise history across diagnosis groups. As hypothesized, CET and EDEQ exercise items demonstrated moderate-to-large associations with ED100k history of compulsive exercise. 
+When comparing patterns of effect size between CET and EDEQ exercise items with MPS and OCI, the OCI demonstrated the smallest effect sizes. Associations between history of compulsive exercise and OCI subscales were inconsistent and only significant among those with BED presentations. History of compulsive exercise demonstrated small-to-moderate effect sizes with MPS scores, and associations were more consistent across diagnostic groups. High personal standards was a subscale that stood out as having the strongest associations with compulsive exercise history across diagnosis groups. As hypothesized, CET and EDEQ exercise items demonstrated moderate-to-large associations with ED100k history of compulsive exercise.
 
 # Aim 3. Demonstrate Prevalence of Maladaptive (Broad), Compulsive, Addictive, Excessive, and Compensatory Exercise across Diagnostic Groups
+
 ```{r, Diagnostic-Groups}
 
 # Below makes the 5 case status diagnosis groups
@@ -294,6 +288,7 @@ dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
 
 
 ```
+
 H3a. Maladaptive exercise, compulsive exercise, and exercise addiction will be a common symptom across diagnoses. We expect that these constructs will be more common in AN and BN than BED. *Rates of maladaptive exercise, compulsive exercise, excessive exercise, and exercise addiction will all be \> 50% in AN and BN presentations; \> 20% in BED. Multinomial logisitc regression with AN only as reference group will show higher rates in AN only as compared to BN only, BN-BED, and BED only groups*
 
 H3b. Compensatory exercise will be more common among those with AN mixed and BN as compared to AN only . *Multinomial logistic regression with AN group as reference -- AN mixed, BN, and BN-BED mixed groups will report higher levels of compensatory exercise than the AN only group. BED only will report similar levels of compensatory exercise to AN only*
@@ -307,8 +302,7 @@ Rates of addictive, compensatory, compulsive, excessive, and regular compulsive 
 ```{r multinomial dx groups}
 #| label: tbl-dxgroups
 #| tbl-cap: Multinomial Logisitc Regression Output and Odds Ratios (Compared to AN only) for each exercise construct. 
-load('tabs/dx_multinom_USA.RData')
-kable(results_df)
+kable(Dx_groups_results_df)
 #commented out below - html table
 # library(kableExtra)
 # # Create Kable table and highlight rows with confidence intervals not overlapping 0

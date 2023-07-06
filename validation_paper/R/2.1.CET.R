@@ -20,6 +20,10 @@ median_stds <- Current_Exercise |>
   group_by (ED100k_ex_compulsive_current2, variable) |> 
   summarize (med_val = median(val, na.rm = TRUE))
 
+# Save Current Exercise df
+Current_Exercise_df <- Current_Exercise
+resave(Current_Exercise_df, file = df_file)
+
 ggplot(Current_Exercise, aes(x = as.factor(ED100k_ex_compulsive_current2), y = val, color = as.factor(ED100k_ex_compulsive_current2))) +
   facet_wrap(~variable)+
   geom_jitter(size = 0.3) +
@@ -59,6 +63,9 @@ summary_table <- bind_rows(mapply(function(obj, name) {
   return(summary)
 }, anova_objects, object_names, SIMPLIFY = FALSE))
 
+CET_ANOVA_df_unfiltered <- summary_table
+resave(CET_ANOVA_df_unfiltered, file = df_file)
+
 
 # Move "Model" column to the first column
 summary_table <- summary_table %>%
@@ -74,10 +81,8 @@ summary_table$meansq <- round(summary_table$meansq, 2)
 summary_table$statistic <- round(summary_table$statistic, 2)
 
 
-CET_anova_file <- paste0("validation_paper/tabs/CET_Anova_", cohort, ".RData") 
-save(summary_table, file = CET_anova_file)
-
-
+CET_ANOVA_df <- summary_table
+resave(CET_ANOVA_df, file = df_file)
 
 
 # label: tbl-CETcontrasts
@@ -183,6 +188,6 @@ Contrasts <- Contrasts %>%
   select(-c(CI, lwr, upr, new_lwr, new_upr, alpha, z_score, se)) %>% 
   rename ('Difference' = diff)
 
-CET_contrast_file <- paste0("validation_paper/tabs/CET_contrasts_", cohort, ".RData") 
-save(Contrasts, file = CET_contrast_file)
+CET_contrast_file <- Contrasts 
+resave(CET_contrast_file, file = df_file)
 

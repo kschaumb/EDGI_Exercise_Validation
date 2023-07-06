@@ -6,6 +6,7 @@ mean_edeq_ex <- EDGI_exercise_cleaned|>
   filter(!is.na(ED100k_ex_compulsive_current2)) |> 
   summarize (mean_edeq_ex = mean(edeq_ex_driven_freq_28, na.rm = TRUE))
 
+
 ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_ex_compulsive_current2), y = mean_edeq_ex))  +
   geom_point()+
   geom_boxplot(data = EDGI_exercise_cleaned, aes( x = as.factor(ED100k_ex_compulsive_current2), y = edeq_ex_driven_freq_28, fill = as.factor(ED100k_ex_compulsive_current2))) +
@@ -32,6 +33,12 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>%
 
 EDEQ_zin1 <- zeroinfl(edeq_ex_driven_freq_28 ~ ex_current_dummy4 + ex_current_dummy5 | ex_current_dummy4 + ex_current_dummy5,
                       data = EDGI_exercise_cleaned)
+
+#Figure out how to remove the 'model' variable before saving - has raw data in it
+EDEQ_ZIN_full_models <- EDEQ_zin1
+EDEQ_ZIN_full_models[["model"]] <- NA
+resave(EDEQ_ZIN_full_models, file = df_file)
+
 
 EDEQ_zin1_coefs <- summary(EDEQ_zin1)$coefficients
 
@@ -60,10 +67,8 @@ vars <- c('Estimate', 'IRR', 'OR', 'Std. Error', 'z value')
 
 ZIN_table[, vars] <- round(ZIN_table[, vars], digits = 3)
 
-ZIN_table<- ZIN_table |> 
+EDEQ_ZIN_table<- ZIN_table |> 
   filter(Term != 'Log(theta)') |> 
   mutate(Term = dplyr::recode(Term, 'ex_current_dummy4' = 'History vs. No History', 'ex_current_dummy5' = 'Current vs. No History'))
 
-ZIN_tab_file <- paste0("validation_paper/tabs/EDEQ_table_", cohort, ".RData") 
-
-save(ZIN_table, file = ZIN_tab_file)
+resave(EDEQ_ZIN_table, file = df_file)

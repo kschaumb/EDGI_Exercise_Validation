@@ -32,11 +32,11 @@ factor_frequencies <- factor_frequencies[sapply(factor_frequencies, Negate(is.nu
 
 library(haven)
 
-ed100k_items_table <- bind_rows(factor_frequencies, .id = "Variable") %>% 
+ED100k_items_table <- bind_rows(factor_frequencies, .id = "Variable") %>% 
   mutate(Variable = dplyr::recode(Variable, 'exercise' = '1. Exercised excessively', 'ED100k_ex_compensatory_factor' = 'Q12. Compensatory Exercise', 'ED100k_ex_compulsive_current2' = '9. Current Exercise', 'ED100k_ex_dur_factor' = '7. Exercise Duration', 'ED100k_ex_freq_factor' = '8. Exercise Frequency', 'ex_friend_2_factor' = '4. Interfering with Friendship', 'ex_ill_2_factor' = '5. Exercising when ill', 'ex_diet_2_factor' = '6. Modified Diet if unable to Exercise', 'ex_distress_2_factor' = '3. Distressed when unable to exercise', 'ex_compel_2_factor' = '2. Compelled to Exercise')) %>% 
   sort_asc(Variable) %>% 
   mutate(Response = dplyr::recode(Response, 'NaN' = 'Missing', 'no' = 'No', 'sometimes' = 'Sometimes', 'more often' = 'More Often')) %>% 
   mutate(Percent = round(Percent, 2))
 
-ED100k_items_file <- paste0("validation_paper/tabs/ED100k_items_", cohort, ".RData") 
-save(ed100k_items_table, file = ED100k_items_file)
+save(ED100k_items_table, file = df_file)
+

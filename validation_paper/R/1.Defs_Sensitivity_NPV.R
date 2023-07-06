@@ -80,8 +80,12 @@ ggplot(result_df_long, aes(x = Sample, y = Trait)) +
   ggtitle(stringr::str_wrap("Percentage within subsamples endorsing each exercise construct", width = 45))+
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1))
 
-heatmap_file <- paste0("validation_paper/figs/ex_heatmap_", cohort, ".png") 
-ggsave(heatmap_file)  
+# Save Heatmap Df
+Heatmap_df <- result_df_long
+resave(Heatmap_df, file = df_file)
+
+heatmap_png_file <- paste0("validation_paper/figs/ex_heatmap_", cohort, ".png") 
+ggsave(heatmap_png_file)  
 
 
 # label: fig-Q1sensitivity
@@ -123,8 +127,6 @@ Regular.Compensatory <- caret::confusionMatrix(as.factor(EDGI_exercise_cleaned$E
 
 Regular.RegCompulsive <- caret::confusionMatrix(as.factor(EDGI_exercise_cleaned$ED100k_exercise_regular), as.factor(EDGI_exercise_cleaned$ED100k_ex_compulsive_strict), positive = '1')
 
-
-
 # List of objects containing confusion matrix output
 confusion_matrices_list <- list(Any.Addictive, Any.Compulsive, Any.RegCompulsive, Any.Excessive, Any.Compensatory, Regular.Addictive, Regular.Compulsive, Regular.RegCompulsive, Regular.Excessive, Regular.Compensatory)
 
@@ -159,7 +161,6 @@ confusion_table$`Exercise Type` <- sapply(strsplit(as.character(confusion_table$
 confusion_table <- confusion_table %>% 
   select(-c(Object))
 
-
 confusion_table <- cbind(confusion_table[, c(6, 7)], confusion_table[, -c(6, 7)]) #Move variable names to columns 1-2
 
 # Round to two decimals
@@ -167,6 +168,11 @@ confusion_table[] <- lapply(confusion_table, function(x) if(is.numeric(x)) round
 confusion_table$`Q1 Criteria` <- dplyr::recode(confusion_table$`Q1 Criteria`, Regular = 'More Often') 
 confusion_table <- confusion_table %>% arrange(`Exercise Type`)
 confusion_table_long <- pivot_longer(confusion_table, !c(`Q1 Criteria`, `Exercise Type`), names_to = 'metric', values_to = 'value')
+
+# Save Q1 Sensitivity Confusion Matrix
+Q1_sensitivity_confusion_df <- confusion_table_long
+resave(Q1_sensitivity_confusion_df, file = df_file)
+
 
 ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   geom_col(position = 'dodge')+
@@ -247,6 +253,10 @@ confusion_table[] <- lapply(confusion_table, function(x) if(is.numeric(x)) round
 confusion_table$`Q1 Criteria` <- dplyr::recode(confusion_table$`Q1 Criteria`, Regular = 'More Often') 
 confusion_table <- confusion_table %>% arrange(`Exercise Type`)
 confusion_table_long <- pivot_longer(confusion_table, !c(`Q1 Criteria`, `Exercise Type`), names_to = 'metric', values_to = 'value')
+
+# Save CET and EDEQ Confusion Matrix
+CET_EDEQ_confusion_df <- confusion_table_long
+resave(CET_EDEQ_confusion_df, file = df_file)
 
 ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   geom_col(position = 'dodge')+

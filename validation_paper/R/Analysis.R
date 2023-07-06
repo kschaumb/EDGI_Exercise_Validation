@@ -32,13 +32,15 @@ library(viridis)
 library(kableExtra)
 library(cgwtools)
 
+df_file <- paste0("validation_paper/tabs/Result_dfs_", cohort, ".RData") 
+
 # Run 0-3 and Save output
 source("validation_paper/R/0.Descriptives.R")
 source("validation_paper/R/1.Defs_Sensitivity_NPV.R")
 source("validation_paper/R/2.1.CET.R")
 source("validation_paper/R/2.2.EDEQ.R")
-source("validation_paper/R/2.3.MPS_compulsive.R")
-source("validation_paper/R/2.4.OCI_compulsive.R")
+source("validation_paper/R/2.3.1.MPS_compulsive.R")
+source("validation_paper/R/2.3.2.OCI_compulsive.R")
 source("validation_paper/R/3.Dx_groups.R")
 
 

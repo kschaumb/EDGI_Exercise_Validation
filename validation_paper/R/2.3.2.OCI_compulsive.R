@@ -1,6 +1,5 @@
 
 # Below makes the 5 case status diagnosis groups
-library(dplyr)
 
 #Make case hierarchy and recode restrictive and binge spectrum mixed cases
 EDGI_exercise_cleaned <- EDGI_exercise_cleaned |> 
@@ -14,16 +13,21 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
                                       bed_case == 1 ~ 'BED'))
 
 case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED')
+exercise_vars <- c('ED100k_ex_maladaptive', 'ED100k_ex_compulsive')
+oci_vars <- c('oci12_wash', 'oci12_check', 'oci12_order', 'oci12_obsess', 'oci12_total')
 mps_vars <- c('mps_ps', 'mps_cm', 'mps_da')
 
 # Define the labels for the levels
 level_labels <- c("No Compulsive Exercise", "Compulsive Exercise")
 
 # Define custom labels for the OCI variables
-mps_labels <- c(
-  mps_ps = "Personal Standards",
-  mps_cm = "Concern over Mistakes",
-  mps_da = "Doubts about Actions")
+oci_labels <- c(
+  oci12_wash = "Washing",
+  oci12_check = "Checking",
+  oci12_order = "Order",
+  oci12_obsess = "Obsessions",
+  oci12_total = "Total"
+)
 
 
 # Create an empty list to store the nested data
@@ -33,7 +37,7 @@ nested_data <- list()
 for (status in case_status_vars) {
   nested_data[[status]] <- list()
   
-  for (var in mps_vars) {
+  for (var in oci_vars) {
     filtered_data <- EDGI_exercise_cleaned %>%
       filter(case_status == status)
     
@@ -62,9 +66,8 @@ for (status in case_status_vars) {
   }
 }
 
-mps_compulsive_data <- nested_data
-
-
+OCI_compulsive_data <- nested_data
+resave(OCI_compulsive_data, file = df_file)
 
 
 library(ggplot2)
@@ -75,7 +78,7 @@ library(patchwork)
 ggplots <- list()
 
 # Iterate over OCI variables
-for (var in mps_vars) {
+for (var in oci_vars) {
   # Create an empty data frame to store the combined plot data for the current OCI variable
   combined_data <- NULL
   
@@ -110,47 +113,40 @@ for (var in mps_vars) {
   p <- ggplot(combined_data, aes(x = Status, y = Mean, fill = Variable)) +
     geom_bar(stat = "identity", position = "dodge") +
     geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2, position = position_dodge(0.9)) +
-    labs(title = mps_labels[var], x = NULL, y = "Mean") +
+    labs(title = oci_labels[var], x = NULL, y = "Mean") +
     scale_fill_discrete(labels = level_labels, name = NULL) +
     scale_x_discrete(labels = case_status_vars) +  # Set custom labels for x-axis
     theme_bw() +
     theme(plot.title = element_text(hjust = 0.5),
           axis.text.x = element_text(angle = 45, hjust = 1),
           axis.title.y = element_blank(),
-          legend.position = ifelse(var == mps_vars[2], "bottom", "none")) +
-  coord_cartesian(ylim = c(4, NA))  # Set y-axis lower limit to 4
+          legend.position = ifelse(var == oci_vars[4], "bottom", "none"))
   
   # Add the ggplot object to the list
   ggplots[[var]] <- p
 }
 
 # Combine the ggplot objects and facet wrap by variable
-mps_plot <- ggplots[[1]] +
+OCI_plot <- ggplots[[1]] +
   ggplots[[2]] +
   ggplots[[3]] +
+  ggplots[[4]] +
+  ggplots[[5]] +
   plot_layout(ncol = 2) +
-  plot_annotation(title = "MPS Subscale Scores Across Exercise and Diagnosis Group", theme = theme(plot.title = element_text(hjust = 0.5))) 
+  plot_annotation(title = "OCI12 Mean Subscale and \n Total Scores Across Exercise and Diagnosis Group", theme = theme(plot.title = element_text(hjust = 0.5))) 
 
-# Print the combined plot
-mps_plot
+OCI_plot
 
-
-mps_plot_file <- paste0("validation_paper/figs/MPS_compulsive_", cohort, ".png") 
-ggsave(mps_plot_file)  
-
-mps_compulsive_file <- paste0("validation_paper/tabs/MPS_compulsive_df_", cohort, ".RData") 
-save(mps_compulsive_data, file = mps_compulsive_file)
-
-
+OCI_plot_file <- paste0("validation_paper/figs/OCI_compulsive_", cohort, ".png") 
+ggsave(OCI_plot_file)  
 
 tidy_results <- data.frame()
-tidy_result <- data.frame()
 
 # Loop through case_status and variable
 for (status in case_status_vars) {
-  for (var in mps_vars) {
+  for (var in oci_vars) {
     # Extract the t-test result
-    t_test_result <- mps_compulsive_data[[status]][[var]]$t_test_result
+    t_test_result <- OCI_compulsive_data[[status]][[var]]$t_test_result
     
     # Tidy the t-test result and add it to the tidy_results data frame
     tidy_result <- broom::tidy(t_test_result)
@@ -164,13 +160,13 @@ for (status in case_status_vars) {
 
 # Iterate over case statuses
 for (status in case_status_vars) {
-  # Iterate over mps variables
-  for (var in mps_vars) {
-    # Extract sd from mps_compulsive_data
-    sd1 <- mps_compulsive_data[[status]][[var]]$level_stats$`0`$sd
-    sd2 <- mps_compulsive_data[[status]][[var]]$level_stats$`1`$sd
+  # Iterate over oci variables
+  for (var in oci_vars) {
+    # Extract sd from oci_compulsive_data
+    sd1 <- OCI_compulsive_data[[status]][[var]]$level_stats$`0`$sd
+    sd2 <- OCI_compulsive_data[[status]][[var]]$level_stats$`1`$sd
     
-    # Find the rows matching the current case status and mps variable
+    # Find the rows matching the current case status and oci variable
     rows <- tidy_results$status == status & tidy_results$variable == var
     
     # Update sd1 and sd2 in the matching rows
@@ -201,14 +197,15 @@ tidy_results <- tidy_results |>
 
 tidy_results <- tidy_results %>%
   mutate(variable = case_when(
-    variable == "mps_ps" ~ "Personal Standards",
-    variable == "mps_cm" ~ "Concern Over Mistakes",
-    variable == "mps_da" ~ "Doubts About Actions",
+    variable == "oci12_wash" ~ "Washing",
+    variable == "oci12_check" ~ "Checking",
+    variable == "oci12_order" ~ "Order",
+    variable == "oci12_total" ~ "Total",
+    variable == "oci12_obsess" ~ "Obsess",
     TRUE ~ as.character(variable)
   ))
 
 
-mps_tidy_results <- tidy_results
-resave(mps_tidy_results, file = mps_compulsive_file)
-
+OCI_tidy_results <- tidy_results
+resave(OCI_tidy_results, file = df_file)
 
