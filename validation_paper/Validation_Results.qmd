@@ -1,6 +1,6 @@
 ---
 title: "EDGI Exercise Validation Paper Results"
-format: html
+format: docx
 editor: visual
 ---
 
@@ -302,7 +302,19 @@ Rates of addictive, compensatory, compulsive, excessive, and regular compulsive 
 ```{r multinomial dx groups}
 #| label: tbl-dxgroups
 #| tbl-cap: Multinomial Logisitc Regression Output and Odds Ratios (Compared to AN only) for each exercise construct. 
-kable(Dx_groups_results_df)
+
+Dx_groups_results_df$p.value <- sprintf('%.2e', Dx_groups_results_df$p.value)
+Dx_groups_results <- Dx_groups_results_df[, c(6,10,7:9,1:3)] 
+Dx_groups_results[, sapply(Dx_groups_results, is.numeric)] <- round(Dx_groups_results[, sapply(Dx_groups_results, is.numeric)], digits = 3)
+
+# Modify the "Odds Ratio" column to "OR (CI Low, CI High)"
+Dx_groups_results$`OR` <- paste0(Dx_groups_results$`Odds Ratio`, " (", Dx_groups_results$`CI Low`, ", ", Dx_groups_results$`CI High`, ")") 
+Dx_groups_results <- Dx_groups_results|> 
+  select(-c('Odds Ratio', 'CI Low', 'CI High', 'estimate', 'std.error')) 
+Dx_groups_results <- Dx_groups_results[, c(1,2,4,3)] 
+
+knitr::kable(Dx_groups_results)
+
 #commented out below - html table
 # library(kableExtra)
 # # Create Kable table and highlight rows with confidence intervals not overlapping 0

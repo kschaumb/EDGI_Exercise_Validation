@@ -66,18 +66,28 @@ dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('Compulsive', 'Regula
 Dx_percents <- dx_row_percents
 resave(Dx_percents, file = df_file)
 
-ggplot(dx_row_percents, aes(x = name, y = value*100, fill = `name` )) +
+diagnosis_order <- c("AN", "AN Mixed", "BN", "BN-BED Mixed", "BED")
+construct_order <- c("Maladaptive (Broad)", "Compulsive", "Regular Compulsive", "Addictive", "Excessive", "Compensatory")
+# Convert the diagnosis group variable to a factor with the desired order
+dx_row_percents$`Diagnosis Group` <- factor(dx_row_percents$`Diagnosis Group`, levels = diagnosis_order)
+dx_row_percents$name <- factor(dx_row_percents$name, levels = construct_order)
+
+resave(dx_row_percents, file = df_file)
+
+
+
+ggplot(dx_row_percents, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagnosis Group` )) +
   geom_col()+
-  facet_wrap (~ `Diagnosis Group`) +
-  labs(title = 'Percentages by Diagnosis Group and Exercise Group', x = 'Exercise Group', y = 'Percentage (within Diagnosis Group)') + 
+  facet_wrap (~ `name`) +
+  labs(title = 'Percentages by Diagnosis Group \n and Exercise Construct', x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
   theme(legend.position = 'none') +
-  geom_text(aes(x = name, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3))
+  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3))
 
 dx_groups_fig <- paste0("validation_paper/figs/dx_groups_", cohort, ".png")
 ggsave(file = dx_groups_fig)
 
-
+## Run Models
 Dx_table <- EDGI_exercise_cleaned %>%
   select(case_status, cet_clinical, ED100k_ex_addictive, ED100k_ex_compensatory, ED100k_ex_compulsive, ED100k_ex_compulsive_strict, ED100k_ex_excessive, ED100k_ex_maladaptive_1)
 
@@ -99,12 +109,21 @@ dv_labels <- c("Compensatory", "Compulsive", "Addictive", "Regular Compulsive", 
 # Loop through the formulas
 for (i in seq_along(formulas)) {
   # Fit the multinomial regression model
-  model <- multinom(as.formula(formulas[i]), data = Dx_table)
+  model <- glm(as.formula(formulas[i]), data = Dx_table, family = binomial)
   model$DV <- dv_labels[i]
   
   # Store the model in the list
   model_list[[length(model_list) + 1]] <- model
 }
+
+dx_glm_models <- model_list 
+for (i in 1:length(model_list)) { 
+dx_glm_models[[i]][["data"]] <- NA
+dx_glm_models[[i]][["model"]] <- NA
+
+}
+
+resave(dx_glm_models, file = df_file)
 
 # Create an empty data frame to store the results
 results_df <- data.frame()
@@ -121,19 +140,20 @@ for (i in seq_along(model_list)) {
   results_df <- bind_rows(results_df, tidy_model)
 }
 
+Dx_groups_results_full <- results_df
+resave(Dx_groups_results_full, file = df_file)
+
+
 results_df <- results_df |> 
   mutate(`Odds Ratio` = exp(estimate)) |> 
+  mutate(`CI Low` = exp(conf.low)) |> 
+  mutate(`CI High` = exp(conf.high)) |> 
   filter(term != '(Intercept)') |> 
   mutate(`Case Status` = dplyr::recode(term, "case_statusAN Mixed" = "AN Mixed", 'cased_statusBED' = 'BED', 'case_statusBN' = 'BN', 'case_statusBN-BED Mixed' = 'BN-BED Mixed', 'case_statusBED' = 'BED')) |> 
-  select (-c(term, y.level, statistic)) 
-
-results_df$p.value <- sprintf('%.2e', results_df$p.value)
-
-results_df <- results_df[, c(6,8,7,1:5)] 
-results_df[, sapply(results_df, is.numeric)] <- round(results_df[, sapply(results_df, is.numeric)], digits = 3)
-
+  select (-c(term, statistic)) 
 
 Dx_groups_results_df <- results_df
 resave(Dx_groups_results_df, file = df_file)
+
 
 rm(list = ls())
