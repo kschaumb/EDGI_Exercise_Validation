@@ -76,17 +76,6 @@ resave(dx_row_percents, file = df_file)
 
 
 
-ggplot(dx_row_percents, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagnosis Group` )) +
-  geom_col()+
-  facet_wrap (~ `name`) +
-  labs(title = 'Percentages by Diagnosis Group \n and Exercise Construct', x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') + 
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
-  theme(legend.position = 'none') +
-  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3))
-
-dx_groups_fig <- paste0("validation_paper/figs/dx_groups_", cohort, ".png")
-ggsave(file = dx_groups_fig)
-
 ## Run Models
 Dx_table <- EDGI_exercise_cleaned %>%
   select(case_status, cet_clinical, ED100k_ex_addictive, ED100k_ex_compensatory, ED100k_ex_compulsive, ED100k_ex_compulsive_strict, ED100k_ex_excessive, ED100k_ex_maladaptive_1)
@@ -117,6 +106,14 @@ for (i in seq_along(formulas)) {
 }
 
 dx_glm_models <- model_list 
+
+posthoc_results <- list()
+for (i in seq_along(model_list)) {
+  posthoc_results[[i]] <- emmeans(model_list[[i]], pairwise ~ case_status, type = "response", adjust = 'bonferroni')
+  posthoc_results[[i]]$DV <- dv_labels[i]
+  
+}
+
 for (i in 1:length(model_list)) { 
 dx_glm_models[[i]][["data"]] <- NA
 dx_glm_models[[i]][["model"]] <- NA
@@ -124,6 +121,8 @@ dx_glm_models[[i]][["model"]] <- NA
 }
 
 resave(dx_glm_models, file = df_file)
+resave(posthoc_results, file = df_file)
+
 
 # Create an empty data frame to store the results
 results_df <- data.frame()
@@ -156,4 +155,117 @@ Dx_groups_results_df <- results_df
 resave(Dx_groups_results_df, file = df_file)
 
 
-rm(list = ls())
+contrasts_df <- data.frame()
+
+for (i in seq_along(posthoc_results)) {
+  # Convert the model to tidy format
+  contrasts <- as.data.frame(posthoc_results[[i]]$contrasts)
+  
+  # Add a column for the DV label
+  contrasts$DV <- posthoc_results[[i]]$DV
+  
+  # Append the tidy model results to the overall results data frame
+  contrasts_df <- bind_rows(contrasts_df, contrasts)
+}
+
+dx_contrasts_df <- contrasts_df |> 
+  select(-c(df, null)) 
+
+  
+dx_contrasts_df <- dx_contrasts_df[, c("DV", "contrast", "odds.ratio", "SE", 'p.value')] 
+dx_contrasts_df$Group1 <- sub("/.*", "", dx_contrasts_df$contrast)
+dx_contrasts_df$Group2 <- sub(".*?/", "", dx_contrasts_df$contrast)
+dx_contrasts_df$Group2 <- gsub("\\(|\\)", "", dx_contrasts_df$Group2)
+
+resave(dx_contrasts_df, file = df_file)
+
+
+annotation_df <- dx_contrasts_df |> 
+  select(c(DV, contrast, Group1, Group2, `p.value`)) 
+
+annotation_df$y = recode(annotation_df$contrast, 
+       'AN / AN Mixed' = 50, 
+       'AN / BN' = 55,
+       'AN / (BN-BED Mixed)' = 60,
+       'AN / BED' = 65, 
+       'AN Mixed / BN' = 70, 
+       'AN Mixed / (BN-BED Mixed)' = 75, 
+       'AN Mixed / BED' = 80,
+       'BN / (BN-BED Mixed)' = 85,
+       'BED / BN' = 90,
+       'BED / (BN-BED Mixed)' = 95
+       )
+
+annotation_df$x = recode(annotation_df$Group1, 
+                         'AN ' = '1',
+                         'AN Mixed ' = '2', 
+                         'BN ' = '3',
+                         'BN-BED Mixed ' = '4',
+                         'BED ' = '5'
+)
+
+annotation_df$xend = recode(annotation_df$Group2, 
+                         ' AN' = '1',
+                         ' AN Mixed' = '2', 
+                         ' BN' = '3',
+                         ' BN-BED Mixed' = '4',
+                         ' BED' = '5')
+
+
+annotation_df$DV = recode(annotation_df$DV, 
+                         'Maladaptive' = 'Maladaptive (Broad)')
+
+
+construct_order <- c("Maladaptive (Broad)", "Compulsive", "Regular Compulsive", "Addictive", "Excessive", "Compensatory")
+
+dx_plots <- list()
+
+for (var in construct_order) {
+  
+plot_data <- dx_row_percents |> 
+  filter (name == var)
+annotations = annotation_df |> 
+  filter (DV == var,
+          as.numeric(`p.value`) < 0.05) 
+
+plot <- ggplot(plot_data, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagnosis Group` )) +
+  geom_col() +
+geom_signif(annotation = as.numeric(annotations$`p.value`),
+            xmin = as.numeric(annotations$x),
+            xmax = as.numeric(annotations$xend),
+            y_position = annotations$y) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(legend.position = 'none') +
+  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3)) + 
+  labs(y = 'Percentage (within Diagnosis Group)')
+
+dx_plots[[var]] <- plot
+
+}
+
+dx_plot <- dx_plots[[1]] +
+  dx_plots[[2]] +
+  dx_plots[[3]] +
+  dx_plots[[4]] + 
+  dx_plots[[5]] + 
+  dx_plots[[6]] +
+  plot_layout(ncol = 3) +
+  plot_annotation(title = "Exercise Construct by Diagnosis Group", theme = theme(plot.title = element_text(hjust = 0.5))) 
+
+dx_plot
+dx_groups_fig_file <- paste0("validation_paper/figs/dx_groups_annotated", cohort, ".png")
+ggsave(file = dx_groups_fig_file)
+
+
+ggplot(dx_row_percents, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagnosis Group` )) +
+  geom_col() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(legend.position = 'none') +
+  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3)) + 
+  labs(y = 'Percentage (within Diagnosis Group') +
+facet_wrap (~ `name`) +
+  labs(title = 'Percentages by Diagnosis Group \n and Exercise Construct', x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') 
+
+dx_groups_fig_file_2 <- paste0("validation_paper/figs/dx_groups_", cohort, ".png")
+ggsave(file = dx_groups_fig_file_2)
+

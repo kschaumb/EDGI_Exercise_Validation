@@ -1,7 +1,6 @@
 ---
-title: "EDGI Exercise Validation Paper Results"
-format: docx
-editor: visual
+title: "Results"
+format: html
 ---
 
 ```{r setup, include=FALSE}
@@ -28,6 +27,9 @@ library(psych)
 library(caret)
 library(viridis)  
 library(kableExtra)
+library(flextable)
+library(gtsummary)
+library(labelled)
 
 load('../data/EDGI_exercise_cleaned_USA.RData') 
 load('tabs/Result_dfs_USA.RData')
@@ -48,125 +50,137 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
 
 # Sample Descriptives
 
-```{r}
-#| label: tbl-ed100kItems
-#| tbl-cap: Item-level descriptives for ED100k Exercise Items
-knitr::kable(ED100k_items_table)
-```
+Sociodemographic characteristics of the sample and frequency of eating disorder diagnosis groups are presented in @tbl-tbl1
 
-Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see [scoring](sec:scoring)) are provide in @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was `r round(median(EDGI_exercise_cleaned$ex_age, na.rm = TRUE), 2)` years and the median age of last report of compulsive exercise was `r round(median(EDGI_exercise_cleaned$ex_age_1, na.rm = TRUE), 2)` years. Among those who reported any compulsive exercise, `r frq(compulsive_exercisers$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported that this was an ongoing symptom.
+```{r Table1}
+#| label: tbl-tbl1
+#| tbl-cap: Sample Descriptives
+
+knitr::kable(Table_1)
+
+```
 
 # Preliminary Aim - Develop a scoring algorithm
 
-The first aim of this paper is to develop a scoring algorithm for a ED100k exercise items in an ED sample based on theoretical literature and available ED100k items which captures and defines rates of:
+Our first aim is to evaluate the uniqueness of various scoring approaches for ED100k exercise items to define maladaptive exercise history among individuals with EDs using this self-report measure. We specifically aim to optimize a set of items and scoring approach(es), derived from the original 12 ED100k exercise history items, which *most concisely* captures varying conceptualizations of maladaptive exercise history that are commonly present in EDs, including:
 
-1\. Compulsive Exercise
+1.  A single-item assessment of *any* maladaptive exercise history (broad definition)
+2.  A single-item assessment of a history of *regular* engagement in maladaptive exercise (narrow definition)
+3.  Maladaptive exercise history with verified compulsive feature(s) (consistent with definitions of 'compulsive & driven exercise')
+4.  Maladaptive exercise that has occurred regularly and interfered with life or health (consistent with definitions of 'addictive exercise & exercise dependence')
+5.  Maladaptive exercise that has occurred very frequently for a period of time (e.g. almost every day for a period of at least one month; consistent with definitions of 'excessive exercise')
+6.  Exercise that is used to compensate for binge eating or overeating (consistent with definitions of 'compensatory exercise')
+7.  Current Maladaptive Exercise Engagement
 
--   Ever and Regular Compulsive Exercise
-
--   Current Compulsive Exercise
-
-2\. Exercise Addiction
-
-3\. Excessive Exercise
-
-4\. Compensatory Exercise
-
-5\. Maladaptive Exercise (Broad)
+We will focus on evaluation of the [incremental]{.underline} validity of scoring approaches and accompanying items beyond a single-item measure (Q1) of maladaptive exercise history. Based on results, we will refine a set of items and scoring approach(es) for examination of convergent and discriminant validity (Aim 2) and estimation of prevalence across diagnostic groups (Aim 3).
 
 ## Scoring {#sec:scoring}
 
-The ED100k included 12 questions assessing maladaptive exercise. The first question, which all participants were asked, inquires as to whether individuals ever exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported ever exercising to intentionally control weight and shape and answered 'Yes' to either Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their compulsive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, all participants were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (n = `r sum(EDGI_exercise_cleaned$ED100k_ex_any == 0)`) who reported no to Q1 - exercise to control shape and weight, were marked as '0' for all follow-up questions, with the exception of ages (Q10-11), which were retained as missing. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (n = `r sum(exercisers$ED100k_ex_compulsive == 0, na.rm = TRUE)`) were marked as '0' for Q4-Q9.
+The ED100k included 12 questions assessing maladaptive exercise. The first question, which all participants were asked, inquires as to whether individuals *ever* exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported affirmatively to Q1 and 'Yes' to *either* Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their maladaptive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, all participants were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (n = `r sum(EDGI_exercise_cleaned$ED100k_ex_any == 0)`) who reported no to Q1 were marked as '0' for all follow-up questions, with the exception of ages (Q10-11), which were retained as missing. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (n = `r sum(exercisers$ED100k_ex_compulsive == 0, na.rm = TRUE)`) were marked as '0' for Q4-Q9. Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see [scoring](sec:scoring)) are provide in Supplemental @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was `r round(median(EDGI_exercise_cleaned$ex_age, na.rm = TRUE), 2)` years and the median age of last report of compulsive exercise was `r round(median(EDGI_exercise_cleaned$ex_age_1, na.rm = TRUE), 2)` years. Among those who reported any compulsive exercise, `r frq(compulsive_exercisers$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported that this was an ongoing symptom.
 
 Scoring algorithms for each subconstruct are presented in @tbl-defs.
 
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Construct                           | Criteria                                                                                                                                                                                                                                   | Nested Within                       |
-+=====================================+============================================================================================================================================================================================================================================+=====================================+
-| Exercise for Weight Control         | To control weight and shape -- participant endorses that they have exercised excessively (e.g. felt compelled to exercise, felt uneasy or distressed if unable to exercise) = 'a few times, but it never became a habit' or more           | NA                                  |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Regular Exercise for Weight Control | To control weight and shape -- participant endorses that they have exercised excessively (e.g. felt compelled to exercise, felt uneasy or distressed if unable to exercise) = 'more often'                                                 | NA                                  |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Compulsive Exercise                 | Exercise for Weight Control +                                                                                                                                                                                                              | Exercise for Weight Control         |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     | Ever felt compelled to exercise == 'YES' OR Ever uneasy or distressed when unable to exercise == 'YES'                                                                                                                                     |                                     |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Regular Compulsive Exercise         | Regular Exercise for Weight Control                                                                                                                                                                                                        | Exercise for Weight Control         |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     | Ever felt compelled to exercise == 'YES' OR Ever uneasy or distressed when unable to exercise == 'YES'                                                                                                                                     | Regular Exercise for Weight Control |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     |                                                                                                                                                                                                                                            | Compulsive Exercise                 |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Current Compulsive Exercise         | Compulsive Exercise                                                                                                                                                                                                                        | Compulsive Exercise                 |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     | Do you currently exercise to control weight and shape AND feel compelled to exercise or distress if unable to exercise? == 'YES'                                                                                                           |                                     |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Addictive Exercise                  | Regular Compulsive Exercise lasting at Least 3 month                                                                                                                                                                                       | Exercise for Weight Control         |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     | 1 or more of the following: caused them to change eating habits                                                                                                                                                                            | Regular Exercise for Weight Control |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     | -decline opportunities to be with friends                                                                                                                                                                                                  | Compulsive Exercise                 |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     | -exercised despite illness or injury                                                                                                                                                                                                       | Regular Compulsive Exercise         |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Excessive Exercise                  | Compulsive Exercise                                                                                                                                                                                                                        | Exercise for Weight Control         |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     | Duration \>= 1 month                                                                                                                                                                                                                       | Compulsive Exercise                 |
-|                                     |                                                                                                                                                                                                                                            |                                     |
-|                                     | Frequency = 'Every Day' or 'Nearly Every Day'                                                                                                                                                                                              |                                     |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Compensatory Exercise               | Have you ever used any of the following to compensate for episodes of binge eating or overeating? (Mark all that apply) (choice=Exercised excessively (e.g., felt compelled to exercise, felt uneasy or distressed if unable to exercise)) | NA                                  |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
-| Maladaptive Exercise                | Compulsive Exercise == 'Yes' OR Compensatory Exercise == 'Yes'                                                                                                                                                                             | NA                                  |
-+-------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------------------------+
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| **Scoring Approach**                                    | **Criteria**                                                                                                                                                                                                                               | **Nested Within** |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| 1.  'Q1 Broad'                                          | Participant endorses that they have exercised excessively (e.g. felt compelled to exercise, felt uneasy or distressed if unable to exercise) to control weight or shape 'A few times' or more                                              | NA                |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| 2.  'Q1 Narrow'                                         | Participant endorses that they have exercised excessively (e.g. felt compelled to exercise, felt uneasy or distressed if unable to exercise) to control weight or shape 'more often'                                                       | 1                 |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| 3.  'Driven/Compulsive Exercise Broad' (Q1 Validation)  | Q1 Broad (#1)                                                                                                                                                                                                                              | 1                 |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Ever felt compelled to exercise == 'YES' OR Ever uneasy or distressed when unable to exercise == 'YES'                                                                                                                                     |                   |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| 4.  'Driven/Compulsive Exercise Narrow' (Q1 Validation) | Q1 Narrow (#1, #2)                                                                                                                                                                                                                         | 1, 2              |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Ever felt compelled to exercise == 'YES' OR Ever uneasy or distressed when unable to exercise == 'YES'                                                                                                                                     |                   |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| 5.  'Addictive Exercise'                                | Q1 Narrow (#1,#2)                                                                                                                                                                                                                          | 1, 2, 3           |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Driven/Compulsive symptom verified (#3)                                                                                                                                                                                                    |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Duration \>= 3 months                                                                                                                                                                                                                      |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | 1 or more of the following:                                                                                                                                                                                                                |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | -caused to change eating habits                                                                                                                                                                                                            |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | -decline opportunities to be with friends                                                                                                                                                                                                  |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | -exercised despite illness or injury                                                                                                                                                                                                       |                   |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| 6.  'Excessive Exercise'                                | Q1 Narrow (#1,#2)                                                                                                                                                                                                                          | 1, 2, 3           |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Driven/Compulsive symptom verified (#3)                                                                                                                                                                                                    |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Duration \>= 1 month                                                                                                                                                                                                                       |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Frequency = 'Every Day' or 'Nearly Every Day'                                                                                                                                                                                              |                   |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| 7.  'Compensatory Exercise'                             | Have you ever used any of the following to compensate for episodes of binge eating or overeating? (Mark all that apply) (choice=Exercised excessively (e.g., felt compelled to exercise, felt uneasy or distressed if unable to exercise)) | NA                |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
+| 8.  '**Current** Maladaptive Exercise'                  | Q1 Broad (#1)                                                                                                                                                                                                                              | 1, 3              |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Driven/Compulsive symptom verified                                                                                                                                                                                                         |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Do you *currently* exercise to control weight and shape AND                                                                                                                                                                                |                   |
+|                                                         |                                                                                                                                                                                                                                            |                   |
+|                                                         | Feel compelled to exercise OR distress if unable to exercise? == 'YES'                                                                                                                                                                     |                   |
++---------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+-------------------+
 
 : Algorithm defining exercise-related constructs in the ED100k {#tbl-defs}
 
-# Aim 1. Evaluate patterns of response across multiple exercise constructs, to identify the degree to which these constructs overlap in membership or capture distinct groups
+# Aim 1. Evaluate patterns of response across multiple scoring methods -- to identify the degree to which scoring methods requiring different item-level endorsement, consistent with varying definitions of maladaptive exercise, result in overlapping membership or capture distinct groups
 
-We hypothesize that those indicating that they have 'exercise excessively' more often in the initial screening item will also be likely to meet criteria for compulsive exercise, exercise addiction, and excessive exercise (high sensitivity), and moderately likely to meet criteria for compensatory exercise (moderate sensitivity; high negative predictive value). Specficially, we hypotehsize ensitivity for compulsive exercise, exercise addiction, and excessive exercise based on item 1 will be \> 80%. Sensitivity for compensatory exercise from item 1 will be \> 60%, with \> 80% negative predictive value.
+We hypothesize that Q1 Broad (Approach #1) will have high positive predictive value (PPV; \> 0.80) for broad compulsive exercise (Q1 compulsive symptom verification, Approach #3), moderate PPV (\>0.50) for Q1 Narrow (#2) along with approaches nested within Q1 Narrow (regular compulsive exercise (#4), addictive exercise (#5), and excessive exercise (#6)). and moderate PPV for compensatory exercise (#7). As individuals in the sample range in ED recovery status, we expect Q1 Broad to have a low PPV ( \<0.40) for current maladaptive exercise (#8).
 
-@fig-heatmap presents the proportion of the full sample along with subsamples meeting criteria for each (sub)construct
+We hypothesize that Q1 Narrow (Approach \# 2) will be likely to meet criteria for compulsive exercise (#3), regular compulsive exercise (#4) exercise addiction (#5), and excessive exercise (#6) (high PPV; \> 0.80), and moderately likely to meet criteria for compensatory exercise (#7) (moderate PPV; \> 0.50). As many individuals in the sample are in ED recovery, we expect Q1 Broad to have a low PPV for current maladaptive exercise (#8; \< 0.40).
 
-![Heatmap with percentage of (sub)samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis)](figs/ex_heatmap_USA.png){#fig-heatmap}
+@fig-heatmap presents the proportion of the full sample along with sub-samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis).
 
-## Accuracy of Q1 - 'Excessive Exercise' for Weight Control to Detect Different Exercise Constructs
+![Heatmap presenting the positive predictive value (PPV\*100) as the percentage of (sub)samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis)](figs/ex_heatmap_USA.png){#fig-heatmap}
 
-Overall, there was high convergent validity for Q1 with Q2-Q6. Specifically, individuals eating disorders who endorse using exercise to intentionally control weight 'more often' are indeed highly likely to engage in this behavior for a substantive period of time -- `r frq(regular_exercisers$ex_dur_3m)[[1]]$valid.prc[[2]]`% of those reporting exercise to intentionally control weight 'more often' reported a duration of compulsive exercise \> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors), and to report symptoms consistent with a definition of both compulsive and addictive exercise. @fig-Q1sensitivity-USA reports on the utility of Q1 to capture different exercise constructs assessed in Q2-Q12. The sensitivity and negative predictive values of endorsement of any exercise Q1 in detecting compulsive, addictive, and excessive exercise were forced to 1.0 for those answering that they had ever engaged in any exercise on Q1 by skip logic. Sensitivity to compensatory exercise, was also high -- almost all of those who endorsed compensatory exercise also reported excessive exercise for weight loss on Q1. Positive predictive value -- the degree to which an affirmative answer to Q1 translated to endorsement of these constructs, varied across constructs.
+## Accuracy of Q1 (Approaches 1-2) to detect further maladaptive exercise symptoms
 
-![Accuracy of Q1 in Detecting Compulsive, Addictive, and Excessive Exercise](figs/Q1_sensitivity_USA.png){#fig-Q1sensitivity-USA}
+Overall, there was high convergent validity for Q1 with Q2-Q6. Specifically, individuals eating disorders who endorse Q1 Broad (Approach #1) are highly likely to confirm either feeling compelled to exercise or distressed when unable to exercise (#3; high PPV). As hypothesized, Q1 Broad (#1) had more moderate PPV for approaches #4-7 (compulsive/driven \[narrow\], addictive, excessive, compulsive).
 
-For compulsive exercise, those who endorsed any exercise on Q1 were also very likely to endorse compulsive exercise symptoms. Positive predictive value of those endorsing any exercise on Q1 was somewhat lower for excessive, addictive, and regular compulsive exercise (\~.70), and even lower for compensatory exercise (0.58) The positive predictive value rose for these maladaptive exercise constructs when individuals reported exercise 'more often'. Regarding specificity, there was relatively high specificity for 'Any' or more to Q1 for compulsive exercise, which rose to near perfect specificity when the criteria was set at 'More Often'. Specificty was low for 'Any' exercise in Q1 capturing addictive, excessive, and regular compulsive exercise, but rose significantly when criteria was set at 'More Often'. Specificity was also low for 'Any' exercise in Q1 capturing compensatory exercise, and rose modestly when the Q1 criteria was set to 'More Often'. When considering overall accuracy, endorsement of 'any' exercise in Q1 best captured those who endorsed *any* history of compulsive exercise, whereas, for the more stringent criteria of regular compulsive or addictive exercise, endorsement of exercise 'More Often' in Q1 demonstrated good accuracy. Overall, the vast majority of individuals with eating disorders who reporting regular exercise for weight loss to control weight and shape in Q1 go on to report that this exercise was compulsive, and that they also experienced life interfering sequellae of this behavior. Further, regarding specific addictive exercise symptoms, the modal number of exercise interference items was all 3. While Q1 accurately defined those experiencing compulsive and addictive exercise with little additional information provided from follow-up questions, the same was not true for excessive exercise and compensatory exercise -- additional questions may be necessary to define excessive and compensatory exercise with the highest levels of accuracy, and endorsement of these constructs do not entirely overlap with endorsement of other maladpative exercise symptoms.
+Among those meeting Q1 Narrow (#2), individuals were likely to engage in this behavior for a substantive period of time -- `r frq(regular_exercisers$ex_dur_3m)[[1]]$valid.prc[[2]]`% of those meeting Q1 Narrow reported maladaptive exercise for a duration of \> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors. Those meeting Q1 Narrow were also highly likely to report symptoms consistent with definitions of both compulsive/driven (high PPV for #3-4), addictive (high PPV for #5) exercise. Q1 Narrow PPV for predicting excessive exercise (#6) was also high (\>0.80), but less so than approaches #3-5.
 
-# Aim 2. Evaluate Convergent and Discriminant Validity between history of *maladaptive* and *compulsive* exercise and: current compulsive exercise, perfectionism, and OCD sympotms
+@fig-Q1sensitivity-USA reports full metrics on the utility of Q1 Broad and Q1 Narrow to capture definitions in approaches #3-8. The sensitivity and negative predictive values of Q1 Broad detection of approaches #3-6 were forced to 1.0 by definition. Overall accuracy metrics of Q1 Broad predicting #3, and Q1 Narrow predicting #4-5 suggest that additional criteria added to these approaches are not necessary for defining maladaptive exercise that (1) verifies compulsive/driven symptoms and (2) identifies significant duration and interference with life and/or health among individuals with EDs. Overall, the vast majority of individuals with eating disorders who reporting regular exercise for weight loss to control weight and shape in Q1 go on to report that this exercise was compulsive and that they also experienced life interfering sequelae of this behavior. Further, regarding specific addictive exercise symptoms, the modal number of exercise interference items was all 3.
 
-H2a: Individuals who do not report *any* *history* of maladaptive and compulsive exercise will not report current compulsive exercise (high negative predictive value). *\>90% negative predictive value of history to 1. Current driven exercise to manage weight/shape on the EDEQ, 2. Current compulsive exercise on the CET*
+While Q1 accurately defined those experiencing compulsive and addictive exercise (Approaches #3-5) with little additional information provided from follow-up questions, the same was not true for excessive exercise (#6) and compensatory exercise (#7) -- additional questions may be necessary to define excessive and compensatory exercise with the highest levels of accuracy, and endorsement of these constructs do not entirely overlap with endorsement of other maladaptive exercise symptoms. While PPV and overall accuracy for Q1 Broad predicting compensatory accuracy (#7) were moderate, suggesting that not all individuals who endorse Q1 Broad also endorse compensatory exercise, sensitivity was high -- almost all of those who endorsed compensatory exercise also endorsed Q1 Broad. Overall accuracy of both Q1 Broad and Q1 Narrow in predicting compensatory exercise (#7) was moderate, again suggesting that compensatory exercise occurs in only a subsample of those with maladaptive exercise, and that this question provides utility in the scale. For further analysis in Aims 2-3, scoring approaches #1,2,6,7, & 8 are retained, as they provide unique and discriminable information about maladaptive exercise patterns.
 
-@fig-npv-usa demonstrates confusion matrix components for history of compulsive and maladaptive exercise endorsement on the ED100k and current compulsive exercise endorsement assessed by 1. meeting CET clinical cutoff and 2. endorsement of EDEQ (any and at least weekly) driven exercise in the past 28 days. As hypothesized, both compulsive and maladaptive exercise had a high negative predictive value -- those who did not endorse any history of compulsive or maladaptive exercise were unlikely to endorse current compulsive or driven exercise on the CET and EDEQ. Negative predictive values for both CET clinical cutoff and weekly or more maladaptive exercise (4x or more over the past 28 days) were \> 0.9. Negative predictive values were slightly lower for reports of any driven exercise over the past 28 days (\~ 0.85), indicating that some individuals who endorse no history of compulsive exercise may engage in this behavior at relatively low frequency.*Accuracy*, *positive predictive value*, and *specificity* were all low, indicating that many individuals who reported history of compulsive exercise on the ED100k were not engaging in this behavior at the time of assessment.
+![Accuracy of Q1 Broad (#1) and Q1 Narrow (#2) in detecting groups defined in approaches #3-8](figs/Q1_sensitivity_USA.png){#fig-Q1sensitivity-USA}
+
+# Aim 2. Evaluate Convergent and Discriminant Validity between ED100k Scoring Approaches and: Current Compulsive Exercise, Perfectionism, and OCD symptoms
+
+H2a: Individuals who do meet Q1 Broad (#1), Q1 Narrow (#2), or Current Maladaptive Exercise (#8), will not report current compulsive/driven exercise (high negative predictive value [NPV]; *\>90% for 1. Current driven exercise to manage weight/shape on the EDEQ, 2. Current compulsive exercise at clinical cutoff on the CET).* NPV will be lower for Excessive Exercise (#6) and compensatory exercise (#7), as these operationalizations capture smaller subsamples which may exclude those with current driven/compulsive exercise. PPV, Sensitivity, Specificity, and overall accuracy for current maldaptive exercise (#8) predicting current CET and EDEQ-assessed exercise will be high, supporting this single-item assessment of current maladaptive exercise on the ED100k.
+
+@fig-npv-usa demonstrates confusion matrix components for ED100k scoring approaches and current compulsive/driven exercise endorsement assessed by 1. meeting CET clinical cutoff and 2. endorsement of EDEQ (any and at least weekly) driven exercise in the past 28 days. As hypothesized, approaches #1, 2, and 8 had a high NPV: those who did not endorse any history of, rare history of, or no current maladaptive exercise were unlikely to endorse current compulsive or driven exercise on the CET and EDEQ. NPVs for both CET clinical cutoff and weekly or more EDEQ driven exercise (4x or more over the past 28 days) were \> 0.9. NPVs were slightly lower for reports of any EDEQ driven exercise over the past 28 days (\~ 0.85), indicating that some individuals who endorse no history of compulsive exercise may engage in this behavior at relatively low frequency.
+
+*Accuracy* and *positive predictive value* of #1, #2, #6, and #7 in relation to current measures of driven/compulsive exercise were all moderate, and specificity was low, indicating that many individuals who reported *history* of maladaptive exercise -- via various operationalizations - on the ED100k were not engaging in compulsive/driven at the time of assessment. In contrast, xxx
 
 ![Confusion matrix components of compulsive and maladaptive history vs. current CET and EDEQ exercise](figs/NPV_USA.png){#fig-npv-usa}
 
-## CET scores and EDEQ driven exercise across ED100k compulsive exercise history and current endorsement
+## Comparisons of continuous values of current exercise measures (external validation) across those with no history of maladaptive exericse,istory of, but not current, maladaptive exercise (Endorsing #2 but not #8), and those with current maladaptive exercise (#8) on the ED100k 
 
-H2b: Comparing across groups who report no history of compulsive exercise, history of, but not current, compulsive exercise, and those with current compulsive exercise on the ED100k, those who report ED100k current compulsive exercise will report highest CET scores (total, and all subscales except for exercise enjoyment). Those reporting history of, but not current, compulsive exercise will report intermediate CET scores -- higher than those reporting no history of compulsive exercise on the ED100k but lower than those reporting current compulsive exercise. We also expect thsoe reporting current compulsive exercise on the ED100k to be more likely to reach the CET clinical cutoff and report more days of driven exercise over the past 28 days on the EDEQ.
+H2b: Comparing across groups who report no history of maladaptive exercise, history of, but not current, maladaptive exercise (Endorsing #2 but not #8), and those with current maladaptive exercise (#8) on the ED100k, those who report ED100k current maladaptive exercise will report highest CET scores (total, and all subscales except for exercise enjoyment) and more driven exercise days in the past 28 on the EDEQ. Those reporting history of, but not current, maladaptive exercise will report intermediate CET scores and EDEQ exercise days -- higher than those reporting no history of maladaptive exercise on the ED100k but lower than those reporting current maladaptive exercise.
 
-Overall, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[1]]`% of the sample reported No history of compulsive exercise, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported a history of compulsive exercise that was not current, and `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[3]]`% reported current compulsive exercise.
+Overall, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[1]]`% of the sample reported No history of maladaptive exercise, `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[2]]`% reported a history of maladaptive exercise that was not current, and `r frq(EDGI_exercise_cleaned$ED100k_ex_compulsive_current2)[[1]]$valid.prc[[3]]`% reported current maladaptive exercise.
 
-Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETsubs-USA . To formally test the hypothesis that those with reporting ED100k current compulsive exercise would also report the highest scores on the CET, we completed a series of ANOVAs comparing those with reporting no compulsive exercise, history of compulsive exercise only, and current compulsive exercise on current CET scores, p \< .05 for all subscales and global, and calculation of Cohen's d effect sizes.\*
+Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETsubs-USA. To formally test the hypothesis that those with reporting ED100k current maladaptive exercise would also report the highest scores on the CET, we completed a series of ANOVAs comparing those with reporting no maladaptive exercise, history of maladaptive exercise only (Meeting Scoring Approach #2 but not #8), and current maladaptive exercise (Meeting Approach #8) on current CET scores. @tbl-CETANOVA reports ANOVA output for each CET subscale, comparing across the three groups of individuals who report no maladaptive exercise, maladaptive exercise history but not current maladaptive exercise (#2 but NOT #8), and both history and current maladaptive exercise (#8) on the ED100k. All omnibus tests reach significance.
 
 ![Median standardized CET subscale scores across those reporting no compulsive exercise, compulsive exercise history (not current), and current compulsive exercise on the ED100k](figs/MedianCET_USA.png){#fig-CETsubs-USA}
 
-@tbl-CETANOVA reports ANOVA output for each CET subscale, comparing across the three groups of individuals who report no compulsive exercise, compulsive exercise history but not current compulsive exercise, and both history and current compulsive exercise on the ED100k. All omnibus tests reach significance.
-
-```{r}
+```{r CET-ANOVA}
 #| label: tbl-CETANOVA
 #| tbl-cap: Omnibus ANOVA results comparing groups with current, history only, and no history of compulsive exercise on the ED100k on CET subscales
 knitr::kable(CET_ANOVA_df)
 ```
 
-@tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of compulsive exercise to those with a history, but not current, compulsive exercise and when comparing those with history vs. current compulsive exercise. Comparison of those with no history of compulsive exercise vs. current compulsive exercise consistently demonstrated large effects. For all subscales with the exception of the enjoyment subscale, effects indicated that those with current compulsive exercise scored highest, while those with no history of compulsive exercise scored the highest on the lack of exercise enjoyment subscale.
+@tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of maladaptive exercise to those with a history, but not current, maladaptive exercise and when comparing those with history vs. current maladaptive exercise. Comparison of those with no history of maladaptive exercise  vs. current maladaptive exercise (#8) consistently demonstrated large effects. For all subscales, except for the (lack of) enjoyment subscale, effects indicated that those with current maladaptive exercise scored highest, while those with no history of maladaptive exercise scored the highest on the lack of exercise enjoyment subscale.
 
-```{r}
+```{r CET_contrasts}
 #| label: tbl-CETcontrasts
 #| tbl-cap: Contrasts for each of the five CET subscales and the CET Total across those with and without history and current compulsive exercise as reported on the ED100k
 
@@ -199,11 +213,14 @@ mutate(ORs = round(ORs, 2))
 
 ```
 
-The proportion of individuals meeting the clinical cutoff for current compulsive exericse on the CET varied as expected by endorsement of historical and current endorsement of compulsive exercise on the ED100k. Only `r ex_current_cet$Freq[1]`% of individuals who reported no history of compuslive exercise met current CET clinical cutoff, while `r ex_current_cet$Freq[2]`% of those reporting history, but not current compulsive exercise met clinical cutoff on the CET, and `r ex_current_cet$Freq[3]`% of individuals reporting both historical and current compulsive exercise on the ED100k met clinical cutoff for compulsive exercise on the CET. Using a multinomial logistic regression approach with 'No Compulsive Exercise History' on the ED100k coded as the reference category, those reporting compulsive exercise history, but not current exercise had an odds ratio of `r ORs$ORs[[2]]` and those reporting current compulsive exercise had an odds ratio of `r ORs$ORs[[3]]`, indicating significant convergent validity of reports of current compulsive exericse on the ED100k (4 items comprising the historical and current compulsive exercise definition) and meeting clinical cutoff clinical cutoff on the 24-item CET. Regarding the number of days in the past 28 that participants reported engaging in 'driven' or 'compulsive exercise on the EDEQ, outcomes were zero-inflated in the 'No History of Compulsive Exercise' and 'History but No Current Compulsive Exercise' groups (see @fig-EDEQplot-USA).
+The proportion of individuals meeting the clinical cutoff for current compulsive exercise on the CET varied as expected by endorsement of historical and current endorsement of maladaptive exercise on the ED100k. Only `r ex_current_cet$Freq[1]`% of individuals who reported no history of maladaptive exercise met current CET clinical cutoff, while `r ex_current_cet$Freq[2]`% of those reporting history, but not current maladaptive exercise (#2 but not #8) met clinical cutoff on the CET, and `r ex_current_cet$Freq[3]`% of individuals meeting current maladaptive exercise (#8) on the ED100k met clinical cutoff for maladaptive exercise on the CET. Using a multinomial logistic regression approach with 'No Maladaptive Exercise History' on the ED100k coded as the reference category, those reporting maladaptive exercise history, but not current maladaptive exercise had an odds ratio of `r ORs$ORs[[2]]` and those reporting current maladaptive exercise had an odds ratio of `r ORs$ORs[[3]]`, indicating significant convergent validity of reports of current maladaptive exercise on the ED100k and meeting clinical cutoff on the 24-item CET. 
+
+Regarding the number of days in the past 28 that participants reported engaging in driven exercise on the EDEQ, outcomes were zero-inflated in the 'No History of Maladaptive Exercise' and 'History but No Current Maladaptive Exercise' groups (see @fig-EDEQplot-USA).
 
 ![ED100k Compulsive Exercise vs. EDEQ Exercise Frequency](figs/EDEQ_freq_USA.png){#fig-EDEQplot-USA}
 
-A zero-inflated poisson regression model compared those with "History, but Not Current' and those with 'Current Compulsive Exercise' to the 'No History of Compulsive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin (including odds ratios (ORs) for the zero portion of the model and incident risk ratios (IRRs) for the count portion). Results indicate that those who report current compulsive exercise on the ED100k are less likely to hvae zero values for EDEQ-assessed exericse in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, compulsive exericse on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of compulsive exercise, though the count portion of the model indicates that those reporting history, but not current, compulsive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of compulsive exercise.
+A zero-inflated Poisson regression model compared those with "History, but Not Current' and those with 'Current Maladaptive Exercise' to the 'No History of Maladaptive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin (including odds ratios (ORs) for the zero portion of the model and incident risk ratios (IRRs) for the count portion). Results indicate that those who report current maladaptive exercise on the ED100k are less likely to have zero values for EDEQ-assessed exercise in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, maladaptive exercise on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of maladaptive exercise, though the count portion of the model indicates that those reporting history, but not current, maladaptive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of maladaptive exercise.
+
 
 ```{r EDEQ ZIN Model}
 #| label: tbl-EDEQZin
@@ -212,15 +229,19 @@ A zero-inflated poisson regression model compared those with "History, but Not C
 knitr::kable(EDEQ_ZIN_table)
 ```
 
-## Perfectionism and OCD Symptoms
+## OCD Symptoms and Perfectionism
 
-In addition to convergent validity across current exercise measures, we also examined both convert and discriminant validity by examining those with vs. without history of maladaptive and compulsive exercise on subscales of the Frost MPS indexing maladaptive perfectionism along with subscale and total scores for the OCI-R.
+In addition to convergent validity across current exercise measures, we also examined both convergent and discriminant validity by examining ED100k scoring approaches on subscales of the Frost MPS indexing maladaptive perfectionism along with subscale and total scores for the OCI-R.
 
-H2c: Within diagnostic groups - those with vs. without history of compulsive exercise will report higher Frost MPS (Maladaptive) and OCD symptoms. *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores across those with vs. without history of maladpative exercise, expected p \< 0.05 adjusted for multiple comparisons across subscales. We also include calculation of Cohen's d effect sizes.*
+H2c: Within diagnostic groups - those endorsing scoring approaches #1, #2, #6, and #8 will report higher perfectionism and OCD symptoms. Those endorsing compenstory exercise (#7) will not report higher perfectionism or OCD symptoms than those who do not *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores across those with vs. without history of maladaptive exercise, expected p \< 0.05 adjusted for multiple comparisons across subscales. We also include calculation of Cohen's d effect sizes.*
 
-Graphs depicting means and standard deviations for OCI total and subscale scores within diagnostic groups are presented in @fig-OCI-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of subscale and total OCI scores within diagnostic groups is presented in @tbl-oci-USA. Using FDR-adjusted (Benjamini-Hochberg) p-values across all 25 comparisons, OCI subscale and total scores did not significantly differ based on compulsive exercise history for those wtih AN, AN-Mixed, or BN diagnoses; however, those who reported compulsive exercise and a diagnosis of BN-BED mixed or BED only did have higher OCI scores (order, obsession and total for BED-BN mixed; checking, order, and total for BED) than those with similar diagnoses who id not report a history of compulsive exercise. Signficant effect sizes were modes ( *d* \~ 0.2-0.35)
+```{r}
+minD <- min(OCI_tidy_results$`Cohens D`)
+maxD <- max(OCI_tidy_results$`Cohens D`)
+midD <- median(OCI_tidy_results$`Cohens D`)
+```
 
-![Percentage within each diganostic group reporting differing exercise constructs](figs/OCI_compulsive_USA.png){#fig-OCI-USA}
+Graphs depicting means and standard deviations for OCI total and subscale scores within diagnostic groups are presented in @fig-OCI-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of subscale and total OCI scores within diagnostic groups is presented in Supplemental @tbl-oci-USA. Using FDR-adjusted (Benjamini-Hochberg) p-values across all 25 comparisons, OCI subscale and total scores did not significantly differ based on compulsive exercise history for those with AN, AN-Mixed, or BN diagnoses; however, those who reported compulsive exercise and a diagnosis of BN-BED mixed or BED only did have higher OCI scores (order, obsession and total for BED-BN mixed; checking, order, and total for BED) than those with similar diagnoses who id not report a history of compulsive exercise. Effect sizes were small (Range = `r minD`-`r maxD`; Median = `r midD`).
 
 ```{r OCI-tabs}
 #| label: tbl-oci-USA
@@ -239,29 +260,34 @@ knitr::kable(oci_tidy_results)
   
 ```
 
-Graphs depicting means and standard deviations for MPS total and subscale scores within diagnostic groups are presented in @fig-MPS-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of MPS subscale scores within diagnostic groups is presented in @tbl-MPS-USA. Using FDR-adjusted (Benjamini-Hochberg) p-values across all 15 comparisons, effect sizes showed significantly higher personal standards subsscales scores in all diagnostic groups for those who reported a history of compulsive exercise. Those with AN, BN-BED Mixed, and BED who reported a history of compulsive exercise had higher levels of concern over mistakes and doubts about action as compared to those with similar diagnoses who did not report a history of compulsive exercise. Cohen's D effect sizes for significant effects ranged from small-to-moderate ( *d* \~ 0.2 - 0.8)
+![OCI Means across diagnosis groups and ED100k exercise scoring criteria #1](figs/OCI_compulsive_USA.png){#fig-OCI-USA}
 
-![Percentage within each diganostic group reporting differing exercise constructs](figs/MPS_compulsive_USA.png){#fig-MPS-USA}
+![OCI Means across diagnosis groups and ED100k exercise scoring criteria #2](figs/OCI_compulsive_USA.png){#fig-OCI-USA}
+![OCI Means across diagnosis groups and ED100k exercise scoring criteria #6](figs/OCI_compulsive_USA.png){#fig-OCI-USA}
+![OCI Means across diagnosis groups and ED100k exercise scoring criteria #7](figs/OCI_compulsive_USA.png){#fig-OCI-USA}
+![OCI Means across diagnosis groups and ED100k exercise scoring criteria #8](figs/OCI_compulsive_USA.png){#fig-OCI-USA}
+
+```{r}
+minD <- min(MPS_tidy_results$`Cohens D`)
+maxD <- max(MPS_tidy_results$`Cohens D`)
+midD <- median(MPS_tidy_results$`Cohens D`)
+```
+
+Graphs depicting means and standard deviations for MPS total and subscale scores within diagnostic groups are presented in @fig-MPS-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of MPS subscale scores within diagnostic groups is presented in Supplemental @tbl-MPS-USA. Using FDR-adjusted (Benjamini-Hochberg) p-values across all 15 comparisons, effect sizes showed significantly higher personal standards subsscales scores in all diagnostic groups for those who reported a history of compulsive exercise. Those with AN, BN-BED Mixed, and BED who reported a history of compulsive exercise had higher levels of concern over mistakes and doubts about action as compared to those with similar diagnoses who did not report a history of compulsive exercise. Cohen's D effect sizes ranged from small-to-moderate (Range = `r minD`-`r maxD`; Median = `r midD`).
 
 ```{r MPS-tabs}
 #| label: tbl-MPS-USA
 #| tbl-cap: t-test output comparing those with and without compulsive exercise on MPS subscales and within diagnostic groups
 # Create an empty data frame to store the tidy results
-mps_tidy_results <- MPS_tidy_results |> 
-  mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
-  mutate(`t` = as.numeric(`t`)*-1)
-
-mps_tidy_results$`FDR p val` <- sprintf("%.2e", p.adjust(mps_tidy_results$p, method = 'fdr'))
 
 
 # Print the updated tidy data frame
-knitr::kable(mps_tidy_results)
+knitr::kable(MPS_tidy_results)
   
 ```
 
-H2d: Associations with the MPS and OCI will be weaker than with the CET and EDEQ exercise item. *We will interpret patterns of ES across these scales*
+![MPS subscale means across diagnosis groups and history of compulsive exericse](figs/MPS_compulsive_USA.png){#fig-MPS-USA}
 
-When comparing patterns of effect size between CET and EDEQ exercise items with MPS and OCI, the OCI demonstrated the smallest effect sizes. Associations between history of compulsive exercise and OCI subscales were inconsistent and only significant among those with BED presentations. History of compulsive exercise demonstrated small-to-moderate effect sizes with MPS scores, and associations were more consistent across diagnostic groups. High personal standards was a subscale that stood out as having the strongest associations with compulsive exercise history across diagnosis groups. As hypothesized, CET and EDEQ exercise items demonstrated moderate-to-large associations with ED100k history of compulsive exercise.
 
 # Aim 3. Demonstrate Prevalence of Maladaptive (Broad), Compulsive, Addictive, Excessive, and Compensatory Exercise across Diagnostic Groups
 
@@ -273,47 +299,34 @@ DG_prop_table <- as.data.frame(table(EDGI_exercise_cleaned[c('an_case', 'bn_case
   mutate (prop = round(Freq/sum(Freq)*100, 2)) |> 
   filter (Freq != 0) 
 
-#Make case hierarchy and recode restrictive and binge spectrum mixed cases
-EDGI_exercise_cleaned <- EDGI_exercise_cleaned |> 
-  mutate (case_status = case_when(an_case == 1 & bn_case == 0 & bed_case == 0 ~ 'AN',
-                                   an_case == 0 & bn_case == 1 & bed_case == 0 ~ 'BN',
-                                   an_case == 0 & bn_case == 0 & bed_case == 1 ~ 'BED', 
-                                   an_case == 1 & (bn_case == 1 | bed_case == 1) ~ 'AN Mixed',
-                                   an_case == 0 & bn_case ==1 & bed_case ==1 ~ 'BN-BED Mixed' )) |> 
-  mutate (case_heirarchy = case_when (an_case == 1 ~ 'AN', 
-                                      bn_case == 1 ~ 'BN', 
-                                      bed_case == 1 ~ 'BED'))
-
 dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
 
 
 ```
 
-H3a. Maladaptive exercise, compulsive exercise, and exercise addiction will be a common symptom across diagnoses. We expect that these constructs will be more common in AN and BN than BED. *Rates of maladaptive exercise, compulsive exercise, excessive exercise, and exercise addiction will all be \> 50% in AN and BN presentations; \> 20% in BED. Multinomial logisitc regression with AN only as reference group will show higher rates in AN only as compared to BN only, BN-BED, and BED only groups*
+H3a. Maladaptive exercise, compulsive exercise, and exercise addiction will be a common symptom across diagnoses. We expect that these constructs will be more common in AN and BN than BED. *Rates of maladaptive exercise, compulsive exercise, excessive exercise, and exercise addiction will all be \> 50% in AN and BN presentations; \> 20% in BED. Contrasts between diagnostic groups will show higher rates of all constructs in AN and AN Mixed groups compared to BN only, BN-BED, and BED only groups*
 
-H3b. Compensatory exercise will be more common among those with AN mixed and BN as compared to AN only . *Multinomial logistic regression with AN group as reference -- AN mixed, BN, and BN-BED mixed groups will report higher levels of compensatory exercise than the AN only group. BED only will report similar levels of compensatory exercise to AN only*
+H3b. Compensatory exercise will be more common among those with AN mixed and BN as compared to AN only . *AN mixed, BN, and BN-BED mixed groups will report higher levels of compensatory exercise than the AN only group. BED only will report similar levels of compensatory exercise to AN only*
 
 Among individuals in the US EDGI data, `r dx_frqs$raw.prc[1]`% of the sample reported AN as their only diagnosis, `r dx_frqs$raw.prc[2]`% of the sample reported AN plus another diagnosis (AN mixed),`r dx_frqs$raw.prc[4]`% reported a diagnosis of BN only, `r dx_frqs$raw.prc[3]`% reported a diagnosis of BED only (the smallest cell size: `r dx_frqs$frq[3]`), and `r dx_frqs$raw.prc[5]`% reported both a BN and BED diagnosis.
 
 ![Percentage within each diganostic group reporting differing exercise constructs](figs/dx_groups_USA.png){#fig-dxgroups-USA}
 
-Rates of addictive, compensatory, compulsive, excessive, and regular compulsive exercise across diagnostic groups are presented in @fig-dxgroups-USA. History of addictive, regular compuslive, and excessive exercise were all highest in an absolute sense among groups reporting history of AN. History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment of compulsive exericse, and the majority reporting at least some history of this behavior. Output from multinomial logistic regression mdoels using AN only as the reference group are presented in @tbl-dxgroups. An adjusted p-value of 0.0017 was used to account for 28 multiple comparisons in the multinomial models. Overall, all other diagnostic groups were substantially more likely to engage in compensatory exercise, with the AN Mixed diagnosis group showing similar odds of engagement in compulsive, regular compulsive, addictive, and excessive exercise relative to AN only. The BN, BED, and BN-BED mixed groups were less likely than the AN only group to report history of addictive, compulsive, regular compulsive, and excessive exercise. With regards to overall maladaptive exericse, the BN-BED and BED only groups showed lower engagement in any form of maladaptive exercise relative to the AN only group.
+Rates of addictive, compensatory, compulsive, excessive, and regular compulsive exercise across diagnostic groups are presented in @fig-dxgroups-USA. History of addictive, regular compuslive, and excessive exercise were all highest in an absolute sense among groups reporting history of AN. History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment of compulsive exericse, and the majority reporting at least some history of this behavior. Output from contrasts between all diagnostic groups are presented in Supplemental @tbl-dxcontrasts. Bonferroni adjusted p-values are reported accounting for 10 contrasts within each constructs Overall, groups differed significantly across all constructs, with the AN group reporting less compensatory exercise, but higher levels of all other exercise relative to BN and BED groups. The AN-Mixed group reported similar levels of all constructs to AN, with the exception of compensatory exercise, in which the AN Mixed group reported greater likelihood of to engagin in compensatory exercise. The BN group was more likely than BED and BN-BED Mixed groups to report all constructs, and the BN-BED group was more likely to report all constructs relative to the BED group.
 
 ```{r multinomial dx groups}
-#| label: tbl-dxgroups
-#| tbl-cap: Multinomial Logisitc Regression Output and Odds Ratios (Compared to AN only) for each exercise construct. 
-
-Dx_groups_results_df$p.value <- sprintf('%.2e', Dx_groups_results_df$p.value)
-Dx_groups_results <- Dx_groups_results_df[, c(6,10,7:9,1:3)] 
-Dx_groups_results[, sapply(Dx_groups_results, is.numeric)] <- round(Dx_groups_results[, sapply(Dx_groups_results, is.numeric)], digits = 3)
-
-# Modify the "Odds Ratio" column to "OR (CI Low, CI High)"
-Dx_groups_results$`OR` <- paste0(Dx_groups_results$`Odds Ratio`, " (", Dx_groups_results$`CI Low`, ", ", Dx_groups_results$`CI High`, ")") 
-Dx_groups_results <- Dx_groups_results|> 
-  select(-c('Odds Ratio', 'CI Low', 'CI High', 'estimate', 'std.error')) 
-Dx_groups_results <- Dx_groups_results[, c(1,2,4,3)] 
-
-knitr::kable(Dx_groups_results)
+# 
+# Dx_groups_results_df$p.value <- sprintf('%.2e', Dx_groups_results_df$p.value)
+# Dx_groups_results <- Dx_groups_results_df[, c(6,10,7:9,1:3)] 
+# Dx_groups_results[, sapply(Dx_groups_results, is.numeric)] <- round(Dx_groups_results[, sapply(Dx_groups_results, is.numeric)], digits = 3)
+# 
+# # Modify the "Odds Ratio" column to "OR (CI Low, CI High)"
+# Dx_groups_results$`OR` <- paste0(Dx_groups_results$`Odds Ratio`, " (", Dx_groups_results$`CI Low`, ", ", Dx_groups_results$`CI High`, ")") 
+# Dx_groups_results <- Dx_groups_results|> 
+#   select(-c('Odds Ratio', 'CI Low', 'CI High', 'estimate', 'std.error')) 
+# Dx_groups_results <- Dx_groups_results[, c(1,2,4,3)] 
+# 
+# knitr::kable(Dx_groups_results)
 
 #commented out below - html table
 # library(kableExtra)
@@ -329,3 +342,60 @@ knitr::kable(Dx_groups_results)
 
 
 ```
+
+
+
+
+```{r ED100k_items}
+#| label: tbl-ed100kItems
+#| tbl-cap: Item-level descriptives for ED100k Exercise Items
+knitr::kable(ED100k_items_table, row.names = FALSE)
+```
+
+
+
+
+```{r dx_contrasts}
+#| label: tbl-dxcontrasts
+#| tbl-cap: Odds Ratios for contrasts between all diagnostic groups within exercise construct 
+
+tbl <- dx_contrasts_df |> 
+  select(c(DV, contrast, odds.ratio, SE, p.value)) |> 
+  mutate(OR = round(odds.ratio, 3),
+         se = round(SE, 3)) |> 
+  select (-c(odds.ratio, SE))
+tbl$p.value <- sprintf('%.2e', tbl$p.value)
+tbl <- tbl[,c(1, 2, 4, 5, 3)]
+
+knitr::kable(tbl)
+```
+
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| **Variable name** | **Question**                                                                                                                                                                                                                               | **Response options**                                                                                                           |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| exercise          | Exercised excessively  (e.g. felt compelled to exercise, felt uneasy or distressed if unable to exercise)                                                                                                                                  | 1=never; 2=a few times, but it never became a habit; 3=more often                                                              |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_compel         | Have you ever felt compelled to exercise-like you had to do it-to control your body shape or weight?                                                                                                                                       | 1=Yes \| 0=No \| -9=Don't know                                                                                                 |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_distress       | Have you ever felt uneasy or distressed if unable to exercise?                                                                                                                                                                             | 1=Yes \| 0=No \| -9=Don't know                                                                                                 |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_friend         | Have there been times when you declined opportunities to be with friends in order to exercise?                                                                                                                                             | 1=Yes \| 0=No \| -9=Don't know                                                                                                 |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_ill            | Have you exercised despite an injury or illness that would have prevented others from exercising?                                                                                                                                          | 1=Yes \| 0=No \| -9=Don't know                                                                                                 |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_diet           | Have there been times you modified your diet/eating habits if you were unable to exercise for any reason?                                                                                                                                  | 1=Yes \| 0=No \| -9=Don't know                                                                                                 |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_age            | How old were you when you first exercised to control your weight and shape AND felt either compelled to exercise or distressed if unable to exercise?                                                                                      | integer, Min:0, Max: 120                                                                                                       |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_dur            | For how long did you feel compelled to exercise or felt distressed if unable to exercise?                                                                                                                                                  | 1=Less than 1 month \| 2=1 to 2 months \| 3=3 to 5 months \| 4=6-12 months \| 5=More than 1 year \| -9=Don't know              |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_freq           | During these periods, how frequently did you exercise excessively in a week?                                                                                                                                                               | 1=Less than once a week \| 2=At least once a week \| 3=At least twice a week \| 4=Every day/ nearly every day \| -9=Don't know |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_current        | Do you currently exercise to control weight and shape AND feel compelled to exercise or distress if unable to exercise?                                                                                                                    | 1=Yes \| 0=No                                                                                                                  |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| ex_age_last       | How old were you when you stopped exercising to control your weight and shape AND felt either compelled to exercise or distressed if unable to exercise?                                                                                   | integer, Min:0, Max: 120                                                                                                       |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Be_icb_5          | Have you ever used any of the following to compensate for episodes of binge eating or overeating? (Mark all that apply) (choice=Exercised excessively (e.g., felt compelled to exercise, felt uneasy or distressed if unable to exercise)) |                                                                                                                                |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+
+| Icb_lowt_5        | Exercised excessively (e.g., felt compelled to exercise, felt uneasy or distressed if unable to exercise)                                                                                                                                  |                                                                                                                                |
++-------------------+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------------------------------------------------------------------------------------------------------------------------+

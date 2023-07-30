@@ -1,18 +1,30 @@
 
+
 # label: tbl-ed100kItems
 # tbl-cap: Item-level descriptives for ED100k Exercise Items
 
 
-ed100k_items <- c('exercise', 'ED100k_ex_compensatory_factor', 'ED100k_ex_compulsive_current2', 'ED100k_ex_dur_factor', 'ED100k_ex_freq_factor', 'ex_friend_2_factor', 'ex_ill_2_factor', 'ex_diet_2_factor', 'ex_distress_2_factor', 'ex_compel_2_factor', 'ex_age', 'ex_age_last')
+ed100k_ex_items <- c('exercise', 'ED100k_ex7_compensatory_factor', 'ED100k_ex9_maladaptive_hxplusc', 'ED100k_ex_dur_factor', 'ED100k_ex_freq_factor', 'ex_friend_2_factor', 'ex_ill_2_factor', 'ex_diet_2_factor', 'ex_distress_2_factor', 'ex_compel_2_factor', 'ex_age', 'ex_age_last')
+
+
+ed100k_ex_defs <- c('ED100k_ex1_Q1_broad',
+                    'ED100k_ex2_Q1_narrow', 
+                    'ED100k_ex3_compulsive_broad', 
+                    'ED100k_ex4_compulsive_narrow', 
+                    'ED100k_ex5_addictive', 
+                    'ED100k_ex6_excessive', 
+                    'ED100k_ex7_compensatory', 
+                    'ED100k_ex8_maladaptive_current', 
+                    'ED100k_ex9_maladaptive_hxplusc')
 
 ed100k_ex_data <- EDGI_exercise_cleaned %>% 
-  select(ed100k_items)
+  select(ed100k_ex_items)
 
 ed100k_ex_data$exercise <- factor(ed100k_ex_data$exercise,
                                   levels = c(1, 2, 3),
                                   labels = c("no", "sometimes", "more often"))
 
-ed100k_ex_data$ED100k_ex_compulsive_current2 <- factor(ed100k_ex_data$ED100k_ex_compulsive_current2,
+ed100k_ex_data$ED100k_ex9_maladaptive_hxplusc <- factor(ed100k_ex_data$ED100k_ex9_maladaptive_hxplusc,
                                                        levels = c(0, 1, 2),
                                                        labels = c("No History", "History, Not Current", "Current"))
 
@@ -33,7 +45,7 @@ factor_frequencies <- factor_frequencies[sapply(factor_frequencies, Negate(is.nu
 library(haven)
 
 ED100k_items_table <- bind_rows(factor_frequencies, .id = "Variable") %>% 
-  mutate(Variable = dplyr::recode(Variable, 'exercise' = '1. Exercised excessively', 'ED100k_ex_compensatory_factor' = 'Q12. Compensatory Exercise', 'ED100k_ex_compulsive_current2' = '9. Current Exercise', 'ED100k_ex_dur_factor' = '7. Exercise Duration', 'ED100k_ex_freq_factor' = '8. Exercise Frequency', 'ex_friend_2_factor' = '4. Interfering with Friendship', 'ex_ill_2_factor' = '5. Exercising when ill', 'ex_diet_2_factor' = '6. Modified Diet if unable to Exercise', 'ex_distress_2_factor' = '3. Distressed when unable to exercise', 'ex_compel_2_factor' = '2. Compelled to Exercise')) %>% 
+  mutate(Variable = dplyr::recode(Variable, 'exercise' = '1. Exercised excessively', 'ED100k_ex7_compensatory_factor' = 'Q12. Compensatory Exercise', 'ED100k_ex9_maladaptive_hxplusc' = '9. Current Maladaptive Exercise', 'ED100k_ex_dur_factor' = '7. Exercise Duration', 'ED100k_ex_freq_factor' = '8. Exercise Frequency', 'ex_friend_2_factor' = '4. Interfering with Friendship', 'ex_ill_2_factor' = '5. Exercising when ill', 'ex_diet_2_factor' = '6. Modified Diet if unable to Exercise', 'ex_distress_2_factor' = '3. Distressed when unable to exercise', 'ex_compel_2_factor' = '2. Compelled to Exercise')) %>% 
   sort_asc(Variable) %>% 
   mutate(Response = dplyr::recode(Response, 'NaN' = 'Missing', 'no' = 'No', 'sometimes' = 'Sometimes', 'more often' = 'More Often')) %>% 
   mutate(Percent = round(Percent, 2))

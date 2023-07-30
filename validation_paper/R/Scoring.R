@@ -75,6 +75,20 @@ EDGI_exercise_cleaned <- Data |>
   rename(ED100k_ex_int_sumNA = ED100k_ex_interfere_sum_NA_percent) |> #renames to shorter for SAS friendly variable name
   rename(ED100k_ex_int_weightedsum = ED100k_ex_interfere_sum_weighted_sum) #renames to shorter for SAS friendly variable name
 
+
+
+#Make case hierarchy and recode restrictive and binge spectrum mixed cases
+EDGI_exercise_cleaned <- EDGI_exercise_cleaned |> 
+  mutate (case_status = case_when(an_case == 1 & bn_case == 0 & bed_case == 0 ~ 'AN',
+                                  an_case == 0 & bn_case == 1 & bed_case == 0 ~ 'BN',
+                                  an_case == 0 & bn_case == 0 & bed_case == 1 ~ 'BED', 
+                                  an_case == 1 & (bn_case == 1 | bed_case == 1) ~ 'AN Mixed',
+                                  an_case == 0 & bn_case ==1 & bed_case ==1 ~ 'BN-BED Mixed' )) |> 
+  mutate (case_heirarchy = case_when (an_case == 1 ~ 'AN', 
+                                      bn_case == 1 ~ 'BN', 
+                                      bed_case == 1 ~ 'BED'))
+
+
 # Generate the file name with the cohort name
 RData_file <- paste0("data/EDGI_exercise_cleaned_", cohort, ".RData") 
 

@@ -34,6 +34,12 @@ library(cgwtools)
 library(ggsignif)
 library(ggpubr)
 library(purrr)
+library(patchwork)
+library(emmeans)
+library(gmodels)
+library(flextable)
+library(gtsummary)
+library(labelled)
 
 df_file <- paste0("validation_paper/tabs/Result_dfs_", cohort, ".RData") 
 

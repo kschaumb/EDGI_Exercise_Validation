@@ -1,13 +1,22 @@
  
 
-traits <- c('ED100k_ex_compulsive', 'ED100k_ex_compulsive_strict_3mo', 'ED100k_ex_addictive', 'ED100k_ex_excessive', 'ED100k_ex_compensatory', 'ED100k_ex_maladaptive_1')
-traits_clean <- c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory', 'Maladaptive (Broad)')
+traits <- c('ED100k_ex1_Q1_broad',
+            'ED100k_ex2_Q1_narrow', 
+            'ED100k_ex3_compulsive_broad', 
+            'ED100k_ex4_compulsive_narrow', 
+            'ED100k_ex5_addictive', 
+            'ED100k_ex6_excessive', 
+            'ED100k_ex7_compensatory', 
+            'ED100k_ex8_maladaptive_current')
+
+
+traits_clean <- c('1. Q1 Broad', '2. Q1 Narrow', '3. Compulsive/Driven Braod', '4. Compulsive/Driven Narrow', '6. Addictive', '6. Excessive', '7. Compensatory', '8. Current Maladaptive')
 
 full_sample <- EDGI_exercise_cleaned %>%
   select(all_of(traits))
 
 exercisers <- EDGI_exercise_cleaned %>%
-  filter(ED100k_exercise_icb > 0) %>%
+  filter(ED100k_ex1_Q1_broad > 0) %>%
   select(all_of(traits))
 
 compulsive_exercisers <- EDGI_exercise_cleaned %>%
@@ -35,7 +44,7 @@ compensatory_exercisers <- EDGI_exercise_cleaned %>%
   select(all_of(traits))
 
 samples <- list(full_sample, exercisers, regular_exercisers, compulsive_exercisers, regular_compulsive_exercisers, addictive_exercisers, excessive_exercisers, compensatory_exercisers)
-sample_names <- c('1. Full Sample', '2. Exercisers (Q1)', '3. Regular Exercisers (Q1)', '4. Compulsive Exercisers', '5. Regular Compulsive Exercisers', '6. Addictive Exercisers', '7. Excessive Exercisers', '8. Compensatory Exercisers')
+sample_names <- c('1. Full Sample', '2. Q1 Any', '3. Q1 More Often', '4. Compulsive Exercisers', '5. Regular Compulsive Exercisers', '6. Addictive Exercisers', '7. Excessive Exercisers', '8. Compensatory Exercisers')
 
 calculate_valid_percent <- function(sample, trait) {
   valid_percent <- sum(!is.na(sample[[trait]]) & sample[[trait]] == 1) / sum(!is.na(sample[[trait]])) * 100
@@ -68,7 +77,7 @@ result_df[result_df == 100] <- NA
 # Reshape the data frame into long format
 result_df_long <- tidyr::pivot_longer(result_df, cols = -Sample, names_to = "Trait", values_to = "Percentage")
 
-trait_order <- c("Maladaptive (Broad)", "Compulsive", "Regular Compulsive", 'Addictive', 'Excessive', 'Compensatory')  # Replace with the desired order of traits
+trait_order <- c("Maladaptive (Broad)", "Compulsive", "Regular Compulsive", 'Addictive', 'Excessive', 'Compensatory') 
 result_df_long$Trait <- factor(result_df_long$Trait, levels = trait_order)
 
 # Create the heatmap using ggplot and geom_tile

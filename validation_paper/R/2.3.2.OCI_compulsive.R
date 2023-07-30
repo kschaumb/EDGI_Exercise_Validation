@@ -1,21 +1,9 @@
 
-# Below makes the 5 case status diagnosis groups
-
-#Make case hierarchy and recode restrictive and binge spectrum mixed cases
-EDGI_exercise_cleaned <- EDGI_exercise_cleaned |> 
-  mutate (case_status = case_when(an_case == 1 & bn_case == 0 & bed_case == 0 ~ 'AN',
-                                  an_case == 0 & bn_case == 1 & bed_case == 0 ~ 'BN',
-                                  an_case == 0 & bn_case == 0 & bed_case == 1 ~ 'BED', 
-                                  an_case == 1 & (bn_case == 1 | bed_case == 1) ~ 'AN Mixed',
-                                  an_case == 0 & bn_case ==1 & bed_case ==1 ~ 'BN-BED Mixed' )) |> 
-  mutate (case_heirarchy = case_when (an_case == 1 ~ 'AN', 
-                                      bn_case == 1 ~ 'BN', 
-                                      bed_case == 1 ~ 'BED'))
-
 case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED')
 exercise_vars <- c('ED100k_ex_maladaptive', 'ED100k_ex_compulsive')
 oci_vars <- c('oci12_wash', 'oci12_check', 'oci12_order', 'oci12_obsess', 'oci12_total')
-mps_vars <- c('mps_ps', 'mps_cm', 'mps_da')
+diagnosis_order <- c("AN", "AN Mixed", "BN", "BN-BED Mixed", "BED")
+
 
 # Define the labels for the levels
 level_labels <- c("No Compulsive Exercise", "Compulsive Exercise")
@@ -69,76 +57,6 @@ for (status in case_status_vars) {
 OCI_compulsive_data <- nested_data
 resave(OCI_compulsive_data, file = df_file)
 
-
-library(ggplot2)
-library(dplyr)
-library(patchwork)
-
-# Create an empty list to store the ggplot objects
-ggplots <- list()
-
-# Iterate over OCI variables
-for (var in oci_vars) {
-  # Create an empty data frame to store the combined plot data for the current OCI variable
-  combined_data <- NULL
-  
-  # Iterate over case statuses
-  for (status in case_status_vars) {
-    # Create a data frame for the specific case status
-    data <- nested_data[[status]]
-    
-    # Create a data frame for the specific OCI variable
-    var_data <- data[[var]]
-    
-    # Extract the level statistics
-    level_stats <- var_data$level_stats
-    
-    # Create a data frame for plotting
-    plot_data <- data.frame(
-      Status = factor(status, levels = case_status_vars),
-      Mean = sapply(level_stats, function(x) x$mean),
-      SE = sapply(level_stats, function(x) x$se),
-      Variable = factor(names(level_stats), levels = c('0', '1'))  # Convert Variable to a factor with desired order
-    )
-    
-    # Combine the plot data for the current case status with the existing combined data
-    if (is.null(combined_data)) {
-      combined_data <- plot_data
-    } else {
-      combined_data <- bind_rows(combined_data, plot_data)
-    }
-  }
-  
-  # Create the ggplot object using the combined plot data
-  p <- ggplot(combined_data, aes(x = Status, y = Mean, fill = Variable)) +
-    geom_bar(stat = "identity", position = "dodge") +
-    geom_errorbar(aes(ymin = Mean - SE, ymax = Mean + SE), width = 0.2, position = position_dodge(0.9)) +
-    labs(title = oci_labels[var], x = NULL, y = "Mean") +
-    scale_fill_discrete(labels = level_labels, name = NULL) +
-    scale_x_discrete(labels = case_status_vars) +  # Set custom labels for x-axis
-    theme_bw() +
-    theme(plot.title = element_text(hjust = 0.5),
-          axis.text.x = element_text(angle = 45, hjust = 1),
-          axis.title.y = element_blank(),
-          legend.position = ifelse(var == oci_vars[4], "bottom", "none"))
-  
-  # Add the ggplot object to the list
-  ggplots[[var]] <- p
-}
-
-# Combine the ggplot objects and facet wrap by variable
-OCI_plot <- ggplots[[1]] +
-  ggplots[[2]] +
-  ggplots[[3]] +
-  ggplots[[4]] +
-  ggplots[[5]] +
-  plot_layout(ncol = 2) +
-  plot_annotation(title = "OCI12 Mean Subscale and \n Total Scores Across Exercise and Diagnosis Group", theme = theme(plot.title = element_text(hjust = 0.5))) 
-
-OCI_plot
-
-OCI_plot_file <- paste0("validation_paper/figs/OCI_compulsive_", cohort, ".png") 
-ggsave(OCI_plot_file)  
 
 tidy_results <- data.frame()
 
@@ -194,6 +112,12 @@ tidy_results <- tidy_results |>
 tidy_results <- tidy_results |> 
   rename(`Mean Diff` = estimate, t = statistic, `Case Status` = status, `Cohens D`= cohens_d, p = formatted_pvalue) 
 
+tidy_results <- tidy_results |> 
+  mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
+  mutate(`t` = as.numeric(`t`)*-1)
+
+tidy_results$`FDR p val` <- sprintf("%.2e", p.adjust(tidy_results$p, method = 'fdr'))
+
 
 tidy_results <- tidy_results %>%
   mutate(variable = case_when(
@@ -209,3 +133,95 @@ tidy_results <- tidy_results %>%
 OCI_tidy_results <- tidy_results
 resave(OCI_tidy_results, file = df_file)
 
+case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED')
+exercise_vars <- c('ED100k_ex_maladaptive', 'ED100k_ex_compulsive')
+oci_vars <- c('oci12_wash', 'oci12_check', 'oci12_order', 'oci12_obsess', 'oci12_total')
+
+# Define the labels for the levels
+level_labels <- c("No Compulsive Exercise", "Compulsive Exercise")
+
+# Define custom labels for the OCI variables
+oci_labels <- c("Washing", "Checking", "Order", "Obsess", "Total")
+
+
+
+graph_df <- EDGI_exercise_cleaned |>
+  select(case_status, all_of(oci_vars), ED100k_ex_compulsive) |>
+  filter(!is.na(ED100k_ex_compulsive)) |>
+  rename(Washing = oci12_wash,
+         Checking = oci12_check,
+         Order = oci12_order,
+         Obsess = oci12_obsess,
+         Total = oci12_total)
+
+max_vals <- list()
+for (var in oci_labels) {
+  max_vals[[var]] <- max(graph_df[[var]], na.rm = TRUE) 
+}
+
+
+graph_df$`case_status` <- factor(graph_df$`case_status`, levels = diagnosis_order)
+
+ggplots <- list()
+
+for (var in oci_labels) {
+  p_vals <- OCI_tidy_results |>
+    filter(variable == var) 
+  
+  p <- p_vals$`FDR p val` 
+  
+  annotation_df <- data.frame(
+    x = c(0.8, 1.8, 2.8, 3.8, 4.8),
+    xend = c(1.2, 2.2, 3.2, 4.2, 5.2),
+    y = rep(max_vals[[var]] + 1),
+    annotation = p 
+  ) |> 
+    filter(as.numeric(p) < 0.05)
+  
+  plot <- ggplot(graph_df, aes(x = case_status, y = !!sym(var), fill = factor(ED100k_ex_compulsive))) +
+    geom_boxplot() +
+    labs(fill = "Compulsive Exercise", title = var) +
+    scale_fill_manual(
+      values = c('0' = 'indianred', '1' = 'deepskyblue1'),
+      labels = c("No", "Yes")
+    ) +
+    theme(
+      plot.title = element_text(hjust = 0.5),
+      axis.text.x = if (var == oci_labels[5]) element_text(angle = 45, hjust = 1) else element_blank(),
+      axis.title.y = element_blank(),
+      axis.title.x = element_blank(),
+      legend.position = ifelse(var == oci_labels[5], "bottom", "none")
+    ) + 
+    ylim(0, max_vals[[var]] + max_vals[[var]]*.25)
+  
+  
+  if (nrow(annotation_df) > 0) {
+    plot <- plot +
+      geom_signif(
+        annotation = annotation_df$annotation,
+        xmin = annotation_df$x,
+        xmax = annotation_df$xend,
+        y_position = annotation_df$y
+      )
+  }
+  
+  ggplots[[var]] <- plot
+}
+
+
+OCI_plot <- ggplots[[oci_labels[1]]]
+
+for (var in oci_labels[-1]) {
+  if (var %in% names(ggplots)) {
+    OCI_plot <- OCI_plot + ggplots[[var]]
+  }
+}
+
+OCI_plot <- OCI_plot +
+  plot_layout(ncol = 1) +
+  plot_annotation(title = "OCI Subscale Scores Across Diagnosis Group \n Among those With and Without Compulsive Exercise History", theme = theme(plot.title = element_text(hjust = 0.5))) 
+
+OCI_plot 
+
+OCI_plot_file <- paste0("validation_paper/figs/OCI_compulsive_", cohort, ".png") 
+ggsave(OCI_plot_file)  

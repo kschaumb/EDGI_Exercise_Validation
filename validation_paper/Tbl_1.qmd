@@ -1,0 +1,51 @@
+---
+title: "Table_1"
+format: docx
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE,  warning = FALSE)
+library(expss)
+library(bookdown)
+library(dplyr)
+library(haven)
+library(sjmisc)
+library(rmarkdown)
+library(knitr)
+library(psych)
+library(ggplot2)
+library(ggrepel)
+library(wesanderson)
+library(tidyr)
+library(caret)
+library(broom)
+library(nnet)
+library(pscl)
+library(boot)
+library(tibble)
+library(psych)
+library(caret)
+library(viridis)  
+library(kableExtra)
+library(flextable)
+library(gtsummary)
+library(labelled)
+
+load('tabs/Result_dfs_USA.RData')
+
+
+```
+
+
+
+```{r}
+#| label: tbl-tbl1
+#| tbl-cap: Sample Descriptives
+
+Table_1
+```
+
+
+
