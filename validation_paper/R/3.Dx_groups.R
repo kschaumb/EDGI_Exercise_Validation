@@ -1,84 +1,68 @@
-
-# Below makes the 5 case status diagnosis groups
-
-DG_prop_table <- as.data.frame(table(EDGI_exercise_cleaned[c('an_case', 'bn_case', 'bed_case')])) |>
-  mutate (prop = round(Freq/sum(Freq)*100, 2)) |> 
-  filter (Freq != 0) 
-
-#Make case hierarchy and recode restrictive and binge spectrum mixed cases
-EDGI_exercise_cleaned <- EDGI_exercise_cleaned |> 
-  mutate (case_status = case_when(an_case == 1 & bn_case == 0 & bed_case == 0 ~ 'AN',
-                                  an_case == 0 & bn_case == 1 & bed_case == 0 ~ 'BN',
-                                  an_case == 0 & bn_case == 0 & bed_case == 1 ~ 'BED', 
-                                  an_case == 1 & (bn_case == 1 | bed_case == 1) ~ 'AN Mixed',
-                                  an_case == 0 & bn_case ==1 & bed_case ==1 ~ 'BN-BED Mixed' )) |> 
-  mutate (case_heirarchy = case_when (an_case == 1 ~ 'AN', 
-                                      bn_case == 1 ~ 'BN', 
-                                      bed_case == 1 ~ 'BED'))
+traits_aim3 <- c('ED100k_ex1_Q1_broad',
+                 'ED100k_ex2_Q1_narrow', 
+                 'ED100k_ex6_excessive', 
+                 'ED100k_ex7_compensatory', 
+                 'ED100k_ex8_maladaptive_current')
 
 dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
 
-# label: fig-dxgroups
-# fig-cap: Percentage within each diganostic group reporting differing exercise constructs
-ct <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_compulsive)
-ct2 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_compulsive_strict_3mo)
-ct3 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_addictive)
-ct4 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_excessive)
-ct5 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_compensatory)
-ct6 <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned$ED100k_ex_maladaptive_1)
+# create an empty list to store the tables
+tables_list <- list()
 
-dx_row_percents_1 <- as.data.frame(prop.table (ct, 1)) |> 
-  filter (Var2 == 1) |> 
-  select(c(1,3)) |> 
-  rename(Compulsive = Freq)
-dx_row_percents_2 <- as.data.frame(prop.table (ct2, 1)) |> 
-  filter (Var2 == 1) |> 
-  select(c(1,3)) |> 
-  rename(`Regular Compulsive` = Freq)
-dx_row_percents_3 <- as.data.frame(prop.table (ct3, 1)) |> 
-  filter (Var2 == 1) |> 
-  select(c(1,3)) |> 
-  rename(`Addictive` = Freq)
-dx_row_percents_4 <- as.data.frame(prop.table (ct4, 1)) |> 
-  filter (Var2 == 1) |> 
-  select(c(1,3)) |> 
-  rename(`Excessive` = Freq)
-dx_row_percents_5 <- as.data.frame(prop.table (ct5, 1)) |> 
-  filter (Var2 == 1) |> 
-  select(c(1,3)) |> 
-  rename(`Compensatory` = Freq)
-dx_row_percents_6 <- as.data.frame(prop.table (ct6, 1)) |> 
-  filter (Var2 == 1) |> 
-  select(c(1,3)) |> 
-  rename(`Maladaptive (Broad)` = Freq)
+# loop over the column names
+for (col_name in traits_aim3) {
+  # create a table and add it to the list
+  tables_list[[col_name]] <- table(EDGI_exercise_cleaned$case_status, EDGI_exercise_cleaned[[col_name]])
+}
 
-dx_row_percents <- full_join(dx_row_percents_1, dx_row_percents_2) 
-dx_row_percents <- full_join(dx_row_percents, dx_row_percents_3) 
-dx_row_percents <- full_join(dx_row_percents, dx_row_percents_4) 
-dx_row_percents <- full_join(dx_row_percents, dx_row_percents_5)
-dx_row_percents <- full_join(dx_row_percents, dx_row_percents_6) |> 
-  rename(`Diagnosis Group` = Var1) 
+# Named vector mapping column names to output names
+names_vector <- c("ED100k_ex1_Q1_broad" = "1. Q1 Broad",
+                 'ED100k_ex2_Q1_narrow' = "2. Q1 Narrow", 
+                 'ED100k_ex6_excessive' = '6. Excessive', 
+                 'ED100k_ex7_compensatory' = '7. Compensatory', 
+                 'ED100k_ex8_maladaptive_current' = '8. Current')
+
+# Create an empty list to store the data frames
+dx_row_percents <- list()
+
+# Loop over the names vector
+for (col_name in names(names_vector)) {
+  # Create a data frame and add it to the list
+  dx_row_percents[[col_name]] <- as.data.frame(prop.table(tables_list[[col_name]], 1)) |>
+    filter(Var2 == 1) |>
+    select(c(1,3)) |>
+    rename(!!names_vector[col_name] := Freq)
+}
+
+# Convert list of data frames to a list that Reduce() can handle
+df_list_as_list <- as.list(dx_row_percents)
+
+# Use Reduce to iteratively join all data frames in the list
+dx_row_percents <- Reduce(function(df1, df2) full_join(df1, df2), df_list_as_list) 
+
+# Rename column
+dx_row_percents <- dx_row_percents |>
+  rename(`Diagnosis Group` = Var1)
 
 
 
-dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('Compulsive', 'Regular Compulsive', 'Addictive', 'Excessive', 'Compensatory', 'Maladaptive (Broad)'))
+
+dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('1. Q1 Broad', '2. Q1 Narrow', '6. Excessive', '7. Compensatory', '8. Current'))
 
 Dx_percents <- dx_row_percents
 resave(Dx_percents, file = df_file)
 
 diagnosis_order <- c("AN", "AN Mixed", "BN", "BN-BED Mixed", "BED")
-construct_order <- c("Maladaptive (Broad)", "Compulsive", "Regular Compulsive", "Addictive", "Excessive", "Compensatory")
+construct_order <- c('1. Q1 Broad', '2. Q1 Narrow', '6. Excessive', '7. Compensatory', '8. Current')
 # Convert the diagnosis group variable to a factor with the desired order
 dx_row_percents$`Diagnosis Group` <- factor(dx_row_percents$`Diagnosis Group`, levels = diagnosis_order)
 dx_row_percents$name <- factor(dx_row_percents$name, levels = construct_order)
 
 resave(dx_row_percents, file = df_file)
 
-
-
 ## Run Models
 Dx_table <- EDGI_exercise_cleaned %>%
-  select(case_status, cet_clinical, ED100k_ex_addictive, ED100k_ex_compensatory, ED100k_ex_compulsive, ED100k_ex_compulsive_strict, ED100k_ex_excessive, ED100k_ex_maladaptive_1)
+  select(case_status, all_of(traits_aim3))
 
 Dx_table$case_status <- factor(Dx_table$case_status)
 
@@ -86,14 +70,12 @@ Dx_table$case_status <- factor(Dx_table$case_status)
 model_list <- list()
 OR_list <- list()
 
-formulas <- c("ED100k_ex_compensatory ~ case_status",
-              "ED100k_ex_compulsive ~ case_status",
-              "ED100k_ex_addictive ~ case_status",
-              "ED100k_ex_compulsive_strict ~ case_status",
-              "ED100k_ex_excessive ~ case_status",
-              "ED100k_ex_maladaptive_1 ~ case_status")
-
-dv_labels <- c("Compensatory", "Compulsive", "Addictive", "Regular Compulsive", "Excessive", "Maladaptive")
+formulas <- c("ED100k_ex1_Q1_broad ~ case_status",
+              "ED100k_ex2_Q1_narrow ~ case_status",
+              "ED100k_ex6_excessive ~ case_status",
+              "ED100k_ex7_compensatory ~ case_status",
+              "ED100k_ex8_maladaptive_current ~ case_status")
+dv_labels <- c('1. Q1 Broad', '2. Q1 Narrow', '6. Excessive', '7. Compensatory', '8. Current')
 
 # Loop through the formulas
 for (i in seq_along(formulas)) {
@@ -138,9 +120,6 @@ for (i in seq_along(model_list)) {
   # Append the tidy model results to the overall results data frame
   results_df <- bind_rows(results_df, tidy_model)
 }
-
-Dx_groups_results_full <- results_df
-resave(Dx_groups_results_full, file = df_file)
 
 
 results_df <- results_df |> 
@@ -212,12 +191,6 @@ annotation_df$xend = recode(annotation_df$Group2,
                          ' BED' = '5')
 
 
-annotation_df$DV = recode(annotation_df$DV, 
-                         'Maladaptive' = 'Maladaptive (Broad)')
-
-
-construct_order <- c("Maladaptive (Broad)", "Compulsive", "Regular Compulsive", "Addictive", "Excessive", "Compensatory")
-
 dx_plots <- list()
 
 for (var in construct_order) {
@@ -243,28 +216,28 @@ dx_plots[[var]] <- plot
 
 }
 
-dx_plot <- dx_plots[[1]] +
-  dx_plots[[2]] +
-  dx_plots[[3]] +
-  dx_plots[[4]] + 
-  dx_plots[[5]] + 
-  dx_plots[[6]] +
+dx_plot_1 <- Reduce(`+`, dx_plots)
+
+dx_plot_1 + 
   plot_layout(ncol = 3) +
   plot_annotation(title = "Exercise Construct by Diagnosis Group", theme = theme(plot.title = element_text(hjust = 0.5))) 
 
-dx_plot
+dx_plot_1
 dx_groups_fig_file <- paste0("validation_paper/figs/dx_groups_annotated", cohort, ".png")
 ggsave(file = dx_groups_fig_file)
 
 
 ggplot(dx_row_percents, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagnosis Group` )) +
   geom_col() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 14)) +
   theme(legend.position = 'none') +
-  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3)) + 
+  theme(text = element_text(size = 20)) +
+  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(5)) + 
   labs(y = 'Percentage (within Diagnosis Group') +
 facet_wrap (~ `name`) +
-  labs(title = 'Percentages by Diagnosis Group \n and Exercise Construct', x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') 
+  labs(title = 'Percentages by Diagnosis Group and Exercise Construct', x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') 
+
+
 
 dx_groups_fig_file_2 <- paste0("validation_paper/figs/dx_groups_", cohort, ".png")
 ggsave(file = dx_groups_fig_file_2)
