@@ -19,7 +19,6 @@ median_stds <- Current_Exercise |>
 
 # Save Current Exercise df
 Current_Exercise_df <- Current_Exercise
-resave(Current_Exercise_df, file = df_file)
 
 ggplot(Current_Exercise, aes(x = as.factor(ED100k_ex_compulsive_current2), y = val, color = as.factor(ED100k_ex_compulsive_current2))) +
   facet_wrap(~variable)+
@@ -126,8 +125,6 @@ Tukey_join <- full_join(Tukey_join, Tukey_Wt_Control)
 Tukey_join <- full_join(Tukey_join, Tukey_Avoidance)
 Tukey_join <- full_join(Tukey_join, Tukey_Enjoyment)
 Tukey_join <- full_join(Tukey_join, Tukey_Total)
-
-library(effsize)
 
 
 # List of variables

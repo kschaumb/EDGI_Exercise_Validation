@@ -211,7 +211,7 @@ for (trait in trait_labels_aim2) {
     
     plot <- 
       ggplot(graph_df_list[[trait]], aes(x = case_status, y = !!sym(var), fill = .data[[trait]])) +
-      geom_boxplot() +
+      geom_boxplot(outlier.shape = NA) +
       labs(fill = "Scoring Criteria Met", title = var) +
       scale_fill_manual(values = c('0' = 'indianred', '1' = 'deepskyblue1'),
                         labels = c("No", "Yes")) +
@@ -298,7 +298,8 @@ for (var in mps_labels) {
   annotation_df <- annotation_df |> filter(as.numeric(annotation) < 0.05)
   
   plot <- ggplot(combined_data, aes(x = case_status, y = !!sym(var), fill = as.factor(operationalization), alpha = as.factor(scoring_met))) +
-    geom_boxplot(position = position_dodge(width = 0.8)) +
+    geom_boxplot(position = position_dodge(width = 0.8), 
+                 outlier.shape = NA) +
     scale_alpha_manual(values = c("0" = 0.2, "1" = 1)) +
     labs(x = "Case Status", fill = "Operationalization", title = var) +
     guides(alpha = "none") +
@@ -333,12 +334,12 @@ MPS_plots_1 <- Reduce(`+`, ggplots_1)
 MPS_plots_1 <- MPS_plots_1 +
   plot_layout(ncol = 1) +
   plot_annotation(
-    title = paste("MPS Subscale Scores Across Exercise Groups by Scoring Approach and Diagnosis Group"),
+    title = paste("MPS Subscale Scores Across Exercise \n Groups by Scoring Approach and Diagnosis Group"),
     theme = theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 18))
   ) 
 
 MPS_plots_1
 
 MPS_plot_file <- paste0("validation_paper/figs/MPS_combined", cohort, ".png")
-ggsave(MPS_plot_file) 
+ggsave(MPS_plot_file, width = 10, height = 7) 
 

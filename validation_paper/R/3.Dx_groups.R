@@ -162,7 +162,7 @@ resave(dx_contrasts_df, file = df_file)
 annotation_df <- dx_contrasts_df |> 
   select(c(DV, contrast, Group1, Group2, `p.value`)) 
 
-annotation_df$y = recode(annotation_df$contrast, 
+annotation_df$y = dplyr::recode(annotation_df$contrast, 
        'AN / AN Mixed' = 50, 
        'AN / BN' = 55,
        'AN / (BN-BED Mixed)' = 60,
@@ -175,7 +175,7 @@ annotation_df$y = recode(annotation_df$contrast,
        'BED / (BN-BED Mixed)' = 95
        )
 
-annotation_df$x = recode(annotation_df$Group1, 
+annotation_df$x = dplyr::recode(annotation_df$Group1, 
                          'AN ' = '1',
                          'AN Mixed ' = '2', 
                          'BN ' = '3',
@@ -183,7 +183,7 @@ annotation_df$x = recode(annotation_df$Group1,
                          'BED ' = '5'
 )
 
-annotation_df$xend = recode(annotation_df$Group2, 
+annotation_df$xend = dplyr::recode(annotation_df$Group2, 
                          ' AN' = '1',
                          ' AN Mixed' = '2', 
                          ' BN' = '3',

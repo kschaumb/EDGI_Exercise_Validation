@@ -1,25 +1,49 @@
 # BEFORE STARTING
 ## 1.  Place your data in a folder called 'data/' in the head of the repository.
 ## 2.  Open the 'EDGI_Exercise_Analyses.Rproj' file and make sure you are running things from INSIDE of the project
-## 3. make sure your renv is up to date. If you do not have renv installed, install renv. (install.packages('renv')) If and when you do have renv installed, call renv::restore() once you are INSIDE of the project
+## 3.  Make sure scoresheets for each measure are in a folder called 'scoring/' in the head of the repository in a single excel sheet with a tab for each measure
 
-## Point to your Raw Data here: 
-library(haven)
-EDGI_raw <- read_sav('data/EDGI_USA_raw.sav') # CHANGE THIS TO SUIT YOUR DATA. 
 
-## Name your Cohort
-cohort <- 'USA' #CHANGE THIS FOR EACH COHORT
+# Install the remotes package if it's not already installed
+if (!requireNamespace("remotes", quietly = TRUE)) {
+  install.packages("remotes")
+}
 
-#Loads packages
-# Install scorekeeper 
+# Load the remotes package
+library(remotes)
+
+# List of required packages 
+required_packages <- c("scorekeeper", "sjmisc", "dplyr", "tidyr", "readxl", "cgwtools", "expss")
+
+# Install and load the required packages
+for (package in required_packages) {
+  # Install scorekeeper from GitHub if it's not already installed
+  if (package == "scorekeeper" && !requireNamespace(package, quietly = TRUE)) {
+    remotes::install_github("embark-lab/scorekeeper")
+  }
+  # Install other packages from CRAN
+  else if (!requireNamespace(package, quietly = TRUE)) {
+    install.packages(package)
+  }
+}
+
+# Load the required packages
 library(scorekeeper)
-#Load additional packages
 library(sjmisc)
 library(dplyr)
 library(tidyr)
 library(readxl)
 library(cgwtools)
 library(expss)
+
+
+## Point to your Raw Data here: 
+EDGI_raw <- read_sav('data/EDGI_USA_raw.sav') # CHANGE THIS TO SUIT YOUR DATA. 
+
+## Name your Cohort
+cohort <- 'USA' #CHANGE THIS FOR EACH COHORT
+
+
 
 ## Point to Scoresheets here: 
 ED100k_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'ED100k')

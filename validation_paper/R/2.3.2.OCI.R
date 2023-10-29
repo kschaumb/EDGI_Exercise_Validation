@@ -216,7 +216,7 @@ for (trait in trait_labels_aim2) {
     
     annotation_df <- data.frame(x = c(0.8, 1.8, 2.8, 3.8, 4.8),
                                 xend = c(1.2, 2.2, 3.2, 4.2, 5.2),
-                                y = rep(max_vals[[var]] + max_vals[[var]]*.1),
+                                y = rep(max_vals[[var]] + max_vals[[var]]*.05),
                                 annotation = p) |> 
       filter(as.numeric(p) < 0.05) 
     
@@ -224,7 +224,7 @@ for (trait in trait_labels_aim2) {
     
     plot <- 
       ggplot(graph_df_list[[trait]], aes(x = case_status, y = !!sym(var), fill = .data[[trait]])) +
-      geom_boxplot() +
+      geom_boxplot(outlier.shape = NA) +
       labs(fill = "Scoring Criteria Met", title = var) +
       scale_fill_manual(values = c('0' = 'indianred', '1' = 'deepskyblue1'),
                         labels = c("No", "Yes")) +
@@ -309,13 +309,14 @@ for (var in oci_labels) {
   
   # Then, add 'xend' and 'y' to 'annotation_df'
   annotation_df$xend <- annotation_df$x + 0.08
-  annotation_df$y <- rep(max_vals[[var]] + max_vals[[var]]*.1)
+  annotation_df$y <- rep(max_vals[[var]] + max_vals[[var]]*.05)
   
   # Finally, filter 'annotation_df' based on 'p'
   annotation_df <- annotation_df |> filter(as.numeric(annotation) < 0.05)
   
   plot <- ggplot(combined_data, aes(x = case_status, y = !!sym(var), fill = as.factor(operationalization), alpha = as.factor(scoring_met))) +
-    geom_boxplot(position = position_dodge(width = 0.8)) +
+    geom_boxplot(position = position_dodge(width = 0.8), 
+                 outlier.shape = NA) +
     scale_alpha_manual(values = c("0" = 0.2, "1" = 1)) +
     labs(x = "Case Status", fill = "Operationalization", title = var) +
     guides(alpha = "none") +
@@ -325,7 +326,7 @@ for (var in oci_labels) {
           axis.title.x = element_blank(),
           legend.position = ifelse(var == oci_labels[5], "bottom", "none"), 
           text = element_text(size = 16)) +
-    ylim(0, max_vals[[var]] + max_vals[[var]]*.20)
+    ylim(0, max_vals[[var]] + max_vals[[var]]*.25)
   
   if (nrow(annotation_df) > 0) {
     plot <- plot +
@@ -349,12 +350,12 @@ oci_plots_1 <- Reduce(`+`, ggplots_1)
 oci_plots_1 <- oci_plots_1 +
   plot_layout(ncol = 1) +
   plot_annotation(
-    title = paste("OCI Subscale Scores Across Exercise Groups by Scoring Approach and Diagnosis Group"),
+    title = paste("OCI Subscale Scores Across Exercise \n Groups by Scoring Approach and Diagnosis Group"),
     theme = theme(plot.title = element_text(hjust = 0.5, size = 20))
   ) 
 
 oci_plots_1
 
 oci_plot_file <- paste0("validation_paper/figs/oci_combined", cohort, ".png")
-ggsave(oci_plot_file) 
+ggsave(oci_plot_file, width = 10, height = 7) 
 

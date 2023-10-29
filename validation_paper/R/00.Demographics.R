@@ -1,4 +1,7 @@
 
+df_file <- paste0("validation_paper/tabs/Result_dfs_", cohort, ".RData") 
+
+
 Demo_df <- EDGI_exercise_cleaned %>% 
   select(ethnicity, ED100k_gender_dummy, sex, ED100k_race_dummy_2_factor, age, currentbmi, case_status)
 
