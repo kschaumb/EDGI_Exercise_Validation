@@ -70,7 +70,9 @@ source("validation_paper/R/2.2.EDEQ.R")
 source("validation_paper/R/2.3.1.MPS.R")
 source("validation_paper/R/2.3.2.OCI.R")
 source("validation_paper/R/3.Dx_groups.R")
+source("validation_paper/R/4.Paper_Numbers.R")
 
-# Note - this analysis script does not include demographics (currently in 00.Demographics.R for the US cohort), as demographic information collected differs across cohorts.
+
+# Note - this analysis script does not include demographics (currently in 00.Demographics.R for the US cohort), as demographic information collected differs across cohorts. Please run and save separately 
 
 

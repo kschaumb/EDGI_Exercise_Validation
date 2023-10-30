@@ -58,11 +58,11 @@ result_df_long$Trait <- factor(result_df_long$Trait)
 # Create the heatmap using ggplot and geom_tile
 ggplot(result_df_long, aes(x = Sample, y = Trait)) +
   geom_tile(aes(fill = Percentage), color = "white") +
-  geom_text(aes(label = sprintf("%.2f", Percentage)), color = "white", size = 6) +
+  geom_text(aes(label = sprintf("%.2f", Percentage)), color = "white", size = 2) +
   scale_fill_viridis_c(option = "viridis", begin = 0.1, end = 0.85, direction = -1) +
   labs(x = "Sample", y = "Exercise Construct") +
   ggtitle(stringr::str_wrap("Percentage within subsamples endorsing each exercise construct", width = 45))+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), text = element_text(size =18))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), text = element_text(size =12))
 
 # Save Heatmap Df
 Heatmap_df <- result_df_long

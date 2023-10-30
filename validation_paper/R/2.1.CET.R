@@ -136,7 +136,7 @@ results <- matrix(0, nrow = length(variables), ncol = length(dummy_variables))
 # Loop through the variables and dummy variables
 for (i in seq_along(variables)) {
   for (j in seq_along(dummy_variables)) {
-    result <- cohen.d(formula = EDGI_exercise_cleaned[[variables[i]]] ~ as.factor(EDGI_exercise_cleaned[[dummy_variables[j]]]),
+    result <- effsize::cohen.d(formula = EDGI_exercise_cleaned[[variables[i]]] ~ as.factor(EDGI_exercise_cleaned[[dummy_variables[j]]]),
                       na.rm = TRUE, 
                       pooled = TRUE)$estimate
     results[i, j] <- result
