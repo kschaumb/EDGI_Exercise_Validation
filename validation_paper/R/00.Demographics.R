@@ -1,5 +1,5 @@
-
-df_file <- paste0("validation_paper/tabs/Result_dfs_", cohort, ".RData") 
+cohort <- 'USA' #Change this to reflect your cohort
+df_file <- paste0("validation_paper/tabs/Result_dfs_demographics", cohort, ".RData") 
 
 
 Demo_df <- EDGI_exercise_cleaned %>% 
@@ -37,5 +37,6 @@ Table_1 <- Demo_df %>%
   modify_caption("Participant characteristics")  |> 
   bold_labels()
 
-resave(Table_1, file = df_file)
+save(Table_1, file = df_file)
+resave(Demo_df, file = df_file)
 
