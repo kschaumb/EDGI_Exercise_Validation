@@ -41,6 +41,9 @@ CET_ED100k_ORs <- exp(coef(CET_ED100k_multinomial_lr))
 CET_ED100k_ORs <- as.data.frame(CET_ED100k_ORs) |>
   mutate(CET_ED100k_ORs = round(CET_ED100k_ORs,2))
 
+dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
+
+
 # Collect objects above into a list with each item named for itself
 manuscript_info <- list(Q1_frq = Q1_frq, 
                       Compulsive_frq = Compulsive_frq, 
@@ -52,6 +55,7 @@ manuscript_info <- list(Q1_frq = Q1_frq,
                       Ex_dur_full = Ex_dur_full, 
                       CET_ED100k_raw_table = CET_ED100k_raw_table, 
                       CET_ED100k_multinomial_lr = CET_ED100k_multinomial_lr,
-                      CET_ED100k_ORs = CET_ED100k_ORs)
+                      CET_ED100k_ORs = CET_ED100k_ORs, 
+                      dx_frqs = dx_frqs)
 
 resave(manuscript_info, file = df_file)
