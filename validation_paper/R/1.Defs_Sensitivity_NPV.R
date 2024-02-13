@@ -21,7 +21,7 @@ result_list <- lapply(traits, function(trait) {
 })
 
 samples <- result_list
-sample_names <- c('1. Q1 Broad', '2. Q1 Narrow', '3. Compulsive/Driven Braod', '4. Compulsive/Driven Narrow', '6. Addictive', '6. Excessive', '7. Compensatory', '8. Current Maladaptive')
+sample_names <- c('1. Q1 Any', '2. Q1 Regular', '3. Compulsive/Driven Braod', '4. Compulsive/Driven Narrow', '5. Addictive', '6. Excessive', '7. Compensatory', '8. Current Maladaptive')
 
 calculate_valid_percent <- function(sample, trait) {
   valid_percent <- sum(!is.na(sample[[trait]]) & sample[[trait]] == 1) / sum(!is.na(sample[[trait]])) * 100
@@ -118,7 +118,7 @@ npv_values <- numeric(length(confusion_matrices_list))
 object_names <- character(length(confusion_matrices_list))
 
 # Assign custom names to the objects in the list
-names(confusion_matrices_list) <- c('Q1 Broad.3-Compulsive[B]', 'Q1 Broad.4-Compulsive[N]', 'Q1 Broad.5-Addictive' , 'Q1 Broad.6-Excessive', 'Q1 Broad.7-Compensate', 'Q1 Broad.8-Current', 'Q1 Narrow.3-Compulsive[B]', 'Q1 Narrow.4-Compulsive[N]', 'Q1 Narrow.5-Addictive' , 'Q1 Narrow.6-Excessive', 'Q1 Narrow.7-Compensate', 'Q1 Narrow.8-Current')
+names(confusion_matrices_list) <- c('Q1 Any.3-Compulsive[B]', 'Q1 Any.4-Compulsive[N]', 'Q1 Any.5-Addictive' , 'Q1 Any.6-Excessive', 'Q1 Any.7-Compensate', 'Q1 Any.8-Current', 'Q1 Narrow.3-Compulsive[B]', 'Q1 Narrow.4-Compulsive[N]', 'Q1 Narrow.5-Addictive' , 'Q1 Narrow.6-Excessive', 'Q1 Narrow.7-Compensate', 'Q1 Narrow.8-Current')
 
 # Extract PPV values and object names
 for (i in 1:length(confusion_matrices_list)) {
@@ -221,8 +221,8 @@ npv_values <- numeric(length(cm_list_aim2))
 object_names <- character(length(cm_list_aim2))
 
 # Assign custom names to the objects in the list
-trait_names_aim2 <- c('1-Q1 Broad',
-                 '2-Q1 Narrow', 
+trait_names_aim2 <- c('1-Q1 Any',
+                 '2-Q1 Regular', 
                  '6-Excessive', 
                  '7-Compensatory', 
                  '8-Current')

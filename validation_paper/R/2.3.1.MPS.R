@@ -144,8 +144,8 @@ tidy_results <- tidy_results %>%
     TRUE ~ as.character(mps_var)
   ), 
   ex_var = case_when(
-  ex_var == 'ED100k_ex1_Q1_broad' ~ '1. Q1 Broad',
-  ex_var == 'ED100k_ex2_Q1_narrow' ~ '2. Q1 Narrow', 
+  ex_var == 'ED100k_ex1_Q1_broad' ~ '1. Q1 Any',
+  ex_var == 'ED100k_ex2_Q1_narrow' ~ '2. Q1 Regular', 
   ex_var == 'ED100k_ex6_excessive' ~ '6. Excessive', 
   ex_var == 'ED100k_ex7_compensatory' ~ '7. Compensate', 
   ex_var == 'ED100k_ex8_maladaptive_current' ~ '8. Current', 
@@ -166,8 +166,8 @@ case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED')
 mps_vars <- c('mps_ps', 'mps_cm', 'mps_da')
 level_labels <- c("No", "Yes")
 mps_labels <- c("Personal Standards", "Concern Over Mistakes", "Doubts About Actions")
-trait_labels_aim2 <- c('1. Q1 Broad',
-                 '2. Q1 Narrow', 
+trait_labels_aim2 <- c('1. Q1 Any',
+                 '2. Q1 Regular', 
                  '6. Excessive', 
                  '7. Compensate', 
                  '8. Current')
@@ -178,8 +178,8 @@ graph_df_base <- EDGI_exercise_cleaned |>
   rename(`Personal Standards` = mps_ps, 
        `Concern Over Mistakes` = mps_cm, 
        `Doubts About Actions` = mps_da,
-       `1. Q1 Broad` = ED100k_ex1_Q1_broad,
-       `2. Q1 Narrow` = ED100k_ex2_Q1_narrow,
+       `1. Q1 Any` = ED100k_ex1_Q1_broad,
+       `2. Q1 Regular` = ED100k_ex2_Q1_narrow,
        `6. Excessive` = ED100k_ex6_excessive,
        `7. Compensate` = ED100k_ex7_compensatory,
        `8. Current` = ED100k_ex8_maladaptive_current)

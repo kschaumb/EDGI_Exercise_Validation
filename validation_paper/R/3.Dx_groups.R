@@ -16,8 +16,8 @@ for (col_name in traits_aim3) {
 }
 
 # Named vector mapping column names to output names
-names_vector <- c("ED100k_ex1_Q1_broad" = "1. Q1 Broad",
-                 'ED100k_ex2_Q1_narrow' = "2. Q1 Narrow", 
+names_vector <- c("ED100k_ex1_Q1_broad" = "1. Q1 Any",
+                 'ED100k_ex2_Q1_narrow' = "2. Q1 Regular", 
                  'ED100k_ex6_excessive' = '6. Excessive', 
                  'ED100k_ex7_compensatory' = '7. Compensatory', 
                  'ED100k_ex8_maladaptive_current' = '8. Current')
@@ -47,13 +47,13 @@ dx_row_percents <- dx_row_percents |>
 
 
 
-dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('1. Q1 Broad', '2. Q1 Narrow', '6. Excessive', '7. Compensatory', '8. Current'))
+dx_row_percents <- pivot_longer(dx_row_percents, cols =  c('1. Q1 Any', '2. Q1 Regular', '6. Excessive', '7. Compensatory', '8. Current'))
 
 Dx_percents <- dx_row_percents
 resave(Dx_percents, file = df_file)
 
 diagnosis_order <- c("AN", "AN Mixed", "BN", "BN-BED Mixed", "BED")
-construct_order <- c('1. Q1 Broad', '2. Q1 Narrow', '6. Excessive', '7. Compensatory', '8. Current')
+construct_order <- c('1. Q1 Any', '2. Q1 Regular', '6. Excessive', '7. Compensatory', '8. Current')
 # Convert the diagnosis group variable to a factor with the desired order
 dx_row_percents$`Diagnosis Group` <- factor(dx_row_percents$`Diagnosis Group`, levels = diagnosis_order)
 dx_row_percents$name <- factor(dx_row_percents$name, levels = construct_order)
@@ -75,7 +75,7 @@ formulas <- c("ED100k_ex1_Q1_broad ~ case_status",
               "ED100k_ex6_excessive ~ case_status",
               "ED100k_ex7_compensatory ~ case_status",
               "ED100k_ex8_maladaptive_current ~ case_status")
-dv_labels <- c('1. Q1 Broad', '2. Q1 Narrow', '6. Excessive', '7. Compensatory', '8. Current')
+dv_labels <- c('1. Q1 Any', '2. Q1 Regular', '6. Excessive', '7. Compensatory', '8. Current')
 
 # Loop through the formulas
 for (i in seq_along(formulas)) {
