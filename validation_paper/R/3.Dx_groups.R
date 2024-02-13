@@ -231,8 +231,8 @@ ggplot(dx_row_percents, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagno
   geom_col() +
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 14)) +
   theme(legend.position = 'none') +
-  theme(text = element_text(size = 20)) +
-  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(5)) + 
+  theme(text = element_text(size = 16)) +
+  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(4)) + 
   labs(y = 'Percentage (within Diagnosis Group') +
 facet_wrap (~ `name`) +
   labs(title = 'Percentages by Diagnosis Group and Exercise Construct', x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') 
@@ -240,5 +240,5 @@ facet_wrap (~ `name`) +
 
 
 dx_groups_fig_file_2 <- paste0("validation_paper/figs/dx_groups_", cohort, ".png")
-ggsave(file = dx_groups_fig_file_2)
+ggsave(file = dx_groups_fig_file_2, height = 8, width = 10)
 

@@ -4,10 +4,13 @@ mean_edeq_ex <- EDGI_exercise_cleaned|>
   filter(!is.na(ED100k_ex_compulsive_current2)) |> 
   summarize (mean_edeq_ex = mean(edeq_ex_driven_freq_28, na.rm = TRUE))
 
+EDGI_exercise_cleaned_2 <- EDGI_exercise_cleaned |> 
+  filter(!is.na(ED100k_ex_compulsive_current2)) 
 
-ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_ex_compulsive_current2), y = mean_edeq_ex))  +
+
+ggplot(mean_edeq_ex, aes(x = as.factor(ED100k_ex_compulsive_current2), y = mean_edeq_ex))  +
   geom_point()+
-  geom_boxplot(data = EDGI_exercise_cleaned, aes( x = as.factor(ED100k_ex_compulsive_current2), y = edeq_ex_driven_freq_28, fill = as.factor(ED100k_ex_compulsive_current2))) +
+  geom_boxplot(data = EDGI_exercise_cleaned_2, aes( x = as.factor(ED100k_ex_compulsive_current2), y = edeq_ex_driven_freq_28, fill = as.factor(ED100k_ex_compulsive_current2))) +
   labs(title = 'ED100k Maladapitve Exercise vs EDEQ Exercise Frequency (Past 28 days)', x = 'Maladapitve History [ED100k]', y = 'Number of Driven Exercise Episodes in Past 28 days [EDEQ]') + 
   scale_x_discrete(labels = c('No History', 'History, Not Current', 'Current')) +
   geom_text(data = mean_edeq_ex, aes(x  = ED100k_ex_compulsive_current2+1.2, y = mean_edeq_ex+3, label = paste0('M =', round(mean_edeq_ex,2))), size = 8)+
@@ -16,7 +19,7 @@ ggplot(mean_edeq_ex, aes( x = as.factor(ED100k_ex_compulsive_current2), y = mean
 
 EDEQ_freq_file <- paste0("validation_paper/figs/EDEQ_freq_", cohort, ".png") 
 
-ggsave(EDEQ_freq_file)
+ggsave(EDEQ_freq_file, width = 12, height = 10)
 
 # label: tbl-EDEQZin
 # tbl-cap: Zero-inflated Model Coefficients for ED100k Compulsive Exercise Predicting EDEQ Driven Exercise Days (past 28 days)

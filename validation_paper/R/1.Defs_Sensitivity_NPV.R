@@ -156,12 +156,12 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   labs(title = 'Confusion Matrix Componenets Q1', x = 'Metric', y = 'Value') + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 16)) +
   theme(legend.position = 'none', text = element_text(size = 16)) +
-  geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(5)) + 
+  geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(4)) + 
   scale_fill_manual(values = wes_palette("Moonrise3")) 
 # Increase the plot area by changing the margins
 
 Q1_sensitivity_file <- paste0("validation_paper/figs/Q1_sensitivity_", cohort, ".png") 
-ggsave(Q1_sensitivity_file)  
+ggsave(Q1_sensitivity_file, width = 8, height = 11)  
 
 # label: fig-npv
 # fig-cap: Confusion matrix components of compulsive and maladaptive history vs. current CET and EDEQ exercise
@@ -267,7 +267,7 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   labs(title = 'ED100k Exercise Scoring Algorithms predicting CET and EDEQ Current Exercise', x = 'Metric', y = 'Value') + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 16)) +
   theme(legend.position = 'none', text = element_text(size = 16)) +
-  geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(5)) + 
+  geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(3)) + 
   scale_fill_manual(values = wes_palette("Moonrise3")) 
 
 NPV_file <- paste0("validation_paper/figs/NPV_", cohort, ".png") 
