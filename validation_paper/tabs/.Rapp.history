@@ -1,3 +1,4 @@
 load("/Users/kschaumberg/Dropbox/Wisconsin/Papers (External)/EDGI_Exercise/validation_paper/tabs/CET_Anova.RData")
 load("/Users/kschaumberg/Dropbox/Wisconsin/Papers (External)/EDGI_Exercise/validation_paper/tabs/Result_dfs_USA.RData")
 load("/Users/kschaumberg/Library/CloudStorage/Dropbox/Papers/EDGI_Exercise/validation_paper/tabs/Result_dfs_USA.RData")
+load("/Users/kschaumberg/Library/CloudStorage/Dropbox/Papers/EDGI_Exercise/validation_paper/tabs/Result_dfs_USA.RData")

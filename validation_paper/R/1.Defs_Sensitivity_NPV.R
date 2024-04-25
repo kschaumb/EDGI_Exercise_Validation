@@ -118,7 +118,9 @@ npv_values <- numeric(length(confusion_matrices_list))
 object_names <- character(length(confusion_matrices_list))
 
 # Assign custom names to the objects in the list
-names(confusion_matrices_list) <- c('Q1 Any.3-Compulsive[B]', 'Q1 Any.4-Compulsive[N]', 'Q1 Any.5-Addictive' , 'Q1 Any.6-Excessive', 'Q1 Any.7-Compensate', 'Q1 Any.8-Current', 'Q1 Narrow.3-Compulsive[B]', 'Q1 Narrow.4-Compulsive[N]', 'Q1 Narrow.5-Addictive' , 'Q1 Narrow.6-Excessive', 'Q1 Narrow.7-Compensate', 'Q1 Narrow.8-Current')
+names(confusion_matrices_list) <- c('Q1 Any.3-Compulsive[B]', 'Q1 Any.4-Compulsive[N]', 'Q1 Any.5-Addictive' , 'Q1 Any.6-Excessive', 'Q1 Any.7-Compensate', 'Q1 Any.8-Current', 
+                                    'Q1 Regular.3-Compulsive[B]', 'Q1 Regular.4-Compulsive[N]', 'Q1 Regular.5-Addictive' , 'Q1 Regular.6-Excessive', 'Q1 Regular.7-Compensate', 
+                                    'Q1 Regular.8-Current')
 
 # Extract PPV values and object names
 for (i in 1:length(confusion_matrices_list)) {
