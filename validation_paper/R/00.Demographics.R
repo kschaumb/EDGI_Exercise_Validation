@@ -1,5 +1,6 @@
 cohort <- 'USA' #Change this to reflect your cohort
 df_file <- paste0("validation_paper/tabs/Result_dfs_demographics", cohort, ".RData") 
+load("data/EDGI_exercise_cleaned.RData") # Load clean data
 
 
 Demo_df <- EDGI_exercise_cleaned %>% 
