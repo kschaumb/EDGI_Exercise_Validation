@@ -5,9 +5,9 @@ traits_aim2 <- c('ED100k_ex1_Q1_broad',
                  'ED100k_ex8_maladaptive_current')
 
 # Below makes the 5 case status diagnosis groups
-case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED')
+case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED', 'Control')
 mps_vars <- c('mps_ps', 'mps_cm', 'mps_da')
-diagnosis_order <- c("AN", "AN Mixed", "BN", "BN-BED Mixed", "BED")
+diagnosis_order <- c("AN", "AN Mixed", "BN", "BN-BED Mixed", "BED", 'Control')
 
 # Define the labels for the levels
 level_labels <- c("No", "Yes")
@@ -18,7 +18,7 @@ mps_labels <- c(
   mps_cm = "Concern over Mistakes",
   mps_da = "Doubts about Actions")
 
-# Create an empty list to store the nested data
+# Initialize the nested_data list
 nested_data <- list()
 
 # Perform filtering, t-tests, and calculate additional statistics in nested loops
@@ -30,32 +30,40 @@ for (status in case_status_vars) {
       filtered_data <- EDGI_exercise_cleaned %>%
         filter(case_status == status)
       
-      t_test <- t.test(filtered_data[[var]] ~ filtered_data[[trait]])
-      
-      levels <- c(0, 1)
-      level_stats <- list()
-      
-      for (level in levels) {
-        level_data <- filtered_data %>%
-          filter(.data[[trait]] == level)
+      # Check if the grouping factor has exactly 2 levels
+      if (length(unique(filtered_data[[trait]])) > 1 ) {
+        t_test <- t.test(filtered_data[[var]] ~ filtered_data[[trait]])
+        p_value <- t_test$p.value
+        level_stats <- list()
         
-        level_stats[[as.character(level)]] <- list(
-          mean = mean(level_data[[var]], na.rm = TRUE),
-          sd = sd(level_data[[var]], na.rm = TRUE),
-          n = length(level_data[[var]]),
-          se = sd(level_data[[var]], na.rm = TRUE)/sqrt(length(level_data[[var]]))
-        )
+        levels <- c(0, 1)
+        for (level in levels) {
+          level_data <- filtered_data %>%
+            filter(.data[[trait]] == level)
+          
+          level_stats[[as.character(level)]] <- list(
+            mean = mean(level_data[[var]], na.rm = TRUE),
+            sd = sd(level_data[[var]], na.rm = TRUE),
+            n = length(level_data[[var]]),
+            se = sd(level_data[[var]], na.rm = TRUE) / sqrt(length(level_data[[var]]))
+          )
+        }
+        
+      } else {
+        t_test <- NA
+        p_value <- NA
+        level_stats <- list(`0` = list(mean = NA, sd = NA, n = NA, se = NA), 
+                            `1` = list(mean = NA, sd = NA, n = NA, se = NA))
       }
       
       nested_data[[status]][[paste(trait, var, sep = '.')]] <- list(
         t_test_result = t_test,
-        p_value = t_test$p.value,
+        p_value = p_value,
         level_stats = level_stats
       )
     }
   }
 }
-
 
 MPS_compulsive_data <- nested_data
 resave(MPS_compulsive_data, file = df_file)
@@ -72,23 +80,44 @@ for (status in case_status_vars) {
     # Extract the t-test result
     t_test_result <- nested_data[[status]][[trait_var]]$t_test_result
     
-    # Tidy the t-test result
-    tidy_result <- broom::tidy(t_test_result)
-    
-    # Add case_status and variable information to the tidy result
-    tidy_result$status <- status
-    tidy_result$variable <- trait_var
-    
-    # Append the tidy result to the list of tidy results
-    tidy_results[[length(tidy_results) + 1]] <- tidy_result
+    # Check if the t-test result is valid (not NA) by examining the p.value component
+    if (!is.na(nested_data[[status]][[trait_var]]$p_value)) {
+      # Tidy the t-test result
+      tidy_result <- broom::tidy(t_test_result)
+      
+      # Add case_status and variable information to the tidy result
+      tidy_result$status <- status
+      tidy_result$variable <- trait_var
+      
+      # Append the tidy result to the list of tidy results
+      tidy_results[[length(tidy_results) + 1]] <- tidy_result
+    } else {
+      # Handle the case where t-test result is NA
+      tidy_results[[length(tidy_results) + 1]] <- data.frame(
+        estimate = NA,
+        estimate1 = NA,
+        estimate2 = NA,
+        statistic = NA,
+        p.value = NA,
+        parameter = NA,
+        conf.low = NA,
+        conf.high = NA,
+        method = NA,
+        alternative = NA,
+        status = status,
+        variable = trait_var
+      )
+    }
   }
 }
+
 
 # Combine the list of tidy results into a single data frame
 tidy_results_df <- do.call(rbind, tidy_results)
 
-# Reorder columns
+# Reorder columns and handle NA values as necessary
 tidy_results_df <- tidy_results_df[, c("status", "variable", "estimate", "estimate1", "estimate2", "statistic", "p.value", "method")]
+
 
 def_combos <- unique(tidy_results_df$variable)
 
@@ -162,7 +191,7 @@ MPS_tidy_results <- tidy_results
 
 resave(MPS_tidy_results, file = df_file)
 
-case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED')
+case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED', 'Control')
 mps_vars <- c('mps_ps', 'mps_cm', 'mps_da')
 level_labels <- c("No", "Yes")
 mps_labels <- c("Personal Standards", "Concern Over Mistakes", "Doubts About Actions")
@@ -190,67 +219,6 @@ for (trait in trait_labels_aim2) {
     filter(!is.na(.data[[trait]])) |>
     mutate(case_status = factor(case_status, levels = diagnosis_order)) 
 }
-
-
-ggplots <- list()
-
-for (trait in trait_labels_aim2) {
-  for (var in mps_labels) {
-    p_vals <- MPS_tidy_results |>
-      filter(mps_var == var) |>
-      filter(ex_var == trait)
-    p <- p_vals$`FDR p val`
-    
-    annotation_df <- data.frame(x = c(0.8, 1.8, 2.8, 3.8, 4.8),
-                                xend = c(1.2, 2.2, 3.2, 4.2, 5.2),
-                                y = c(21, 21, 21, 21, 21),
-                                annotation = p) |> 
-      filter(as.numeric(p) < 0.05) 
-    
-    graph_df_list[[trait]][[trait]] <- factor(graph_df_list[[trait]][[trait]])
-    
-    plot <- 
-      ggplot(graph_df_list[[trait]], aes(x = case_status, y = !!sym(var), fill = .data[[trait]])) +
-      geom_boxplot(outlier.shape = NA) +
-      labs(fill = "Scoring Criteria Met", title = var) +
-      scale_fill_manual(values = c('0' = 'indianred', '1' = 'deepskyblue1'),
-                        labels = c("No", "Yes")) +
-      theme(plot.title = element_text(hjust = 0.5),
-            axis.text.x = if (var == mps_labels[3]) element_text(angle = 45, hjust = 1, size = 12) else element_blank(),
-            axis.title.y = element_blank(),
-            axis.title.x = element_blank(),
-            legend.position = ifelse(var == mps_labels[3], "bottom", "none")) +
-      ylim(4, 23)
-    
-    if (nrow(annotation_df) > 0) {
-      plot <- plot +
-        geom_signif(
-          annotation = annotation_df$annotation,
-          xmin = annotation_df$x,
-          xmax = annotation_df$xend,
-          y_position = annotation_df$y
-        )
-    }
-    
-    ggplots[[trait]][[var]] <- plot
-  }
-}
-
-MPS_plots <- list()
-
-for (var in names(ggplots)) {
-  cohort <- cohort
-  MPS_plots[[var]] <- Reduce(`+`, ggplots[[var]]) +
-    plot_layout(ncol = 1) +
-    plot_annotation(
-      title = paste("MPS Subscale Scores Across Scoring Approach", var, "and Diagnosis Group"),
-      theme = theme(plot.title = element_text(hjust = 0.5))
-    )
-  
-  MPS_plot_file <- paste0("validation_paper/figs/MPS_", var,"_", cohort, ".png") 
-  ggsave(filename = MPS_plot_file, plot = MPS_plots[[var]])
-}
-
 
 
 graph_df_list_1 <- list()
@@ -283,16 +251,17 @@ for (var in mps_labels) {
   # First, define 'x' and 'annotation'
   annotation_df <- data.frame(
     x = c(0.64, 0.80, 0.96, 1.12, 1.28,
-          1.64, 1.80, 1.96, 2.12, 2.28,
-          2.64, 2.80, 2.96, 3.12, 3.28,
-          3.64, 3.80, 3.96, 4.12, 4.28,
-          4.64, 4.80, 4.96, 5.12, 5.28),
+          1.64, 1.80, 1.96, 2.12, 2.28, 
+          2.64, 2.80, 2.96, 3.12, 3.28, 
+          3.64, 3.80, 3.96, 4.12, 4.28, 
+          4.64, 4.80, 4.96, 5.12, 5.28,
+          5.64, 5.80, 5.96, 6.12, 6.28),
     annotation = p
   )
   
   # Then, add 'xend' and 'y' to 'annotation_df'
   annotation_df$xend <- annotation_df$x + 0.08
-  annotation_df$y <- rep(21, times = 25)
+  annotation_df$y <- rep(21, times = 30)
   
   # Finally, filter 'annotation_df' based on 'p'
   annotation_df <- annotation_df |> filter(as.numeric(annotation) < 0.05)
@@ -323,12 +292,18 @@ for (var in mps_labels) {
         alpha = 1)
   }
   ggplots_1[[var]] <- plot
-  
 }
 
+# Verify each plot individually to ensure there are no issues
+for (plot in ggplots_1) {
+  print(plot)  # This should print each plot individually without errors
+}
+
+library(ggplot2)
+library(patchwork)
 
 # use Reduce to add all the ggplots together
-MPS_plots_1 <- Reduce(`+`, ggplots_1)
+MPS_plots_1 <- patchwork::wrap_plots(ggplots_1, ncol = 1)
 
 # add the layout, annotation, and labels
 MPS_plots_1 <- MPS_plots_1 +

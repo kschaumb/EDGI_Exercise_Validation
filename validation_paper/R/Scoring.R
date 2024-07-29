@@ -13,7 +13,7 @@ if (!requireNamespace("remotes", quietly = TRUE)) {
 library(remotes)
 
 # List of required packages 
-required_packages <- c("scorekeeper", "sjmisc", "dplyr", "tidyr", "readxl", "cgwtools", "expss")
+required_packages <- c("scorekeeper", "sjmisc", "dplyr", "tidyr", "readxl", "cgwtools", "expss", "haven")
 
 # Install and load the required packages
 for (package in required_packages) {
@@ -35,6 +35,7 @@ library(tidyr)
 library(readxl)
 library(cgwtools)
 library(expss)
+library(haven)
 
 
 ## Point to your Raw Data here: 
@@ -107,10 +108,12 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
                                   an_case == 0 & bn_case == 1 & bed_case == 0 ~ 'BN',
                                   an_case == 0 & bn_case == 0 & bed_case == 1 ~ 'BED', 
                                   an_case == 1 & (bn_case == 1 | bed_case == 1) ~ 'AN Mixed',
-                                  an_case == 0 & bn_case ==1 & bed_case ==1 ~ 'BN-BED Mixed' )) |> 
+                                  an_case == 0 & bn_case ==1 & bed_case ==1 ~ 'BN-BED Mixed', 
+                                  control == 1 ~ 'Control' )) |> 
   mutate (case_heirarchy = case_when (an_case == 1 ~ 'AN', 
                                       bn_case == 1 ~ 'BN', 
-                                      bed_case == 1 ~ 'BED'))
+                                      bed_case == 1 ~ 'BED', 
+                                      control == 1 ~ 'Control')) 
 
 
 # Generate the file name with the cohort name

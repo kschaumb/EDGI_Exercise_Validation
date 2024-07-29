@@ -1,7 +1,6 @@
-
 #Loads packages
-
 # Install scorekeeper 
+# devtools::install_github("embark-lab/scorekeeper")
 library(scorekeeper)
 #Load additional packages
 library(sjmisc)
@@ -12,8 +11,13 @@ library(readxl)
 library(cgwtools)
 library(expss)
 
+# load .sas7 data file 
+EDGI_raw <- read_sas("data/exercise_240610.sas7bdat")
+# save as R Data file
+save(EDGI_raw, file = "data/EDGI_raw.RData")
+
 ## Point to your Raw Data here: 
-EDGI_raw <- load('data/EDGI_raw.RData') 
+load('data/EDGI_raw.RData') 
 
 ## Point to Scoresheets here: 
 ED100k_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'ED100k')
@@ -23,8 +27,8 @@ OCI12_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'OCI12')
 FrostMPS_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'FrostMPS')
 
 # ED100k Scoring
-ED100k<- scorekeep(EDGI_raw, ED100k_score)
-ED100k_scored <- ED100k [[10]]
+ED100k_scored <- scorekeep(EDGI_raw, ED100k_score)
+ED100k_scored <- ED100k_scored[[10]]
 
 # Add various weight suppression variables; clean outlier BMI variables
 ED100k_scored <- ED100k_scored |> 
@@ -43,15 +47,15 @@ ED100k_scored <- ED100k_scored |>
 
 # EDEQ Scoring 
 EDEQ_scored <- scorekeep(EDGI_raw, EDEQ_score)
-EDEQ_scored <- EDEQ_scored [[5]]
+EDEQ_scored <- EDEQ_scored[[5]]
 
 # CET Scoring
 CET_scored <- scorekeep(EDGI_raw, CET_score)
-CET_scored <- CET_scored [[6]]
+CET_scored <- CET_scored[[6]]
 
 # OCI Scoring
 OCI12_scored <- scorekeep(EDGI_raw, OCI12_score)
-OCI12_scored <- OCI12_scored [[6]]
+OCI12_scored <- OCI12_scored[[6]]
 
 # Frost MPS Scoring 
 FrostMPS_scored <- scorekeep(EDGI_raw, FrostMPS_score)

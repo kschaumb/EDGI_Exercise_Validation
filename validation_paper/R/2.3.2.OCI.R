@@ -5,9 +5,9 @@ traits_aim2 <- c('ED100k_ex1_Q1_broad',
                  'ED100k_ex8_maladaptive_current')
 
 # Below makes the 5 case status diagnosis groups
-case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED')
+case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED', 'Control')
 oci_vars <- c('oci12_wash', 'oci12_check', 'oci12_order', 'oci12_obsess', 'oci12_total')
-diagnosis_order <- c("AN", "AN Mixed", "BN", "BN-BED Mixed", "BED")
+diagnosis_order <- c("AN", "AN Mixed", "BN", "BN-BED Mixed", "BED", 'Control')
 
 # Define the labels for the levels
 level_labels <- c("No", "Yes")
@@ -169,7 +169,7 @@ oci_tidy_results <- tidy_results
 
 resave(oci_tidy_results, file = df_file)
 
-case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED')
+case_status_vars <- c('AN', 'AN Mixed', 'BN', 'BN-BED Mixed', 'BED', 'Control')
 level_labels <- c("No", "Yes")
 oci_labels <- c("Washing", "Checking", "Order", "Obsessions", "Total")
 trait_labels_aim2 <- c('1. Q1 Any',
