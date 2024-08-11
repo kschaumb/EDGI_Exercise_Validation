@@ -1,3 +1,5 @@
+load(RData_file) 
+
 traits_aim2 <- c('ED100k_ex1_Q1_broad',
                  'ED100k_ex2_Q1_narrow', 
                  'ED100k_ex6_excessive', 
@@ -31,7 +33,8 @@ for (status in case_status_vars) {
         filter(case_status == status)
       
       # Check if the grouping factor has exactly 2 levels
-      if (length(unique(filtered_data[[trait]])) > 1 ) {
+      non_na_values <- filtered_data[[trait]][!is.na(filtered_data[[trait]])]
+      if (length(unique(non_na_values)) > 1) {
         t_test <- t.test(filtered_data[[var]] ~ filtered_data[[trait]])
         p_value <- t_test$p.value
         level_stats <- list()
@@ -309,7 +312,7 @@ MPS_plots_1 <- patchwork::wrap_plots(ggplots_1, ncol = 1)
 MPS_plots_1 <- MPS_plots_1 +
   plot_layout(ncol = 1) +
   plot_annotation(
-    title = paste("MPS Subscale Scores Across Exercise \n Groups by Scoring Approach and Diagnosis Group"),
+    title = paste("MPS Subscale Scores Across Exercise \n Groups by Scoring Approach and Diagnosis Group - ", cohort),
     theme = theme(plot.title = element_text(hjust = 0.5), text = element_text(size = 18))
   ) 
 

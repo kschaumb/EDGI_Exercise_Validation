@@ -1,4 +1,8 @@
- 
+
+load(RData_file) # should NOT need to change if you did scoring step correctly
+
+EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>% 
+  filter(case_status != 'Control') 
 
 traits <- c('ED100k_ex1_Q1_broad',
             'ED100k_ex2_Q1_narrow', 
@@ -48,8 +52,6 @@ result_df$Sample <- rownames(result_df)
 # recodes 100% values as NA
 result_df[result_df == 100] <- NA  
 
-
-
 # Reshape the data frame into long format
 result_df_long <- tidyr::pivot_longer(result_df, cols = -Sample, names_to = "Trait", values_to = "Percentage")
 
@@ -58,18 +60,22 @@ result_df_long$Trait <- factor(result_df_long$Trait)
 # Create the heatmap using ggplot and geom_tile
 ggplot(result_df_long, aes(x = Sample, y = Trait)) +
   geom_tile(aes(fill = Percentage), color = "white") +
-  geom_text(aes(label = sprintf("%.2f", Percentage)), color = "white", size = 2) +
+  geom_text(aes(label = sprintf("%.2f", Percentage)), color = "white", size = 5) +
+  embarktools::embark_theme_a +
+  labs(x = "Sample", y = "Exercise Construct", text = element_text(size = 18)) +
+  ggtitle(stringr::str_wrap(paste("Percentage within subsamples endorsing each exercise construct - ", cohort), width = 45))+
+  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), text = element_text(size =16)) + 
   scale_fill_viridis_c(option = "viridis", begin = 0.1, end = 0.85, direction = -1) +
-  labs(x = "Sample", y = "Exercise Construct") +
-  ggtitle(stringr::str_wrap("Percentage within subsamples endorsing each exercise construct", width = 45))+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), text = element_text(size =12))
+  # make text smaller
+  theme(axis.text.x = element_text(size = 14), axis.text.y = element_text(size = 14)) 
+
 
 # Save Heatmap Df
 Heatmap_df <- result_df_long
 resave(Heatmap_df, file = df_file)
 
 heatmap_png_file <- paste0("validation_paper/figs/ex_heatmap_", cohort, ".png") 
-ggsave(heatmap_png_file)  
+ggsave(heatmap_png_file, width = 10, height = 10, dpi = 600) 
 
 
 # label: fig-Q1sensitivity
@@ -155,7 +161,7 @@ resave(Q1_sensitivity_confusion_df, file = df_file)
 ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   geom_col(position = 'dodge')+
   facet_grid(`Exercise Type` ~ `Q1`) +
-  labs(title = 'Confusion Matrix Componenets Q1', x = 'Metric', y = 'Value') + 
+  labs(title = paste('Confusion Matrix Componenets Q1 -', cohort), x = 'Metric', y = 'Value') + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 16)) +
   theme(legend.position = 'none', text = element_text(size = 16)) +
   geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(4)) + 
@@ -266,7 +272,7 @@ resave(CET_EDEQ_confusion_df, file = df_file)
 ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   geom_col(position = 'dodge')+
   facet_grid(`Exercise Type` ~ `Q1 Criteria`) +
-  labs(title = 'ED100k Exercise Scoring Algorithms predicting CET and EDEQ Current Exercise', x = 'Metric', y = 'Value') + 
+  labs(title = paste('ED100k Exercise Scoring Algorithms predicting CET and EDEQ Current Exercise', cohort), x = 'Metric', y = 'Value') + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 16)) +
   theme(legend.position = 'none', text = element_text(size = 16)) +
   geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(3)) + 

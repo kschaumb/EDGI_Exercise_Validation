@@ -11,7 +11,7 @@ EDGI_exercise_cleaned_2 <- EDGI_exercise_cleaned |>
 ggplot(mean_edeq_ex, aes(x = as.factor(ED100k_ex_compulsive_current2), y = mean_edeq_ex))  +
   geom_point()+
   geom_boxplot(data = EDGI_exercise_cleaned_2, aes( x = as.factor(ED100k_ex_compulsive_current2), y = edeq_ex_driven_freq_28, fill = as.factor(ED100k_ex_compulsive_current2))) +
-  labs(title = 'ED100k Maladapitve Exercise vs EDEQ Exercise Frequency (Past 28 days)', x = 'Maladapitve History [ED100k]', y = 'Number of Driven Exercise Episodes in Past 28 days [EDEQ]') + 
+  labs(title = paste('ED100k Maladapitve Exercise vs EDEQ Exercise Frequency (Past 28 days)', cohort), x = 'Maladapitve History [ED100k]', y = 'Number of Driven Exercise Episodes in Past 28 days [EDEQ]') + 
   scale_x_discrete(labels = c('No History', 'History, Not Current', 'Current')) +
   geom_text(data = mean_edeq_ex, aes(x  = ED100k_ex_compulsive_current2+1.2, y = mean_edeq_ex+3, label = paste0('M =', round(mean_edeq_ex,2))), size = 8)+
   theme(legend.position = 'none', text = element_text(size =20)) +

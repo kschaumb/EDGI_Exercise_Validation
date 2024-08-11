@@ -18,7 +18,8 @@ ed100k_ex_defs <- c('ED100k_ex1_Q1_broad',
                     'ED100k_ex9_maladaptive_hxplusc')
 
 ed100k_ex_data <- EDGI_exercise_cleaned %>% 
-  select(ed100k_ex_items)
+  filter(case_status != 'Control') |> 
+  select(ed100k_ex_items) 
 
 ed100k_ex_data$exercise <- factor(ed100k_ex_data$exercise,
                                   levels = c(1, 2, 3),

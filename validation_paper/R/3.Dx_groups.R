@@ -1,3 +1,8 @@
+load(RData_file) # should NOT need to change if you did scoring step correctly
+
+EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>% 
+  filter(case_status != 'Control') 
+
 traits_aim3 <- c('ED100k_ex1_Q1_broad',
                  'ED100k_ex2_Q1_narrow', 
                  'ED100k_ex6_excessive', 
@@ -5,6 +10,9 @@ traits_aim3 <- c('ED100k_ex1_Q1_broad',
                  'ED100k_ex8_maladaptive_current')
 
 dx_frqs <- as.data.frame(frq(EDGI_exercise_cleaned$case_status))
+# remove val = NA from dx_frqs
+dx_frqs <- dx_frqs |>
+  filter(val != 'NA' & val != 'Control')
 
 # create an empty list to store the tables
 tables_list <- list()
@@ -57,6 +65,9 @@ construct_order <- c('1. Q1 Any', '2. Q1 Regular', '6. Excessive', '7. Compensat
 # Convert the diagnosis group variable to a factor with the desired order
 dx_row_percents$`Diagnosis Group` <- factor(dx_row_percents$`Diagnosis Group`, levels = diagnosis_order)
 dx_row_percents$name <- factor(dx_row_percents$name, levels = construct_order)
+# remove control from dx_row_percents
+dx_row_percents <- dx_row_percents |>
+  filter(`Diagnosis Group` != 'Control')
 
 resave(dx_row_percents, file = df_file)
 
@@ -65,6 +76,9 @@ Dx_table <- EDGI_exercise_cleaned %>%
   select(case_status, all_of(traits_aim3))
 
 Dx_table$case_status <- factor(Dx_table$case_status)
+# remove case_status == control from Dx_table
+Dx_table <- Dx_table |>
+  filter(case_status != 'Control')
 
 # Create an empty list to store the models
 model_list <- list()
@@ -220,7 +234,7 @@ dx_plot_1 <- Reduce(`+`, dx_plots)
 
 dx_plot_1 + 
   plot_layout(ncol = 3) +
-  plot_annotation(title = "Exercise Construct by Diagnosis Group", theme = theme(plot.title = element_text(hjust = 0.5))) 
+  plot_annotation(title = paste("Exercise Construct by Diagnosis Group", cohort), theme = theme(plot.title = element_text(hjust = 0.5))) 
 
 dx_plot_1
 dx_groups_fig_file <- paste0("validation_paper/figs/dx_groups_annotated", cohort, ".png")
@@ -235,7 +249,7 @@ ggplot(dx_row_percents, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagno
   geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(4)) + 
   labs(y = 'Percentage (within Diagnosis Group') +
 facet_wrap (~ `name`) +
-  labs(title = 'Percentages by Diagnosis Group and Exercise Construct', x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') 
+  labs(title = paste('Percentages by Diagnosis Group and Exercise Construct - ', cohort), x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') 
 
 
 

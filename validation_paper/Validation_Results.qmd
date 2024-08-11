@@ -1,6 +1,6 @@
 ---
 title: "Results"
-format: html
+format: docx
 ---
 
 ```{r setup, include=FALSE}
@@ -31,8 +31,22 @@ library(flextable)
 library(gtsummary)
 library(labelled)
 
+rm(list = ls())
 load('tabs/Result_dfs_USA.RData')
 load('tabs/Result_dfs_demographicsUSA.RData')
+# put in a list called 'USA_Results'
+USA_results <- mget(ls())
+save(USA_results, file = "tabs/USA_results.RData")
+rm(list = ls())
+load('tabs/Result_dfs_SE.RData')
+load('tabs/Result_dfs_demographicsSE.RData')
+SE_results <- mget(ls())
+save(SE_results, file = "tabs/SE_results.RData")
+rm(list = ls())
+load('tabs/USA_results.RData')
+load('tabs/SE_results.RData')
+
+
 
 ```
 
@@ -44,7 +58,7 @@ Sociodemographic characteristics of the sample and frequency of eating disorder 
 #| label: tbl-tbl1
 #| tbl-cap: Sample Descriptives
 
-knitr::kable(Table_1)
+knitr::kable()
 
 ```
 
@@ -140,7 +154,17 @@ We hypothesize that Q1 Narrow (Approach \# 2) will be likely to meet criteria fo
 
 @fig-heatmap presents the proportion of the full sample along with sub-samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis).
 
-![Heatmap presenting the positive predictive value (PPV\*100) as the percentage of (sub)samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis)](figs/ex_heatmap_USA.png){#fig-heatmap}
+```{r, echo = FALSE, warning = FALSE}
+#| label: fig-heatmap
+#| fig-cap: Heatmap presenting the positive predictive value (PPV\*100) as the percentage of (sub)samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis)
+#| fig-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 2
+knitr::include_graphics("figs/ex_heatmap_USA.png")
+knitr::include_graphics("figs/ex_heatmap_SE.png")
+```
+
 
 ## Accuracy of Q1 (Approaches 1-2) to detect further maladaptive exercise symptoms
 

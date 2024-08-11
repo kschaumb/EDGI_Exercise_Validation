@@ -1,4 +1,7 @@
+load(RData_file) # should NOT need to change if you did scoring step correctly
 
+EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>% 
+  filter(case_status != 'Control') 
 
 Current_Exercise <- EDGI_exercise_cleaned |> 
   select(record_id, cet_total_weighted_sum, cet_mood, cet_enjoy, cet_avoid, cet_rigid, cet_wtcontrol, cet_clinical, edeq_ex_driven_freq_28, ED100k_ex_compulsive_current2)  |>  filter(!is.na(ED100k_ex_compulsive_current2)) |> 
@@ -25,7 +28,7 @@ ggplot(Current_Exercise, aes(x = as.factor(ED100k_ex_compulsive_current2), y = v
   geom_jitter(size = 0.3) +
   geom_boxplot(alpha = 0.5, color= 'black') +
   scale_x_discrete(labels = c('No Hx', 'Hx only', 'Current')) +
-  labs(title = 'Median CET standard scores based on ED100k Maladaptive exercise', x = 'Maladaptive Exercise [ED100k]', y = 'CET Standardized Score') + 
+  labs(title = paste('Median CET standard scores based on ED100k Maladaptive exercise', x = 'Maladaptive Exercise [ED100k]', cohort), y = 'CET Standardized Score') + 
   theme(legend.position = 'none', text = element_text(size = 18)) +
   geom_text(data = median_stds, aes(x = as.factor(ED100k_ex_compulsive_current2), y = med_val + 0.3, label = round(med_val, 1)), size = 5, color = 'black', fontface ='bold') +
   scale_color_manual(values = wes_palette("Darjeeling1"))

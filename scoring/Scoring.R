@@ -12,12 +12,12 @@ library(cgwtools)
 library(expss)
 
 # load .sas7 data file 
-EDGI_raw <- read_sas("data/exercise_240610.sas7bdat")
+EDGI_SE_raw <- read_sas("data/Sweden/edgi_se_data.sas7bdat", encoding = "latin1")
 # save as R Data file
-save(EDGI_raw, file = "data/EDGI_raw.RData")
+save(EDGI_SE_raw, file = "data/EDGI_SE_raw.RData")
 
 ## Point to your Raw Data here: 
-load('data/EDGI_raw.RData') 
+load('data/EDGI_SE_raw.RData') 
 
 ## Point to Scoresheets here: 
 ED100k_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'ED100k')
