@@ -1,4 +1,4 @@
-load('data/EDGI_exercise_cleaned_USA.RData') 
+load(RData_file) # should NOT need to change if you did scoring step correctly
 
 EDGI_exercise_cleaned <- EDGI_exercise_cleaned |> 
   mutate(ex_dur_3m = case_when(ED100k_ex_dur > 2 ~ 1,

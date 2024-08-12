@@ -39,5 +39,4 @@ Table_1 <- Demo_df %>%
   bold_labels()
 
 save(Table_1, file = df_file)
-resave(Demo_df, file = df_file)
 

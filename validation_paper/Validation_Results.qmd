@@ -58,8 +58,15 @@ Sociodemographic characteristics of the sample and frequency of eating disorder 
 #| label: tbl-tbl1
 #| tbl-cap: Sample Descriptives
 
-knitr::kable()
+SE_results$Demo_df$cohort <- 'SE'
+SE_results$Demo_df$ethnicity <- NA
+SE_results$Demo_df$sex <- NA
+SE_results$Demo_df$ED100k_race_dummy_2_factor <- NA
 
+USA_results$Demo_df$cohort <- 'USA'
+
+# join the two dataframes
+all_demo <- rbind(SE_results$Demo_df, USA_results$Demo_df)
 ```
 
 # Preliminary Aim - Develop a scoring algorithm
@@ -78,7 +85,7 @@ We will focus on evaluation of the [incremental]{.underline} validity of scoring
 
 ## Scoring {#sec:scoring}
 
-The ED100k included 12 questions assessing maladaptive exercise. The first question, which all participants were asked, inquires as to whether individuals *ever* exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported affirmatively to Q1 and 'Yes' to *either* Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their maladaptive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, all participants were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (n = `r manuscript_info$Q1_frq[[1]]$frq[[1]]`) who reported no to Q1 were marked as '0' for all follow-up questions, with the exception of ages (Q10-11), which were retained as missing. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (n = `r manuscript_info$Compulsive_frq[[1]]$frq[[1]]`) were marked as '0' for Q4-Q9. Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see [scoring](sec:scoring)) are provide in Supplemental @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was `r manuscript_info$AAO.3$median` years and the median age of last report of compulsive exercise was `r manuscript_info$Age_last.3$median` years. Among those who reported any compulsive exercise, `r manuscript_info$Compulsive_current.3[[1]]$valid.prc[[3]]`% reported that this was an ongoing symptom.
+The ED100k included 12 questions assessing maladaptive exercise. The first question, which all participants were asked, inquires as to whether individuals *ever* exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported affirmatively to Q1 and 'Yes' to *either* Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their maladaptive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, all participants were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (USA n = `r USA_results$manuscript_info$Q1_frq[[1]]$frq[[1]]`; SE n = `r SE_results$manuscript_info$Q1_frq[[1]]$frq[[1]]` who reported no to Q1 were marked as '0' for all follow-up questions, with the exception of ages (Q10-11), which were retained as missing. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (USA n = `r USA_results$manuscript_info$Compulsive_frq[[1]]$frq[[1]]`; SE n = `r SE_results$manuscript_info$Compulsive_frq[[1]]$frq[[1]]`) were marked as '0' for Q4-Q9. Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see [scoring](sec:scoring)) are provide in Supplemental @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was USA: `r USA_results$manuscript_info$AAO.3$median` years; SE: `r SE_results$manuscript_info$AAO.3$median`:  years and the median age of last report of compulsive exercise was USA: `r USA_results$manuscript_info$Age_last.3$median` years; SE: `r SE_results$manuscript_info$Age_last.3$median` years. Among those who reported any compulsive exercise, USA: `r USA_results$manuscript_info$Compulsive_current.3[[1]]$valid.prc[[3]]`%; SE: `r SE_results$manuscript_info$Compulsive_current.3[[1]]$valid.prc[[3]]`% reported that this was an ongoing symptom.
 
 Scoring algorithms for each subconstruct are presented in @tbl-defs.
 
@@ -165,43 +172,80 @@ knitr::include_graphics("figs/ex_heatmap_USA.png")
 knitr::include_graphics("figs/ex_heatmap_SE.png")
 ```
 
-
 ## Accuracy of Q1 (Approaches 1-2) to detect further maladaptive exercise symptoms
 
 Overall, there was high convergent validity for Q1 with Q2-Q6. Specifically, individuals eating disorders who endorse Q1 Broad (Approach #1) are highly likely to confirm either feeling compelled to exercise or distressed when unable to exercise (#3; high PPV). As hypothesized, Q1 Broad (#1) had more moderate PPV for approaches #4-7 (compulsive/driven \[narrow\], addictive, excessive, compulsive).
 
-Among those meeting Q1 Narrow (#2), individuals were likely to engage in this behavior for a substantive period of time -- `r manuscript_info$Ex_dur.2[[1]]$valid.prc[[2]]`% of those meeting Q1 Narrow reported maladaptive exercise for a duration of \> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors. Those meeting Q1 Narrow were also highly likely to report symptoms consistent with definitions of both compulsive/driven (high PPV for #3-4), addictive (high PPV for #5) exercise. Q1 Narrow PPV for predicting excessive exercise (#6) was also high (\>0.80), but less so than approaches #3-5.
+Among those meeting Q1 Narrow (#2), individuals were likely to engage in this behavior for a substantive period of time -- USA: `r USA_results$manuscript_info$Ex_dur.2[[1]]$valid.prc[[2]]`%; SE: `r SE_results$manuscript_info$Ex_dur.2[[1]]$valid.prc[[2]]`% of those meeting Q1 Narrow reported maladaptive exercise for a duration of \> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors. Those meeting Q1 Narrow were also highly likely to report symptoms consistent with definitions of both compulsive/driven (high PPV for #3-4), addictive (high PPV for #5) exercise. Q1 Narrow PPV for predicting excessive exercise (#6) was also high (\>0.80), but less so than approaches #3-5.
 
-@fig-Q1sensitivity-USA reports full metrics on the utility of Q1 Broad and Q1 Narrow to capture definitions in approaches #3-8. The sensitivity and negative predictive values of Q1 Broad detection of approaches #3-6 were forced to 1.0 by definition. Overall accuracy metrics of Q1 Broad predicting #3, and Q1 Narrow predicting #4-5 suggest that additional criteria added to these approaches are not necessary for defining maladaptive exercise that (1) verifies compulsive/driven symptoms and (2) identifies significant duration and interference with life and/or health among individuals with EDs. Overall, the vast majority of individuals with eating disorders who reporting regular exercise for weight loss to control weight and shape in Q1 go on to report that this exercise was compulsive and that they also experienced life interfering sequelae of this behavior. Further, regarding specific addictive exercise symptoms, the modal number of exercise interference items was all 3.
+@fig-Q1sensitivity reports full metrics on the utility of Q1 Broad and Q1 Narrow to capture definitions in approaches #3-8. The sensitivity and negative predictive values of Q1 Broad detection of approaches #3-6 were forced to 1.0 by definition. Overall accuracy metrics of Q1 Broad predicting #3, and Q1 Narrow predicting #4-5 suggest that additional criteria added to these approaches are not necessary for defining maladaptive exercise that (1) verifies compulsive/driven symptoms and (2) identifies significant duration and interference with life and/or health among individuals with EDs. Overall, the vast majority of individuals with eating disorders who reporting regular exercise for weight loss to control weight and shape in Q1 go on to report that this exercise was compulsive and that they also experienced life interfering sequelae of this behavior. Further, regarding specific addictive exercise symptoms, the modal number of exercise interference items was all 3.
 
 While Q1 accurately defined those experiencing compulsive and addictive exercise (Approaches #3-5) with little additional information provided from follow-up questions, the same was not true for excessive exercise (#6) and compensatory exercise (#7) -- additional questions may be necessary to define excessive and compensatory exercise with the highest levels of accuracy, and endorsement of these constructs do not entirely overlap with endorsement of other maladaptive exercise symptoms. While PPV and overall accuracy for Q1 Broad predicting compensatory accuracy (#7) were moderate, suggesting that not all individuals who endorse Q1 Broad also endorse compensatory exercise, sensitivity was high -- almost all of those who endorsed compensatory exercise also endorsed Q1 Broad. Overall accuracy of both Q1 Broad and Q1 Narrow in predicting compensatory exercise (#7) was moderate, again suggesting that compensatory exercise occurs in only a subsample of those with maladaptive exercise, and that this question provides utility in the scale. For further analysis in Aims 2-3, scoring approaches #1,2,6,7, & 8 are retained, as they provide unique and discriminable information about maladaptive exercise patterns.
 
-![Accuracy of Q1 Broad (#1) and Q1 Narrow (#2) in detecting groups defined in approaches #3-8. Higher values represent greater validity/higher accuracy](figs/Q1_sensitivity_USA.png){#fig-Q1sensitivity-USA}
+
+```{r, echo = FALSE, warning = FALSE}
+#| label: fig-Q1sensitivity
+#| fig-cap: Accuracy of Q1 Broad (#1) and Q1 Narrow (#2) in detecting groups defined in approaches 3-8. Higher values represent greater validity/higher accuracy
+#| fig-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 1
+knitr::include_graphics("figs/Q1_sensitivity_USA.png")
+knitr::include_graphics("figs/Q1_sensitivity_SE.png")
+```
+
 
 # Aim 2. Evaluate Convergent and Discriminant Validity between ED100k Scoring Approaches and: Current Compulsive Exercise, Perfectionism, and OCD symptoms
 
 H2a: Individuals who do meet Q1 Broad (#1), Q1 Narrow (#2), or Current Maladaptive Exercise (#8), will not report current compulsive/driven exercise (high negative predictive value \[NPV\]; *\>90% for 1. Current driven exercise to manage weight/shape on the EDEQ, 2. Current compulsive exercise at clinical cutoff on the CET).* NPV will be lower for Excessive Exercise (#6) and compensatory exercise (#7), as these operationalizations capture smaller subsamples which may exclude those with current driven/compulsive exercise. PPV, Sensitivity, Specificity, and overall accuracy for current maldaptive exercise (#8) predicting current CET and EDEQ-assessed exercise will be moderate-to-high, supporting this single-item assessment of current maladaptive exercise on the ED100k.
 
-@fig-npv-usa demonstrates confusion matrix components for ED100k scoring approaches and current compulsive/driven exercise endorsement assessed by 1. meeting CET clinical cutoff and 2. endorsement of EDEQ (any and at least weekly) driven exercise in the past 28 days. As hypothesized, approaches #1, 2, and 8 had a high NPV: those who did not endorse any history of, rare history of, or no current maladaptive exercise were unlikely to endorse current compulsive or driven exercise on the CET and EDEQ. NPVs for both CET clinical cutoff and weekly or more EDEQ driven exercise (4x or more over the past 28 days) were \> 0.9. NPVs were slightly lower for reports of any EDEQ driven exercise over the past 28 days (\~ 0.85), indicating that some individuals who endorse no history of compulsive exercise may engage in this behavior at relatively low frequency.
+@fig-npv demonstrates confusion matrix components for ED100k scoring approaches and current compulsive/driven exercise endorsement assessed by 1. meeting CET clinical cutoff and 2. endorsement of EDEQ (any and at least weekly) driven exercise in the past 28 days. As hypothesized, approaches #1, 2, and 8 had a high NPV: those who did not endorse any history of, rare history of, or no current maladaptive exercise were unlikely to endorse current compulsive or driven exercise on the CET and EDEQ. NPVs for both CET clinical cutoff and weekly or more EDEQ driven exercise (4x or more over the past 28 days) were \> 0.9. NPVs were slightly lower for reports of any EDEQ driven exercise over the past 28 days (\~ 0.85), indicating that some individuals who endorse no history of compulsive exercise may engage in this behavior at relatively low frequency.
 
 *Accuracy* of #1, #2, #6, and #7 in relation to current measures of driven/compulsive exercise were moderate, indicating only a poriton of individuals who reported *history* of maladaptive exercise -- via various operationalizations - on the ED100k were engaging in compulsive/driven at the time of assessment. PPV was highest for #1 (\>0.95), and in a moderate-to-high range for #2,6,7, & 8, indicating that a portion of individuals who report current maladaptive exericse on the CET or EDEQ do not report history of driven exercise on the ED100k operationalizations #2, 6, 7, or 8. PPV for compensatory exericse was lowest, which was expected given that the CET and EDEQ do not capture compensatory motivations. Overall accuracy metrics were highest for scoring method #8 (current), ranging from 0.76 for the CET to 0.84 for weekly exercise on the EDEQ, and generally supporting the ED100k current exercise operationalization as a rough indicator of current compulsive exercise.
 
-![Confusion matrix components of ED100k Exercise Scoring Apporoaches vs. current CET and EDEQ exercise](figs/NPV_USA.png){#fig-npv-usa}
+```{r, echo = FALSE, warning = FALSE}
+#| label: fig-npv
+#| fig-cap: Confusion matrix components of ED100k Exercise Scoring Apporoaches vs. current CET and EDEQ exercise
+#| fig-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 1
+knitr::include_graphics("figs/NPV_USA.png")
+knitr::include_graphics("figs/NPV_SE.png")
+```
+
 
 ## Comparisons of continuous values of current exercise measures (external validation) across those with no history of maladaptive exericse,istory of, but not current, maladaptive exercise (Endorsing #2 but not #8), and those with current maladaptive exercise (#8) on the ED100k
 
 H2b: Comparing across groups who report no history of maladaptive exercise, history of, but not current, maladaptive exercise (Endorsing #2 but not #8), and those with current maladaptive exercise (#8) on the ED100k, those who report ED100k current maladaptive exercise will report highest CET scores (total, and all subscales except for exercise enjoyment) and more driven exercise days in the past 28 on the EDEQ. Those reporting history of, but not current, maladaptive exercise will report intermediate CET scores and EDEQ exercise days -- higher than those reporting no history of maladaptive exercise on the ED100k but lower than those reporting current maladaptive exercise.
 
-Overall, `r manuscript_info$Compulsive_current_full[[1]]$valid.prc[[1]]`% of the sample reported No history of maladaptive exercise, `r manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`% reported a history of maladaptive exercise that was not current, and `r manuscript_info$Compulsive_current_full[[1]]$valid.prc[[3]]`% reported current maladaptive exercise.
+Overall, USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[1]]`%; SE: `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[1]]`% of the sample reported No history of maladaptive exercise, USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`%; SE: `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`% reported a history of maladaptive exercise that was not current, and USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[3]]`%; `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[3]]`% reported current maladaptive exercise.
 
-Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETsubs-USA. To formally test the hypothesis that those with reporting ED100k current maladaptive exercise would also report the highest scores on the CET, we completed a series of ANOVAs comparing those with reporting no maladaptive exercise, history of maladaptive exercise only (Meeting Scoring Approach #2 but not #8), and current maladaptive exercise (Meeting Approach #8) on current CET scores. @tbl-CETANOVA reports ANOVA output for each CET subscale, comparing across the three groups of individuals who report no maladaptive exercise, maladaptive exercise history but not current maladaptive exercise (#2 but NOT #8), and both history and current maladaptive exercise (#8) on the ED100k. All omnibus tests reach significance.
+Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETsubs. To formally test the hypothesis that those with reporting ED100k current maladaptive exercise would also report the highest scores on the CET, we completed a series of ANOVAs comparing those with reporting no maladaptive exercise, history of maladaptive exercise only (Meeting Scoring Approach #2 but not #8), and current maladaptive exercise (Meeting Approach #8) on current CET scores. @tbl-CETANOVA reports ANOVA output for each CET subscale, comparing across the three groups of individuals who report no maladaptive exercise, maladaptive exercise history but not current maladaptive exercise (#2 but NOT #8), and both history and current maladaptive exercise (#8) on the ED100k. All omnibus tests reach significance.
 
-![Median standardized CET subscale scores across those reporting no maladaptive exercise, history of maladaptive exercise only (#1, but not 8), and current maladaptive exercise (#8) on the ED100k](figs/MedianCET_USA.png){#fig-CETsubs-USA}
+```{r}
+#| label: fig-CETsubs
+#| fig-cap: Median standardized CET subscale scores across those reporting no maladaptive exercise, history of maladaptive exercise only (#1, but not 8), and current maladaptive exercise (#8) on the ED100k
+#| fig-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 1
+knitr::include_graphics("figs/MedianCET_USA.png")
+knitr::include_graphics("figs/MedianCET_SE.png")
+```
+
+
 
 ```{r CET-ANOVA}
 #| label: tbl-CETANOVA
 #| tbl-cap: Omnibus ANOVA results comparing groups with current, history only, and no history of compulsive exercise on the ED100k on CET subscales
-knitr::kable(CET_ANOVA_df)
+#| tbl-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 2
+
+knitr::kable(USA_results$CET_ANOVA_df)
+knitr::kable(SE_results$CET_ANOVA_df)
 ```
 
 @tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of maladaptive exercise to those with a history, but not current, maladaptive exercise and when comparing those with history vs. current maladaptive exercise. Comparison of those with no history of maladaptive exercise vs. current maladaptive exercise (#8) consistently demonstrated large effects. For all subscales, except for the (lack of) enjoyment subscale, effects indicated that those with current maladaptive exercise scored highest, while those with no history of maladaptive exercise scored the highest on the lack of exercise enjoyment subscale.
@@ -209,16 +253,30 @@ knitr::kable(CET_ANOVA_df)
 ```{r CET_contrasts}
 #| label: tbl-CETcontrasts
 #| tbl-cap: Contrasts for each of the five CET subscales and the CET Total across those with and without history and current compulsive exercise as reported on the ED100k
+#| tbl-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 2
 
-knitr::kable(CET_contrast_file)
-
+knitr::kable(USA_results$CET_contrast_file)
+knitr::kable(SE_results$CET_contrast_file)
 ```
 
-The proportion of individuals meeting the clinical cutoff for current compulsive exercise on the CET varied as expected by endorsement of historical and current endorsement of maladaptive exercise on the ED100k. Only `r manuscript_info$CET_ED100k_raw_table$Freq[1]`% of individuals who reported no history of maladaptive exercise met current CET clinical cutoff, while `r manuscript_info$CET_ED100k_raw_table$Freq[2]`% of those reporting history, but not current maladaptive exercise (#2 but not #8) met clinical cutoff on the CET, and `r manuscript_info$CET_ED100k_raw_table$Freq[3]`% of individuals meeting current maladaptive exercise (#8) on the ED100k met clinical cutoff for maladaptive exercise on the CET. Using a multinomial logistic regression approach with 'No Maladaptive Exercise History' on the ED100k coded as the reference category, those reporting maladaptive exercise history, but not current maladaptive exercise had an odds ratio of `r manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[2]]` and those reporting current maladaptive exercise had an odds ratio of `r manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[3]]`, indicating significant convergent validity of reports of current maladaptive exercise on the ED100k and meeting clinical cutoff on the 24-item CET.
+The proportion of individuals meeting the clinical cutoff for current compulsive exercise on the CET varied as expected by endorsement of historical and current endorsement of maladaptive exercise on the ED100k. Only USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[1]`%; SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[1]`%  of individuals who reported no history of maladaptive exercise met current CET clinical cutoff, while USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[2]`%; SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[2]`% of those reporting history, but not current maladaptive exercise (#2 but not #8) met clinical cutoff on the CET, and USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[3]`%; SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[3]`% of individuals meeting current maladaptive exercise (#8) on the ED100k met clinical cutoff for maladaptive exercise on the CET. Using a multinomial logistic regression approach with 'No Maladaptive Exercise History' on the ED100k coded as the reference category, those reporting maladaptive exercise history, but not current maladaptive exercise had an odds ratio of USA: `r USA_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[2]]`; SE: `r SE_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[2]]`and those reporting current maladaptive exercise had an odds ratio of USA: `r USA_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[3]]`; SE: `r SE_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[3]]`, indicating significant convergent validity of reports of current maladaptive exercise on the ED100k and meeting clinical cutoff on the 24-item CET.
 
-Regarding the number of days in the past 28 that participants reported engaging in driven exercise on the EDEQ, outcomes were zero-inflated in the 'No History of Maladaptive Exercise' and 'History but No Current Maladaptive Exercise' groups (see @fig-EDEQplot-USA).
+Regarding the number of days in the past 28 that participants reported engaging in driven exercise on the EDEQ, outcomes were zero-inflated in the 'No History of Maladaptive Exercise' and 'History but No Current Maladaptive Exercise' groups (see @fig-EDEQplot).
 
-![ED100k Maladapitve Exercise (None, History Only, and Current) vs. EDEQ Exercise Frequency](figs/EDEQ_freq_USA.png){#fig-EDEQplot-USA}
+```{r}
+#| label: fig-EDEQplot
+#| fig-cap: ED100k Maladapitve Exercise (None, History Only, and Current) vs. EDEQ Exercise Frequency
+#| fig-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 1
+knitr::include_graphics("figs/EDEQ_freq_USA.png")
+knitr::include_graphics("figs/EDEQ_freq_SE.png")
+```
+
 
 A zero-inflated Poisson regression model compared those with "History, but Not Current' and those with 'Current Maladaptive Exercise' to the 'No History of Maladaptive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin (including odds ratios (ORs) for the zero portion of the model and incident risk ratios (IRRs) for the count portion). Results indicate that those who report current maladaptive exercise on the ED100k are less likely to have zero values for EDEQ-assessed exercise in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, maladaptive exercise on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of maladaptive exercise, though the count portion of the model indicates that those reporting history, but not current, maladaptive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of maladaptive exercise.
 
@@ -226,7 +284,7 @@ A zero-inflated Poisson regression model compared those with "History, but Not C
 #| label: tbl-EDEQZin
 #| tbl-cap: Zero-inflated Model Coefficients for ED100k Compulsive Exercise Predicting EDEQ Driven Exercise Days (past 28 days)
 
-knitr::kable(EDEQ_ZIN_table)
+knitr::kable(USA_results$EDEQ_ZIN_table)
 ```
 
 ## OCD Symptoms and Perfectionism
@@ -236,19 +294,23 @@ In addition to convergent validity across current exercise measures, we also exa
 H2c: Within diagnostic groups - those endorsing scoring approaches #1, #2, #6, and #8 will report higher perfectionism and OCD symptoms. Those endorsing compenstory exercise (#7) will not report higher perfectionism or OCD symptoms than those who do not *t-tests within diagnostic groups comparing frost MPS and OCI-R/OCI-12 subscale scores across those with vs. without history of maladaptive exercise, expected p \< 0.05 adjusted for multiple comparisons across subscales. We also include calculation of Cohen's d effect sizes.*
 
 ```{r}
-minD <- min(oci_tidy_results$`Cohens D`)
-maxD <- max(oci_tidy_results$`Cohens D`)
-midD <- median(oci_tidy_results$`Cohens D`)
+USA_minD <- min(USA_results$oci_tidy_results$`Cohens D`)
+USA_maxD <- max(USA_results$oci_tidy_results$`Cohens D`)
+USA_midD <- median(USA_results$oci_tidy_results$`Cohens D`)
+
+SE_minD <- min(SE_results$oci_tidy_results$`Cohens D`)
+SE_maxD <- max(SE_results$oci_tidy_results$`Cohens D`)
+SE_midD <- median(SE_results$oci_tidy_results$`Cohens D`)
 ```
 
-Graphs depicting means and standard deviations for OCI total and subscale scores within diagnostic groups are presented in @fig-OCI-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of subscale and total OCI scores within diagnostic groups is presented in Supplemental @tbl-oci-USA. Effect sizes were small-to-moderate (Range = `r minD`-`r maxD`; Median = `r midD`). Using operationalization #1, those with maladaptive (vs. without) exercise had higher OCI washing, checking, order, and Total scores within BED, and higher order, obsession, and total scores within the BN-BED Mixed category. Using operationalization \# 2, those with vs without maladaptive exercise had higher order (BN-BED mixed; BED), obsession (BED), and total (BED) scores. Using operationalization #6, those with vs without excessive exercise had higher order (AN). Using operationalization #7, those with vs. without compensatory exercise had higher order (BED), obsessions (AN; BN-BED Mixed), and Total (BED). Using #8, those with current maladaptive exercise reported higher washing (AN, BN, BED), checking (AN, BN, BED), Order (AN, AN Mixed, BN, BED), Obsessions (AN, AN Mixed, BN), and Total (AN, AN-Mixed, BN, BED) OCI scores.
+Graphs depicting means and standard deviations for OCI total and subscale scores within diagnostic groups are presented in @fig-OCI. A table showing t-tests and Cohen's D effect sizes for comparisons of subscale and total OCI scores within diagnostic groups is presented in Supplemental @tbl-OCI. Effect sizes were small-to-moderate (USA Range = `r USA_minD`-`r USA_maxD`; Median = `r USA_midD`; SE Range = `r SE_minD`-`r SE_maxD`; Median = `r SE_midD`). Using operationalization #1, those with maladaptive (vs. without) exercise had higher OCI washing, checking, order, and Total scores within BED, and higher order, obsession, and total scores within the BN-BED Mixed category. Using operationalization \# 2, those with vs without maladaptive exercise had higher order (BN-BED mixed; BED), obsession (BED), and total (BED) scores. Using operationalization #6, those with vs without excessive exercise had higher order (AN). Using operationalization #7, those with vs. without compensatory exercise had higher order (BED), obsessions (AN; BN-BED Mixed), and Total (BED). Using #8, those with current maladaptive exercise reported higher washing (AN, BN, BED), checking (AN, BN, BED), Order (AN, AN Mixed, BN, BED), Obsessions (AN, AN Mixed, BN), and Total (AN, AN-Mixed, BN, BED) OCI scores.
 
 ```{r OCI-tabs}
-#| label: tbl-oci-USA
+#| label: tbl-OCI
 #| tbl-cap: t-test output comparing OCI subscales and total scores within diagnostic groups and scoring approach
 
 # Create an empty data frame to store the tidy results
-oci_tidy_results <- oci_tidy_results |> 
+oci_tidy_results <- USA_results$oci_tidy_results |> 
   mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
   mutate(`t` = as.numeric(`t`)*-1)
 
@@ -260,15 +322,29 @@ knitr::kable(oci_tidy_results)
   
 ```
 
-![OCI Means across diagnosis groups and ED100k exercise scoring criteria. Note - \*significant at FDR-corrected p-value. Lighter colors represent samples that do NOT meet scoring criteria; Darker colors represent samples that DO meet scoring criteria within each operationalization. Comparisons completed for those who do vs. do not meet scoring criteria within scoring approach and diagnostic group'](figs/OCI_combinedUSA.png){#fig-OCI-USA}
 
 ```{r}
-minD <- min(MPS_tidy_results$`Cohens D`)
-maxD <- max(MPS_tidy_results$`Cohens D`)
-midD <- median(MPS_tidy_results$`Cohens D`)
+#| label: fig-OCI
+#| fig-cap: OCI Means across diagnosis groups and ED100k exercise scoring criteria. Note - \*significant at FDR-corrected p-value. Lighter colors represent samples that do NOT meet scoring criteria; Darker colors represent samples that DO meet scoring criteria within each operationalization. Comparisons completed for those who do vs. do not meet scoring criteria within scoring approach and diagnostic group
+#| fig-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 1
+knitr::include_graphics("figs/OCI_combinedUSA.png")
+knitr::include_graphics("figs/OCI_combinedSE.png")
 ```
 
-Graphs depicting means and standard deviations for MPS total and subscale scores within diagnostic groups are presented in @fig-MPS-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of MPS subscale scores within diagnostic groups is presented in Supplemental @tbl-MPS-USA. Cohen's D effect sizes ranged from small-to-moderate (Range = `r minD`-`r maxD`; Median = `r midD`). Using operationalization \# 1, those with vs without maladaptive exercise reported higher personal standards (AN, AN Mixed, BN-BED Mixed, BED), concern over mistakes (AN, BN-BED Mixed, BED), and doubts about actions (AN, BN-BED Mixed, BED). Using operationalizations #2 and #6, those with vs without maladaptive (#2) and excessive (#6) exercise reported higher personal standards (all diagnoses) and concern over mistakes (AN and BED only). Using #7, those with vs without a history of compesnatory exercise reported higher personal standards (AN Mixed, BN-BED Mixed, BED), concern over mistakes (BN-BED Mixed, BED), and doubts about actions (BN-BED Mixed). Those with current maladaptive exercse (vs. not; #8) reported higher personal standards (AN, BN, BED), and concern over mistakes (AN, BN)
+
+```{r}
+USA_minD <- min(USA_results$MPS_tidy_results$`Cohens D`)
+USA_maxD <- max(USA_results$MPS_tidy_results$`Cohens D`)
+USA_midD <- median(USA_results$MPS_tidy_results$`Cohens D`)
+
+SE_minD <- min(SE_results$MPS_tidy_results$`Cohens D`)
+SE_maxD <- max(SE_results$MPS_tidy_results$`Cohens D`)
+SE_midD <- median(SE_results$MPS_tidy_results$`Cohens D`)
+```
+Graphs depicting means and standard deviations for MPS total and subscale scores within diagnostic groups are presented in @fig-MPS-USA. A table showing t-tests and Cohen's D effect sizes for comparisons of MPS subscale scores within diagnostic groups is presented in Supplemental @tbl-MPS-USA. Cohen's D effect sizes ranged from small-to-moderate (USA Range = `r USA_minD`-`r USA_maxD`; Median = `r USA_midD`; SE Range = `r SE_minD`-`r SE_maxD`; Median = `r SE_midD`). Using operationalization \# 1, those with vs without maladaptive exercise reported higher personal standards (AN, AN Mixed, BN-BED Mixed, BED), concern over mistakes (AN, BN-BED Mixed, BED), and doubts about actions (AN, BN-BED Mixed, BED). Using operationalizations #2 and #6, those with vs without maladaptive (#2) and excessive (#6) exercise reported higher personal standards (all diagnoses) and concern over mistakes (AN and BED only). Using #7, those with vs without a history of compesnatory exercise reported higher personal standards (AN Mixed, BN-BED Mixed, BED), concern over mistakes (BN-BED Mixed, BED), and doubts about actions (BN-BED Mixed). Those with current maladaptive exercse (vs. not; #8) reported higher personal standards (AN, BN, BED), and concern over mistakes (AN, BN)
 
 ```{r MPS-tabs}
 #| label: tbl-MPS-USA
@@ -277,11 +353,21 @@ Graphs depicting means and standard deviations for MPS total and subscale scores
 
 
 # Print the updated tidy data frame
-knitr::kable(MPS_tidy_results)
+knitr::kable(USA_results$MPS_tidy_results)
   
 ```
 
-![MPS subscale means across diagnosis groups and Scoring Operationalizations. Note - \*significant at FDR-corrected p-value. Lighter colors represent samples that do NOT meet scoring criteria; Darker colors represent samples that DO meet scoring criteria within each operationalization. Comparisons completed for those who do vs. do not meet scoring criteria within scoring approach and diagnostic group](figs/MPS_combinedUSA.png){#fig-MPS-USA}
+
+```{r}
+#| label: fig-MPS
+#| fig-cap: MPS subscale means across diagnosis groups and Scoring Operationalizations. Note - \*significant at FDR-corrected p-value. Lighter colors represent samples that do NOT meet scoring criteria; Darker colors represent samples that DO meet scoring criteria within each operationalization. Comparisons completed for those who do vs. do not meet scoring criteria within scoring approach and diagnostic group
+#| fig-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 1
+knitr::include_graphics("figs/MPS_combinedUSA.png")
+knitr::include_graphics("figs/MPS_combinedSE.png")
+```
 
 # Aim 3. Demonstrate Prevalence of Maladaptive (Broad), Compulsive, Addictive, Excessive, and Compensatory Exercise across Diagnostic Groups
 
@@ -289,52 +375,35 @@ H3a. Maladaptive exercise, compulsive exercise, and exercise addiction will be a
 
 H3b. Compensatory exercise will be more common among those with AN mixed and BN as compared to AN only . *AN mixed, BN, and BN-BED mixed groups will report higher levels of compensatory exercise than the AN only group. BED only will report similar levels of compensatory exercise to AN only*
 
-Among individuals in the US EDGI data, `r manuscript_info$dx_frqs$raw.prc[1]`% of the sample reported AN as their only diagnosis, `r manuscript_info$dx_frqs$raw.prc[2]`% of the sample reported AN plus another diagnosis (AN mixed),`r manuscript_info$dx_frqs$raw.prc[4]`% reported a diagnosis of BN only, `r manuscript_info$dx_frqs$raw.prc[3]`% reported a diagnosis of BED only (the smallest cell size: `r manuscript_info$dx_frqs$frq[3]`), and `r manuscript_info$dx_frqs$raw.prc[5]`% reported both a BN and BED diagnosis.
+Overall diagnoses across cohorts are presented in @tbl-tbl1.
 
-![Percentage within each diganostic group reporting differing exercise constructs](figs/dx_groups_USA.png){#fig-dxgroups-USA}
-
-Rates of addictive, compensatory, compulsive, excessive, and regular compulsive exercise across diagnostic groups are presented in @fig-dxgroups-USA. History of addictive, regular compuslive, and excessive exercise were all highest in an absolute sense among groups reporting history of AN. History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment of compulsive exericse, and the majority reporting at least some history of this behavior. Output from contrasts between all diagnostic groups are presented in Supplemental @tbl-dxcontrasts. Bonferroni adjusted p-values are reported accounting for 10 contrasts within each constructs Overall, groups differed significantly across all constructs, with the AN group reporting less compensatory exercise, but higher levels of all other exercise relative to BN and BED groups. The AN-Mixed group reported similar levels of all constructs to AN, with the exception of compensatory exercise, in which the AN Mixed group reported greater likelihood of to engagin in compensatory exercise. The BN group was more likely than BED and BN-BED Mixed groups to report all constructs, and the BN-BED group was more likely to report all constructs relative to the BED group.
-
-```{r multinomial dx groups}
-# 
-# Dx_groups_results_df$p.value <- sprintf('%.2e', Dx_groups_results_df$p.value)
-# Dx_groups_results <- Dx_groups_results_df[, c(6,10,7:9,1:3)] 
-# Dx_groups_results[, sapply(Dx_groups_results, is.numeric)] <- round(Dx_groups_results[, sapply(Dx_groups_results, is.numeric)], digits = 3)
-# 
-# # Modify the "Odds Ratio" column to "OR (CI Low, CI High)"
-# Dx_groups_results$`OR` <- paste0(Dx_groups_results$`Odds Ratio`, " (", Dx_groups_results$`CI Low`, ", ", Dx_groups_results$`CI High`, ")") 
-# Dx_groups_results <- Dx_groups_results|> 
-#   select(-c('Odds Ratio', 'CI Low', 'CI High', 'estimate', 'std.error')) 
-# Dx_groups_results <- Dx_groups_results[, c(1,2,4,3)] 
-# 
-# knitr::kable(Dx_groups_results)
-
-#commented out below - html table
-# library(kableExtra)
-# # Create Kable table and highlight rows with confidence intervals not overlapping 0
-# results_df %>%
-#   mutate(across(everything(), as.character)) %>%
-#   mutate(across(contains("estimate"), function(x) ifelse(as.numeric(x) != 0, x, x))) %>%
-#   mutate(p.value = as.numeric(p.value)) %>%
-#   mutate(across(contains("Odds Ratio"), ~ifelse(p.value < 0.0018, cell_spec(., bold = TRUE), .))) %>%
-#   mutate(p.value = sprintf('%.2e', p.value)) |> 
-#   kable("html", escape = FALSE) %>%
-#   kable_styling()
-
-
+```{r}
+#| label: fig-dxgroups
+#| fig-cap: Percentage within each diganostic group reporting differing exercise constructs
+#| fig-subcap:
+#|   - "USA"
+#|   - "Sweden" 
+#| layout-ncol: 1
+knitr::include_graphics("figs/dx_groups_USA.png")
+knitr::include_graphics("figs/dx_groups_SE.png")
 ```
+
+
+Rates of addictive, compensatory, compulsive, excessive, and regular compulsive exercise across diagnostic groups are presented in @fig-dxgroups. History of addictive, regular compuslive, and excessive exercise were all highest in an absolute sense among groups reporting history of AN. History of Compulsive Exercise was reported most frequently in the AN, AN-Mixed Diagnosis, and BN groups, around 60% in each of these diagnostic groups reporting history of regular engagment of compulsive exericse, and the majority reporting at least some history of this behavior. Output from contrasts between all diagnostic groups are presented in Supplemental @tbl-dxcontrasts. Bonferroni adjusted p-values are reported accounting for 10 contrasts within each constructs Overall, groups differed significantly across all constructs, with the AN group reporting less compensatory exercise, but higher levels of all other exercise relative to BN and BED groups. The AN-Mixed group reported similar levels of all constructs to AN, with the exception of compensatory exercise, in which the AN Mixed group reported greater likelihood of to engagin in compensatory exercise. The BN group was more likely than BED and BN-BED Mixed groups to report all constructs, and the BN-BED group was more likely to report all constructs relative to the BED group.
+
+# Supplemental Tables
 
 ```{r ED100k_items}
 #| label: tbl-ed100kItems
 #| tbl-cap: Item-level descriptives for ED100k Exercise Items
-knitr::kable(ED100k_items_table, row.names = FALSE)
+knitr::kable(USA_results$ED100k_items_table, row.names = FALSE)
 ```
 
 ```{r dx_contrasts}
 #| label: tbl-dxcontrasts
 #| tbl-cap: Odds Ratios for contrasts between all diagnostic groups within exercise construct 
 
-tbl <- dx_contrasts_df |> 
+tbl <- USA_results$dx_contrasts_df |> 
   select(c(DV, contrast, odds.ratio, SE, p.value)) |> 
   mutate(OR = round(odds.ratio, 3),
          se = round(SE, 3)) |> 
