@@ -11,32 +11,60 @@ Demo_df$ethnicity <- factor(Demo_df$ethnicity, levels=c("1","2"),
 Demo_df$ED100k_gender_dummy <- to_factor(Demo_df$ED100k_gender_dummy)
 Demo_df$sex <- factor(Demo_df$sex, levels = c('1', '2','3'), 
                       labels = c ('Male', 'Female', 'Intersex'))
+Demo_df$ED100k_race_dummy_2_factor <- as.character(Demo_df$ED100k_race_dummy_2_factor)
 
+library(dplyr)
 
-Table_1 <- Demo_df %>% 
-  tbl_summary(
-    type=list(ethnicity~ "categorical",
-              sex ~ "categorical",
-              ED100k_gender_dummy ~ "categorical",
-              ED100k_race_dummy_2_factor ~ "categorical",
-              case_status ~ "categorical",
-              age ~ "continuous",
-              currentbmi ~ "continuous"),
-    label = list(ethnicity ~ "Ethnicity",
-                 sex ~ "Biological Sex",
-                 ED100k_gender_dummy ~ "Gender Identity",
-                 ED100k_race_dummy_2_factor ~ "Race",
-                 case_status ~ "Eating Disorder Diagnosis",
-                 age ~ "Age",
-                 currentbmi ~ "Current BMI"),
-    statistic = list(all_continuous() ~"{mean} ({sd})",
-                     all_categorical() ~"{n}   ({p})"),
-    digits=list(all_continuous() ~c(2,2),
-                all_categorical() ~c(0,1))
-  ) |> 
-  modify_header(label = "**Variable**") |> 
-  modify_caption("Participant characteristics")  |> 
-  bold_labels()
+# Define a function to summarize categorical variables with labels
+summarize_categorical <- function(data, var, label) {
+  data %>%
+    count(!!sym(var)) %>%
+    mutate(percentage = n / sum(n) * 100) %>%
+    mutate(statistic = paste0(n, " (", round(percentage, 1), "%)")) %>%
+    mutate(Label = label, Level = !!sym(var)) %>%
+    select(Label, Level, statistic)
+}
+
+# Define a function to summarize continuous variables
+summarize_continuous <- function(data, var, label) {
+  data %>%
+    summarize(mean = mean(!!sym(var), na.rm = TRUE),
+              sd = sd(!!sym(var), na.rm = TRUE)) %>%
+    mutate(statistic = paste0(round(mean, 2), " (", round(sd, 2), ")")) %>%
+    mutate(Label = label, Level = "") %>%
+    select(Label, Level, statistic)
+}
+
+# Summarize the data frame with labels
+Table_1 <- bind_rows(
+  summarize_categorical(Demo_df, "ED100k_race_dummy_2_factor", "Race"),
+  summarize_categorical(Demo_df, "ethnicity", "Ethnicity"),
+  summarize_categorical(Demo_df, "sex", "Sex"),
+  summarize_categorical(Demo_df, "ED100k_gender_dummy", "Gender Identity"),
+  summarize_categorical(Demo_df, "case_status", "Eating Disorder Diagnosis"),
+  summarize_continuous(Demo_df, "age", "Age"),
+  summarize_continuous(Demo_df, "currentbmi", "Current BMI")
+)
+
+# Rename columns to match your desired output
+Table_1 <- Table_1 %>%
+  rename(`Statistic (USA)` = statistic) %>%
+  rename(Variable = Label) %>%
+  select(Variable, Level, `Statistic (USA)`) 
+
+# Add the overall total N as the first row
+
+total_n <- nrow(Demo_df)
+
+Table_1 <- bind_rows(
+  tibble(Label = "Overall", Level = "Total N", `Statistic (USA)` = total_n),
+  Table_1
+)
+
+# Print the summary table
+print(Table_1)
+
 
 save(Table_1, file = df_file)
+
 

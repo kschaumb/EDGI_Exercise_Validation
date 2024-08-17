@@ -13,27 +13,45 @@ Demo_df <- EDGI_exercise_cleaned %>%
 
 Demo_df$ED100k_gender_dummy <- haven::as_factor(Demo_df$ED100k_gender_dummy)
 
+library(dplyr)
 
-Table_1 <- Demo_df %>% 
-  tbl_summary(
-    type=list(
-              ED100k_gender_dummy ~ "categorical",
-              case_status ~ "categorical",
-              age ~ "continuous",
-              currentbmi ~ "continuous"),
-    label = list(
-                 ED100k_gender_dummy ~ "Gender Identity",
-                 case_status ~ "Eating Disorder Diagnosis",
-                 age ~ "Age",
-                 currentbmi ~ "Current BMI"),
-    statistic = list(all_continuous() ~"{mean} ({sd})",
-                     all_categorical() ~"{n}   ({p})"),
-    digits=list(all_continuous() ~c(2,2),
-                all_categorical() ~c(0,1))
-  ) |> 
-  modify_header(label = "**Variable**") |> 
-  modify_caption("Participant characteristics")  |> 
-  bold_labels()
+# Define a function to summarize categorical variables with labels
+summarize_categorical <- function(data, var, label) {
+  data %>%
+    count(!!sym(var)) %>%
+    mutate(percentage = n / sum(n) * 100) %>%
+    mutate(statistic = paste0(n, " (", round(percentage, 1), "%)")) %>%
+    mutate(Label = label, Level = !!sym(var)) %>%
+    select(Label, Level, statistic)
+}
+
+# Define a function to summarize continuous variables
+summarize_continuous <- function(data, var, label) {
+  data %>%
+    summarize(mean = mean(!!sym(var), na.rm = TRUE),
+              sd = sd(!!sym(var), na.rm = TRUE)) %>%
+    mutate(statistic = paste0(round(mean, 2), " (", round(sd, 2), ")")) %>%
+    mutate(Label = label, Level = "") %>%
+    select(Label, Level, statistic)
+}
+
+# Summarize the data frame with labels
+Table_1 <- bind_rows(
+  summarize_categorical(Demo_df, "ED100k_gender_dummy", "Gender Identity"),
+  summarize_categorical(Demo_df, "case_status", "Eating Disorder Diagnosis"),
+  summarize_continuous(Demo_df, "age", "Age"),
+  summarize_continuous(Demo_df, "currentbmi", "Current BMI")
+)
+
+# Rename columns to match your desired output
+Table_1 <- Table_1 %>%
+  rename(`Satistic (Sweden)` = statistic) %>%
+  rename(Variable = Label) %>%
+  select(Variable, Level, `Satistic (Sweden)`) 
+
+# Print the summary table
+print(Table_1)
+
 
 save(Table_1, file = df_file)
 
