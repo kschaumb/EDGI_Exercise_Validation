@@ -1,4 +1,3 @@
-
 load(RData_file) # should NOT need to change if you did scoring step correctly
 
 EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>% 
@@ -25,28 +24,57 @@ result_list <- lapply(traits, function(trait) {
 })
 
 samples <- result_list
-sample_names <- c('1. Q1 Any', '2. Q1 Regular', '3. Compulsive/Driven Braod', '4. Compulsive/Driven Narrow', '5. Addictive', '6. Excessive', '7. Compensatory', '8. Current Maladaptive')
+names(samples) <- traits
 
-calculate_valid_percent <- function(sample, trait) {
-  valid_percent <- sum(!is.na(sample[[trait]]) & sample[[trait]] == 1) / sum(!is.na(sample[[trait]])) * 100
-  return(valid_percent)
+calculate_valid_percent <- function(sample, trait, full_sample) {
+  if (trait %in% names(sample)) {
+    if (identical(sample, full_sample)) {
+      # Calculate the percentage of the trait in the full sample
+      valid_percent <- sum(!is.na(full_sample[[trait]]) & full_sample[[trait]] == 1) / sum(!is.na(full_sample[[trait]])) * 100
+    } else {
+      # Calculate the percentage of the trait within the sample subset
+      valid_percent <- sum(!is.na(sample[[trait]]) & sample[[trait]] == 1) / sum(!is.na(sample[[trait]])) * 100
+    }
+    return(valid_percent)
+  } else {
+    return(NA)
+  }
 }
 
+# Create an empty data frame to store results
 result_df <- data.frame(stringsAsFactors = FALSE)
 
+# Loop through the traits and calculate the valid percentage
 for (i in seq_along(samples)) {
   sample <- samples[[i]]
-  valid_percent <- sapply(traits, calculate_valid_percent, sample = sample)
+  valid_percent <- sapply(traits, function(trait) {
+    if (trait == names(samples)[i]) {
+      # Calculate percentage for the trait in the full sample if the trait matches the sample
+      return(calculate_valid_percent(EDGI_exercise_cleaned, trait, EDGI_exercise_cleaned))
+    } else {
+      # Calculate percentage for the trait in the subset sample otherwise
+      return(calculate_valid_percent(sample, trait, EDGI_exercise_cleaned))
+    }
+  })
   result_df <- rbind(result_df, c(names(samples)[i], t(valid_percent)))
 }
 
+# remove the first column
+result_df <- result_df[,-1 ]
+
+sample_names <- c('1. Q1 Any', '2. Q1 Regular', '3. Compulsive/Driven Braod', '4. Compulsive/Driven Narrow', '5. Addictive', '6. Excessive', '7. Compensatory', '8. Current Maladaptive')
 # Assign column names directly
+
+result_df <- lapply(result_df, function(x) as.numeric(as.character(x)))
+result_df <- as.data.frame(result_df)
+result_df <- round(result_df, 2)
+
+
 colnames(result_df) <- sample_names
 
 # Name the rows with sample names
 rownames(result_df) <- sample_names
 
-result_df <- round(result_df, 2)
 result_df$Sample <- rownames(result_df)
 
 # recodes 100% values as NA
@@ -181,10 +209,10 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned %>%
                                  edeq_ex_driven_freq_28 == 0 ~ 0))
 
 traits_aim2 <- c('ED100k_ex1_Q1_broad',
-            'ED100k_ex2_Q1_narrow', 
-            'ED100k_ex6_excessive', 
-            'ED100k_ex7_compensatory', 
-            'ED100k_ex8_maladaptive_current')
+                 'ED100k_ex2_Q1_narrow', 
+                 'ED100k_ex6_excessive', 
+                 'ED100k_ex7_compensatory', 
+                 'ED100k_ex8_maladaptive_current')
 
 cm_list_cet <- list()
 cm_list_edeq_any <- list()
@@ -208,7 +236,7 @@ for (trait in traits_aim2) {
   )
   cm_list_edeq_any[[trait]] <- confusion_matrix_2
   
-confusion_matrix_3 <- caret::confusionMatrix(
+  confusion_matrix_3 <- caret::confusionMatrix(
     as.factor(EDGI_exercise_cleaned$edeq_ex_weekly),
     as.factor(EDGI_exercise_cleaned[[trait]]),
     positive = '1'
@@ -230,10 +258,10 @@ object_names <- character(length(cm_list_aim2))
 
 # Assign custom names to the objects in the list
 trait_names_aim2 <- c('1-Q1 Any',
-                 '2-Q1 Regular', 
-                 '6-Excessive', 
-                 '7-Compensatory', 
-                 '8-Current')
+                      '2-Q1 Regular', 
+                      '6-Excessive', 
+                      '7-Compensatory', 
+                      '8-Current')
 dvs_aim2 <- c('CET Clinical', 'EDEQ Any', 'EDEQ Weekly')
 combinations <- expand.grid(traits = trait_names_aim2, dvs = dvs_aim2, stringsAsFactors = FALSE)
 combination_names <- paste(combinations$traits, combinations$dvs, sep = '.')
@@ -272,7 +300,7 @@ resave(CET_EDEQ_confusion_df, file = df_file)
 ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
   geom_col(position = 'dodge')+
   facet_grid(`Exercise Type` ~ `Q1 Criteria`) +
-  labs(title = paste('ED100k Exercise Scoring Algorithms predicting CET and EDEQ Current Exercise', cohort), x = 'Metric', y = 'Value') + 
+  labs(title = paste('ED100k Exercise Scoring Algorithms \n predicting CET and EDEQ Current Exercise', cohort), x = 'Metric', y = 'Value') + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 16)) +
   theme(legend.position = 'none', text = element_text(size = 16)) +
   geom_text(aes(x  = metric, y = (value)-.1, label = paste0(round(value,3))), size = rel(3)) + 
@@ -280,5 +308,5 @@ ggplot(confusion_table_long, aes(x = `metric`, y = value, fill = `metric`)) +
 
 NPV_file <- paste0("validation_paper/figs/NPV_", cohort, ".png") 
 
-ggsave(NPV_file)  
+ggsave(NPV_file, width = 10, height = 10, dpi = 600)  
 

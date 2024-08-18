@@ -9,10 +9,11 @@ load("data/EDGI_exercise_cleaned_SE.RData") # Load clean data
 
 
 Demo_df <- EDGI_exercise_cleaned %>% 
-  select(age, currentbmi, case_status, ED100k_gender_dummy)
+  select(age, sex, currentbmi, case_status, ED100k_gender_dummy)
 
 Demo_df$ED100k_gender_dummy <- haven::as_factor(Demo_df$ED100k_gender_dummy)
-
+Demo_df$sex <- factor(Demo_df$sex, levels = c('1', '2','3'), 
+                      labels = c ('Male', 'Female', 'Intersex'))
 library(dplyr)
 
 # Define a function to summarize categorical variables with labels
@@ -39,6 +40,7 @@ summarize_continuous <- function(data, var, label) {
 Table_1 <- bind_rows(
   summarize_categorical(Demo_df, "ED100k_gender_dummy", "Gender Identity"),
   summarize_categorical(Demo_df, "case_status", "Eating Disorder Diagnosis"),
+  summarize_categorical(Demo_df, "sex", "Sex"),
   summarize_continuous(Demo_df, "age", "Age"),
   summarize_continuous(Demo_df, "currentbmi", "Current BMI")
 )

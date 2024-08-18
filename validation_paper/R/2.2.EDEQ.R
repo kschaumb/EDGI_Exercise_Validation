@@ -7,6 +7,21 @@ mean_edeq_ex <- EDGI_exercise_cleaned|>
 EDGI_exercise_cleaned_2 <- EDGI_exercise_cleaned |> 
   filter(!is.na(ED100k_ex_compulsive_current2)) 
 
+EDEQ_boxplot_stats <- EDGI_exercise_cleaned_2 |> 
+  group_by(ED100k_ex_compulsive_current2) |> 
+  summarize(
+    Q1 = quantile(edeq_ex_driven_freq_28, 0.25, na.rm = TRUE),
+    Median = median(edeq_ex_driven_freq_28, na.rm = TRUE),
+    Mean = mean(edeq_ex_driven_freq_28, na.rm = TRUE),
+    Q3 = quantile(edeq_ex_driven_freq_28, 0.75, na.rm = TRUE),
+    Min = min(edeq_ex_driven_freq_28, na.rm = TRUE),
+    Max = max(edeq_ex_driven_freq_28, na.rm = TRUE),
+    se = sd(edeq_ex_driven_freq_28, na.rm = TRUE)/sqrt(n())
+  )
+
+# Save the boxplot statistics
+resave(EDEQ_boxplot_stats, file = df_file)
+
 
 ggplot(mean_edeq_ex, aes(x = as.factor(ED100k_ex_compulsive_current2), y = mean_edeq_ex))  +
   geom_point()+

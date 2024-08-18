@@ -66,8 +66,8 @@ construct_order <- c('1. Q1 Any', '2. Q1 Regular', '6. Excessive', '7. Compensat
 dx_row_percents$`Diagnosis Group` <- factor(dx_row_percents$`Diagnosis Group`, levels = diagnosis_order)
 dx_row_percents$name <- factor(dx_row_percents$name, levels = construct_order)
 # remove control from dx_row_percents
-dx_row_percents <- dx_row_percents |>
-  filter(`Diagnosis Group` != 'Control')
+# dx_row_percents <- dx_row_percents |>
+#   filter(`Diagnosis Group` != 'Control')
 
 resave(dx_row_percents, file = df_file)
 
@@ -171,75 +171,6 @@ dx_contrasts_df$Group2 <- sub(".*?/", "", dx_contrasts_df$contrast)
 dx_contrasts_df$Group2 <- gsub("\\(|\\)", "", dx_contrasts_df$Group2)
 
 resave(dx_contrasts_df, file = df_file)
-
-
-annotation_df <- dx_contrasts_df |> 
-  select(c(DV, contrast, Group1, Group2, `p.value`)) 
-
-annotation_df$y = dplyr::recode(annotation_df$contrast, 
-       'AN / AN Mixed' = 50, 
-       'AN / BN' = 55,
-       'AN / (BN-BED Mixed)' = 60,
-       'AN / BED' = 65, 
-       'AN Mixed / BN' = 70, 
-       'AN Mixed / (BN-BED Mixed)' = 75, 
-       'AN Mixed / BED' = 80,
-       'BN / (BN-BED Mixed)' = 85,
-       'BED / BN' = 90,
-       'BED / (BN-BED Mixed)' = 95
-       )
-
-annotation_df$x = dplyr::recode(annotation_df$Group1, 
-                         'AN ' = '1',
-                         'AN Mixed ' = '2', 
-                         'BN ' = '3',
-                         'BN-BED Mixed ' = '4',
-                         'BED ' = '5'
-)
-
-annotation_df$xend = dplyr::recode(annotation_df$Group2, 
-                         ' AN' = '1',
-                         ' AN Mixed' = '2', 
-                         ' BN' = '3',
-                         ' BN-BED Mixed' = '4',
-                         ' BED' = '5')
-
-
-dx_plots <- list()
-
-for (var in construct_order) {
-  
-plot_data <- dx_row_percents |> 
-  filter (name == var)
-annotations = annotation_df |> 
-  filter (DV == var,
-          as.numeric(`p.value`) < 0.05) 
-
-plot <- ggplot(plot_data, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagnosis Group` )) +
-  geom_col() +
-geom_signif(annotation = as.numeric(annotations$`p.value`),
-            xmin = as.numeric(annotations$x),
-            xmax = as.numeric(annotations$xend),
-            y_position = annotations$y) +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1)) +
-  theme(legend.position = 'none') +
-  geom_text(aes(x = `Diagnosis Group`, y = (value*100) - 5, label = paste0(round(value*100, 0), '%')), size = rel(3)) + 
-  labs(y = 'Percentage (within Diagnosis Group)')
-
-dx_plots[[var]] <- plot
-
-}
-
-dx_plot_1 <- Reduce(`+`, dx_plots)
-
-dx_plot_1 + 
-  plot_layout(ncol = 3) +
-  plot_annotation(title = paste("Exercise Construct by Diagnosis Group", cohort), theme = theme(plot.title = element_text(hjust = 0.5))) 
-
-dx_plot_1
-dx_groups_fig_file <- paste0("validation_paper/figs/dx_groups_annotated", cohort, ".png")
-ggsave(file = dx_groups_fig_file)
-
 
 ggplot(dx_row_percents, aes(x = `Diagnosis Group`, y = value*100, fill = `Diagnosis Group` )) +
   geom_col() +

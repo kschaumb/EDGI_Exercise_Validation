@@ -1,9 +1,4 @@
 
-
-# label: tbl-ed100kItems
-# tbl-cap: Item-level descriptives for ED100k Exercise Items
-
-
 ed100k_ex_items <- c('exercise', 'ED100k_ex7_compensatory_factor', 'ED100k_ex9_maladaptive_hxplusc', 'ED100k_ex_dur_factor', 'ED100k_ex_freq_factor', 'ex_friend_2_factor', 'ex_ill_2_factor', 'ex_diet_2_factor', 'ex_distress_2_factor', 'ex_compel_2_factor', 'ex_age', 'ex_age_last')
 
 
@@ -32,7 +27,8 @@ ed100k_ex_data$ED100k_ex9_maladaptive_hxplusc <- factor(ed100k_ex_data$ED100k_ex
 
 factor_frequencies <- lapply(ed100k_ex_data, function(x) {
   if (is.factor(x)) {
-    tbl <- table(x)
+    x <- addNA(x)
+    tbl <- table(x, useNA = "ifany")
     percent <- prop.table(tbl) * 100
     data.frame(Response = names(tbl), Freq = as.vector(tbl), Percent = as.vector(percent))
   } else {
@@ -43,12 +39,17 @@ factor_frequencies <- lapply(ed100k_ex_data, function(x) {
 
 factor_frequencies <- factor_frequencies[sapply(factor_frequencies, Negate(is.null))]
 
-library(haven)
-
 ED100k_items_table <- bind_rows(factor_frequencies, .id = "Variable") %>% 
-  mutate(Variable = dplyr::recode(Variable, 'exercise' = '1. Exercised excessively', 'ED100k_ex7_compensatory_factor' = 'Q12. Compensatory Exercise', 'ED100k_ex9_maladaptive_hxplusc' = '9. Current Maladaptive Exercise', 'ED100k_ex_dur_factor' = '7. Exercise Duration', 'ED100k_ex_freq_factor' = '8. Exercise Frequency', 'ex_friend_2_factor' = '4. Interfering with Friendship', 'ex_ill_2_factor' = '5. Exercising when ill', 'ex_diet_2_factor' = '6. Modified Diet if unable to Exercise', 'ex_distress_2_factor' = '3. Distressed when unable to exercise', 'ex_compel_2_factor' = '2. Compelled to Exercise')) %>% 
+  mutate(Variable = dplyr::recode(Variable, 'exercise' = '1. Exercised excessively', 'ED100k_ex7_compensatory_factor' = '12. Compensatory Exercise', 'ED100k_ex9_maladaptive_hxplusc' = '9. Current Maladaptive Exercise', 'ED100k_ex_dur_factor' = '7. Exercise Duration', 'ED100k_ex_freq_factor' = '8. Exercise Frequency', 'ex_friend_2_factor' = '4. Interfering with Friendship', 'ex_ill_2_factor' = '5. Exercising when ill', 'ex_diet_2_factor' = '6. Modified Diet if unable to Exercise', 'ex_distress_2_factor' = '3. Distressed when unable to exercise', 'ex_compel_2_factor' = '2. Compelled to Exercise')) %>% 
   sort_asc(Variable) %>% 
-  mutate(Response = dplyr::recode(Response, 'NaN' = 'Missing', 'no' = 'No', 'sometimes' = 'Sometimes', 'more often' = 'More Often')) %>% 
+  mutate(Response = as.character(Response),  # Ensure Response is a character
+         Response = case_when(
+           Response == 'NaN' ~ 'Dont Know/Prefer Not to Answer',
+           Response == 'no' ~ 'No',
+           Response == 'sometimes' ~ 'Sometimes',
+           Response == 'more often' ~ 'More Often',
+           is.na(Response) ~ 'Missing',  # Handle NAs
+           TRUE ~ Response)) %>%
   mutate(Percent = round(Percent, 2))
 
 save(ED100k_items_table, file = df_file)

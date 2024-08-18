@@ -20,8 +20,21 @@ median_stds <- Current_Exercise |>
   group_by (ED100k_ex_compulsive_current2, variable) |> 
   summarize (med_val = median(val, na.rm = TRUE))
 
-# Save Current Exercise df
-Current_Exercise_df <- Current_Exercise
+CET_boxplot_stats <- Current_Exercise |> 
+  group_by(ED100k_ex_compulsive_current2, variable) |> 
+  summarize(
+    Q1 = quantile(val, 0.25, na.rm = TRUE),
+    Median = median(val, na.rm = TRUE),
+    Mean = mean(val, na.rm = TRUE),
+    Q3 = quantile(val, 0.75, na.rm = TRUE),
+    Min = min(val, na.rm = TRUE),
+    Max = max(val, na.rm = TRUE), 
+    se = sd(val, na.rm = TRUE)/sqrt(n())
+  )
+
+# Save the boxplot statistics
+resave(CET_boxplot_stats, file = df_file)
+
 
 ggplot(Current_Exercise, aes(x = as.factor(ED100k_ex_compulsive_current2), y = val, color = as.factor(ED100k_ex_compulsive_current2))) +
   facet_wrap(~variable)+
