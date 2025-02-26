@@ -1,7 +1,8 @@
 ---
 title: "Results"
-format: docx
+format: html
 ---
+
 
 
 ```{r setup, include=FALSE}
@@ -44,9 +45,16 @@ load('tabs/Result_dfs_demographicsSE.RData')
 SE_results <- mget(ls())
 save(SE_results, file = "tabs/SE_results.RData")
 rm(list = ls())
+
+load('tabs/Result_dfs_NZ.RData')
+NZ_results <- mget(ls())
+save(NZ_results, file = "tabs/NZ_results.RData")
+rm(list = ls())
+
+
 load('tabs/USA_results.RData')
 load('tabs/SE_results.RData')
-
+load("tabs/NZ_results.RData")
 
 
 ```
@@ -55,7 +63,7 @@ Scoring algorithms are provided in @tbl-scoring. Sociodemographic characteristic
 
 ## Preliminary Aim - Develop a scoring algorithm
 
-The ED100k included 12 questions assessing maladaptive exercise (see Supplemental @fig-flowchart) The first question, which all participants were asked, inquires as to whether individuals *ever* exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported affirmatively to Q1 and 'Yes' to *either* Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their maladaptive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, participants who endorsed episodes of binge eating with loss of control were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (SE n = `r SE_results$manuscript_info$Q1_frq[[1]]$frq[[1]]`; USA n = `r USA_results$manuscript_info$Q1_frq[[1]]$frq[[1]]` who reported no to Q1 were marked as '0' for all follow-up questions, with the exception of ages (Q10-11), which were retained as missing. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (SE n = `r SE_results$manuscript_info$Compulsive_frq[[1]]$frq[[1]]`; USA n = `r USA_results$manuscript_info$Compulsive_frq[[1]]$frq[[1]]`) were marked as '0' for Q4-Q9. Thos who did not endorse episodes of binge eating were marked as '0' for Q12. Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see scoring) are provide in Supplemental @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was SE: `r SE_results$manuscript_info$AAO.3$median` years; USA: `r USA_results$manuscript_info$AAO.3$median` years and the median age of last report of compulsive exercise was SE: `r SE_results$manuscript_info$Age_last.3$median` years; USA: `r USA_results$manuscript_info$Age_last.3$median` years. Among those who reported any compulsive exercise, SE: `r SE_results$manuscript_info$Compulsive_current.3[[1]]$valid.prc[[3]]`%; USA: `r USA_results$manuscript_info$Compulsive_current.3[[1]]$valid.prc[[3]]`% reported that this was an ongoing symptom.
+The ED100k included 12 questions assessing maladaptive exercise (see Supplemental @fig-flowchart) The first question, which all participants were asked, inquires as to whether individuals *ever* exercised to intentionally control weight and shape (Q1). Only those who endorsed EVER Exercising to intentionally control weight or shape were asked to respond to two additional questions which asked about exercise in more detail, including two questions (Q2, Q3) about whether individuals ever felt compelled to exercise and whether they felt uneasy or distressed if unable to exercise. In a third step, those who reported affirmatively to Q1 and 'Yes' to *either* Q2 or Q3 were additionally asked three questions (Q4-Q6) about whether exercise interfered with life activities or diet, along with questions regarding the onset (Q7), duration (Q8), and frequency (Q9) of their maladaptive exercise, along with whether they engaged in the behavior currently (Q10) and the last age at which they engaged in the behavior (Q11). In a separate section, participants who endorsed episodes of binge eating with loss of control were asked whether they had 'exercised excessively' specifically to *compensate* for episodes of binge eating or overeating (Q12). During recoding, those (NZ n = `r NZ_results$manuscript_info$Q1_frq[[1]]$frq[[1]]` ; SE n = `r SE_results$manuscript_info$Q1_frq[[1]]$frq[[1]]`; USA n = `r USA_results$manuscript_info$Q1_frq[[1]]$frq[[1]]` who reported no to Q1 were marked as '0' for all follow-up questions, with the exception of ages (Q10-11), which were retained as missing. Those who reported that they had engaged in exercise to for weight and shape control but 'No' to both Q2 & Q3 (NZ n = `r NZ_results$manuscript_info$Compulsive_frq[[1]]$frq[[1]]`; SE n = `r SE_results$manuscript_info$Compulsive_frq[[1]]$frq[[1]]`; USA n = `r USA_results$manuscript_info$Compulsive_frq[[1]]$frq[[1]]`) were marked as '0' for Q4-Q9. Thos who did not endorse episodes of binge eating were marked as '0' for Q12. Frequencies for the 10 dichotomous/ordinal exercise items with imputed values based on skip patterns (see scoring) are provide in Supplemental @tbl-ed100kItems. Median age of onset for those reporting any compulsive exercise in the sample was NZ: `r NZ_results$manuscript_info$AAO.3$median` years; SE: `r SE_results$manuscript_info$AAO.3$median` years; USA: `r USA_results$manuscript_info$AAO.3$median` years and the median age of last report of compulsive exercise was NZ: `r NZ_results$manuscript_info$Age_last.3$median` years; SE: `r SE_results$manuscript_info$Age_last.3$median` years; USA: `r USA_results$manuscript_info$Age_last.3$median` years. Among those who reported any compulsive exercise, NZ: `r NZ_results$manuscript_info$Compulsive_current.3[[1]]$valid.prc[[3]]`%; SE: `r SE_results$manuscript_info$Compulsive_current.3[[1]]$valid.prc[[3]]`%; USA: `r USA_results$manuscript_info$Compulsive_current.3[[1]]$valid.prc[[3]]`% reported that this was an ongoing symptom.
 
 ## Aim 1. Evaluate patterns of response across multiple scoring methods -- to identify the degree to which scoring methods requiring different item-level endorsement, consistent with varying definitions of maladaptive exercise, result in overlapping membership or capture distinct groups
 
@@ -68,16 +76,18 @@ The ED100k included 12 questions assessing maladaptive exercise (see Supplementa
 
 USA_results$Heatmap_df$Country <- "USA"
 SE_results$Heatmap_df$Country <- "Sweden"
+NZ_results$Heatmap_df$Country <- "New Zealand"
 
 # combine the two dataframes
-heatmap_df <- rbind(USA_results$Heatmap_df, SE_results$Heatmap_df)
+heatmap_df <- rbind(NZ_results$Heatmap_df, SE_results$Heatmap_df)
+heatmap_df <- rbind(heatmap_df, USA_results$Heatmap_df)
 
 # Create the heatmap using ggplot and geom_tile
 combined_heatmap <- ggplot(heatmap_df, aes(x = Sample, y = Trait)) +
   geom_tile(aes(fill = Percentage), color = "white") +
-  geom_text(aes(label = sprintf("%.2f", Percentage)), color = "white", size = 5) +
+  geom_text(aes(label = sprintf("%.1f", Percentage)), color = "white", size = 5) +
   embarktools::embark_theme_a +
-  facet_grid(~Country, scales = "free") +
+  facet_wrap(~Country, ncol = 2, scales = "free") + # Change facet_grid to facet_wrap and specify ncol
   labs(x = "Sample", y = "Exercise Construct", text = element_text(size = 14)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1), text = element_text(size =14)) + 
   scale_fill_viridis_c(option = "viridis", begin = 0.1, end = 0.85, direction = -1) +
@@ -88,7 +98,7 @@ combined_heatmap <- ggplot(heatmap_df, aes(x = Sample, y = Trait)) +
   # make legend text bigger
   theme(legend.text = element_text(size = 16)) 
 
-ggsave(file = "figs/combined_heatmap.png", width = 18, height = 10, dpi = 600)
+ggsave(file = "figs/combined_heatmap.png", width = 14, height = 10, dpi = 600)
 
 knitr::include_graphics("figs/combined_heatmap.png")
 
@@ -98,7 +108,7 @@ knitr::include_graphics("figs/combined_heatmap.png")
 
 Overall, there was high convergent validity for Q1 with Q2-Q6. Specifically, individuals eating disorders who endorse Q1 Any (Approach #1) are highly likely to confirm either feeling compelled to exercise or distressed when unable to exercise (#3; high positive predictive value). As hypothesized, Q1 Any (#1) had more moderate positive predictive value for approaches #4-7 (compulsive/driven \[narrow\], addictive, excessive, compulsive).
 
-Among those meeting Q1 Regular (#2), individuals were likely to engage in this behavior for a substantive period of time -- SE: `r SE_results$manuscript_info$Ex_dur.2[[1]]$valid.prc[[2]]`; USA: `r USA_results$manuscript_info$Ex_dur.2[[1]]$valid.prc[[2]]`%;\`% of those meeting Q1 Regular reported maladaptive exercise for a duration of \> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors. Those meeting Q1 Regular were also highly likely to report symptoms consistent with definitions of both compulsive/driven (high positive predictive value for #3-4), addictive (high positive predictive value for #5) exercise. Q1 Regular positive predictive value for predicting excessive exercise (#6) was also high, but less so than approaches #3-5.
+Among those meeting Q1 Regular (#2), individuals were likely to engage in this behavior for a substantive period of time -- NZ: `r NZ_results$manuscript_info$Ex_dur.2[[1]]$valid.prc[[2]]`%; SE: `r SE_results$manuscript_info$Ex_dur.2[[1]]$valid.prc[[2]]`%; USA: `r USA_results$manuscript_info$Ex_dur.2[[1]]$valid.prc[[2]]`% of those meeting Q1 Regular reported maladaptive exercise for a duration of \> 3 months; a time period of equivalent to diagnostic levels of other intentional weight control behaviors. Those meeting Q1 Regular were also highly likely to report symptoms consistent with definitions of both compulsive/driven (high positive predictive value for #3-4), addictive (high positive predictive value for #5) exercise. Q1 Regular positive predictive value for predicting excessive exercise (#6) was also high, but less so than approaches #3-5.
 
 Supplemental @fig-Q1sensitivity reports full metrics on the utility of Q1 Any and Q1 Regular to capture definitions in approaches #3-8. The sensitivity and negative predictive values of Q1 Any detection of approaches #3-6 were forced to 1.0 by definition. Overall accuracy metrics of Q1 Any predicting #3, and Q1 Regular predicting #4-5 suggest that additional criteria added to these approaches are not necessary for defining maladaptive exercise that (1) verifies compulsive/driven symptoms and (2) identifies significant duration and interference with life and/or health among individuals with EDs. Overall, the vast majority of individuals with eating disorders who reporting regular exercise for weight loss to control weight and shape in Q1 go on to report that this exercise was compulsive and that they also experienced life interfering sequelae of this behavior. Further, regarding specific addictive exercise symptoms, the modal number of exercise interference items was all 3.
 
@@ -114,23 +124,25 @@ Rates of addictive, compensatory, compulsive, excessive, and regular compulsive 
 
 SE_dx <- SE_results$dx_row_percents
 USA_dx <- USA_results$dx_row_percents
+NZ_dx <- NZ_results$dx_row_percents
 
 SE_dx$Cohort <- "SE"
 USA_dx$Cohort <- "USA"
+NZ_dx$Cohort <- "NZ"
 
-dx_df <- rbind(SE_dx, USA_dx)
+dx_df <- rbind(SE_dx, USA_dx, NZ_dx)
 
 dx_combined <- ggplot(dx_df, aes(x = `Diagnosis Group`, y = value*100, fill = Cohort)) +
   geom_col(position = position_dodge()) +
   theme(legend.position = 'none') +
   theme(text = element_text(size = 16)) +
-geom_text(aes(x = `Diagnosis Group`, y = (value * 100) + 5, label = paste0(round(value * 100, 0))), position = position_dodge(width = 0.9), size = rel(4)) + 
+geom_text(aes(x = `Diagnosis Group`, y = (value * 100) + 5, label = paste0(round(value * 100, 0))), position = position_dodge(width = 0.9), size = rel(3)) + 
     labs(y = 'Percentage (within Diagnosis Group') +
 facet_wrap (~ `name`) +
   labs(title = paste('Percentage Endorsement by Diagnosis Group \n and Exercise Construct'), x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') +
   embarktools::embark_theme_a + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 16, face = 'bold')) +
-  scale_fill_manual(values = c('SE' = '#1A4F66', 'USA' = "#EF6C45")) + 
+  scale_fill_manual(values = c('NZ' = '#C2B824', 'SE' = '#1A4F66', 'USA' = "#EF6C45")) + 
   # bold strip text and make strip background light grey
   theme(strip.text = element_text(face = "bold", size = 14),
         strip.background = element_rect(fill = "lightgrey")) 
@@ -150,7 +162,7 @@ Confusion matrix components for ED100k scoring approaches and current compulsive
 
 Accuracy of #1, #2, #6, and #7 in relation to current measures of driven/compulsive exercise were moderate, indicating only a portion of individuals who reported *history* of maladaptive exercise -- via various operationalizations - on the ED100k were engaging in compulsive/driven at the time of assessment. positive predictive value was highest for #1 (\>0.95), and in a moderate-to-high range for #2,6,7, & 8, indicating that a portion of individuals who report current maladaptive exericse on the CET or EDEQ do not report history of driven exercise on the ED100k operationalizations #2, 6, 7, or 8. positive predictive value for compensatory exericse was lowest, which was expected given that the CET and EDEQ do not capture compensatory motivations. Overall accuracy metrics were highest for scoring method #8 (current), and generally supporting the ED100k current exercise operationalization as a rough indicator of current compulsive exercise.
 
-Overall, SE: `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[1]]`%; USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[1]]`% of the sample reported no history of maladaptive exercise, SE: `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`%; USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`% reported a history of maladaptive exercise that was not current, and SE: `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[3]]`%; USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`% reported current maladaptive exercise.
+Overall, NZ: `r NZ_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[1]]`%; SE: `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[1]]`%; USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[1]]`% of the sample reported no history of maladaptive exercise, NZ: `r NZ_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`%; SE: `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`%; USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`% reported a history of maladaptive exercise that was not current, and NZ: `r NZ_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[3]]`%; SE: `r SE_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[3]]`%; USA: `r USA_results$manuscript_info$Compulsive_current_full[[1]]$valid.prc[[2]]`% reported current maladaptive exercise.
 
 Boxplots with median standardized scores on all CET subscales along with CET total score is presented in @fig-CETEDEQ-1, and a plot showing the median frequency of EDEQ driven exericse episodes in the past 28 days is presented in @fig-CETEDEQ-2.
 
@@ -163,11 +175,13 @@ Boxplots with median standardized scores on all CET subscales along with CET tot
 
 SE_CET <- SE_results$CET_boxplot_stats
 USA_CET <- USA_results$CET_boxplot_stats
+NZ_CET <- NZ_results$CET_boxplot_stats
 
 SE_CET$Cohort <- "SE"
 USA_CET$Cohort <- "USA"
+NZ_CET$Cohort <- "NZ"
 
-CET_combined <- rbind(SE_CET, USA_CET)
+CET_combined <- rbind(SE_CET, USA_CET, NZ_CET)
 
 CET_combined_plot <- ggplot(CET_combined, aes(x = as.factor(ED100k_ex_compulsive_current2), y = Median, group = Cohort, color = Cohort)) +
   facet_wrap(~variable) +
@@ -180,7 +194,10 @@ CET_combined_plot <- ggplot(CET_combined, aes(x = as.factor(ED100k_ex_compulsive
   theme(legend.position = 'right', 
         text = element_text(size = 18)) +
   embarktools::embark_theme_a + 
-    scale_color_manual(values = c('SE' = '#1A4F66', 'USA' = "#EF6C45")) +
+    scale_color_manual(values = 
+                         c('NZ' = "#C2B824", 
+                           'SE' = '#1A4F66', 
+                           'USA' = "#EF6C45")) +
   # angle the x-axis labels 45 degrees
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
    theme(strip.background = element_rect(fill = "lightgrey")) 
@@ -188,14 +205,16 @@ CET_combined_plot <- ggplot(CET_combined, aes(x = as.factor(ED100k_ex_compulsive
 # save plot
 ggplot2::ggsave(filename = "figs/CET_subscales_boxplot.png", plot = CET_combined_plot, width = 12, height = 10, units = "in", dpi = 600)
 
-
+# EDEQ plot
 SE_EDEQ <- SE_results$EDEQ_boxplot_stats
 USA_EDEQ <- USA_results$EDEQ_boxplot_stats
+NZ_EDEQ <- NZ_results$EDEQ_boxplot_stats
 
 SE_EDEQ$Cohort <- "SE"
 USA_EDEQ$Cohort <- "USA"
+NZ_EDEQ$Cohort <- "NZ"
 
-EDEQ_combined <- rbind(SE_EDEQ, USA_EDEQ)
+EDEQ_combined <- rbind(SE_EDEQ, USA_EDEQ, NZ_EDEQ)
 
 EDEQ_combined_plot <- ggplot(EDEQ_combined, aes(x = as.factor(ED100k_ex_compulsive_current2), y = Median, group = Cohort, color = Cohort)) +
   geom_errorbar(aes(ymin = Q1, ymax = Q3), size = 1, width = .5, position = position_dodge(width = 0.75)) +
@@ -207,7 +226,7 @@ EDEQ_combined_plot <- ggplot(EDEQ_combined, aes(x = as.factor(ED100k_ex_compulsi
   theme(legend.position = 'right', 
         text = element_text(size = 18)) +
   embarktools::embark_theme_a + 
-    scale_color_manual(values = c('SE' = '#1A4F66', 'USA' = "#EF6C45")) +
+    scale_color_manual(values = c("NZ" = "#C2B824", 'SE' = '#1A4F66', 'USA' = "#EF6C45")) +
   # angle the x-axis labels 45 degrees
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
    theme(strip.background = element_rect(fill = "lightgrey")) 
@@ -224,7 +243,7 @@ To formally test the hypothesis that those with reporting ED100k current maladap
 
 Supplemental @tbl-CETANOVA reports ANOVA output for each CET subscale, comparing across the three groups of individuals who report no maladaptive exercise, maladaptive exercise history but not current maladaptive exercise (#2 but NOT #8), and both history and current maladaptive exercise (#8) on the ED100k. All omnibus tests reach significance. Supplemental @tbl-CETcontrasts presents specific contrasts between each group, using a Tukey's HSD approach with an adjusted alpha to compute confidence intervals of `r round(0.05/18, 4)` - accounting for 18 contrasts. All contrasts reach significance (confidence intervals of differences not overlapping '0'). Cohen's D effects suggest a pattern of moderate effect size when comparing those with no history of maladaptive exercise to those with a history, but not current, maladaptive exercise and when comparing those with history vs. current maladaptive exercise. Comparison of those with no history of maladaptive exercise vs. current maladaptive exercise (#8) consistently demonstrated large effects. For all subscales, except for the (lack of) enjoyment subscale, effects indicated that those with current maladaptive exercise scored highest, while those with no history of maladaptive exercise scored the highest on the lack of exercise enjoyment subscale.
 
-The proportion of individuals meeting the clinical cutoff for current compulsive exercise on the CET varied as expected by endorsement of historical and current endorsement of maladaptive exercise on the ED100k. Only SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[1]`%; USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[1]`% of individuals who reported no history of maladaptive exercise met current CET clinical cutoff, while SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[2]`%; USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[2]`% of those reporting history, but not current maladaptive exercise (#2 but not #8) met clinical cutoff on the CET, and SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[3]`%; USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[3]`% of individuals meeting current maladaptive exercise (#8) on the ED100k met clinical cutoff for maladaptive exercise on the CET. Using a multinomial logistic regression approach with 'No Maladaptive Exercise History' on the ED100k coded as the reference category, those reporting maladaptive exercise history, but not current maladaptive exercise had an odds ratio of SE: `r SE_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[2]]`; USA: `r USA_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[2]]` and those reporting current maladaptive exercise had an odds ratio of SE: `r SE_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[3]]`; USA: `r USA_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[3]]`, indicating significant convergent validity of reports of current maladaptive exercise on the ED100k and meeting clinical cutoff on the 24-item CET.
+The proportion of individuals meeting the clinical cutoff for current compulsive exercise on the CET varied as expected by endorsement of historical and current endorsement of maladaptive exercise on the ED100k. Only NZ: `r NZ_results$manuscript_info$CET_ED100k_raw_table$Freq[1]`%; SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[1]`%; USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[1]`% of individuals who reported no history of maladaptive exercise met current CET clinical cutoff, while NZ: `r NZ_results$manuscript_info$CET_ED100k_raw_table$Freq[2]`%; SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[2]`%; USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[2]`% of those reporting history, but not current maladaptive exercise (#2 but not #8) met clinical cutoff on the CET, and NZ: `r NZ_results$manuscript_info$CET_ED100k_raw_table$Freq[3]`%; SE: `r SE_results$manuscript_info$CET_ED100k_raw_table$Freq[3]`%; USA: `r USA_results$manuscript_info$CET_ED100k_raw_table$Freq[3]`% of individuals meeting current maladaptive exercise (#8) on the ED100k met clinical cutoff for maladaptive exercise on the CET. Using a multinomial logistic regression approach with 'No Maladaptive Exercise History' on the ED100k coded as the reference category, those reporting maladaptive exercise history, but not current maladaptive exercise had an odds ratio of NZ: `r NZ_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[2]]`; SE: `r SE_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[2]]`; USA: `r USA_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[2]]` and those reporting current maladaptive exercise had an odds ratio of NZ: `r NZ_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[3]]`;SE: `r SE_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[3]]`; USA: `r USA_results$manuscript_info$CET_ED100k_ORs$CET_ED100k_ORs[[3]]`, indicating significant convergent validity of reports of current maladaptive exercise on the ED100k and meeting clinical cutoff on the 24-item CET.
 
 Regarding the number of days in the past 28 that participants reported engaging in driven exercise on the EDEQ, outcomes were zero-inflated in the 'No History of Maladaptive Exercise' and 'History but No Current Maladaptive Exercise' groups. A zero-inflated Poisson regression model compared those with "History, but Not Current' and those with 'Current Maladaptive Exercise' to the 'No History of Maladaptive Exercise' (reference) group on number of days with driven exercise in the past month. Results are presented in @tbl-EDEQZin (including odds ratios (ORs) for the zero portion of the model and incident risk ratios (IRRs) for the count portion). Results indicate that those who report current maladaptive exercise on the ED100k are less likely to have zero values for EDEQ-assessed exercise in the past 28 days, and report higher counts of exercise days when they do exercise. Those reporting history of, but not current, maladaptive exercise on the ED100k are similarly less likely to report zero days of driven exercise on the EDEQ as compared to those who report no history of maladaptive exercise, though the count portion of the model indicates that those reporting history, but not current, maladaptive exercise are reporting low numbers of exercise days when it occurs, lower than those who report no history of maladaptive exercise.
 
@@ -241,6 +260,10 @@ SE_results$oci_tidy_results <-
   SE_results$oci_tidy_results %>%
   filter(`Case Status` != 'Control')
 
+NZ_results$oci_tidy_results <-
+  NZ_results$oci_tidy_results %>%
+  filter(`Case Status` != 'Control')
+
 USA_minD <- min(as.numeric(USA_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
 USA_maxD <- max(as.numeric(USA_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
 USA_midD <- median(as.numeric(USA_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
@@ -248,9 +271,13 @@ USA_midD <- median(as.numeric(USA_results$oci_tidy_results$`Cohens D`), na.rm = 
 SE_minD <- min(as.numeric(SE_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
 SE_maxD <- max(as.numeric(SE_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
 SE_midD <- median(as.numeric(SE_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
+
+NZ_minD <- min(as.numeric(NZ_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
+NZ_maxD <- max(as.numeric(NZ_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
+NZ_midD <- median(as.numeric(NZ_results$oci_tidy_results$`Cohens D`), na.rm = TRUE)
 ```
 
-Graphs depicting means and standard deviations for OCI total and subscale scores within diagnostic groups are presented in Supplemental @fig-OCI. A table showing t-tests and Cohen's D effect sizes for comparisons of subscale and total OCI scores within diagnostic groups is presented in Supplemental @tbl-OCI. Effect sizes were small-to-moderate (USA Range = `r USA_minD`-`r USA_maxD`; Median = `r USA_midD`; SE Range = `r SE_minD`-`r SE_maxD`; Median = `r SE_midD`).
+Graphs depicting means and standard deviations for OCI total and subscale scores within diagnostic groups are presented in Supplemental @fig-OCI. A table showing t-tests and Cohen's D effect sizes for comparisons of subscale and total OCI scores within diagnostic groups is presented in Supplemental @tbl-OCI. Effect sizes were small-to-moderate (NZ Range = `r NZ_minD`-`r NZ_maxD`; Median = `r NZ_midD`; SE Range = `r SE_minD`-`r SE_maxD`; Median = `r SE_midD`; USA Range = `r USA_minD`-`r USA_maxD`; Median = `r USA_midD`; ).
 
 ```{r}
 
@@ -262,6 +289,10 @@ SE_results$MPS_tidy_results <-
   SE_results$MPS_tidy_results %>%
   filter(`Case Status` != 'Control')
 
+NZ_results$MPS_tidy_results <-
+  NZ_results$MPS_tidy_results %>%
+  filter(`Case Status` != 'Control')
+
 USA_minD <- min(as.numeric(USA_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
 USA_maxD <- max(as.numeric(USA_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
 USA_midD <- median(as.numeric(USA_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
@@ -269,9 +300,14 @@ USA_midD <- median(as.numeric(USA_results$MPS_tidy_results$`Cohens D`), na.rm = 
 SE_minD <- min(as.numeric(SE_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
 SE_maxD <- max(as.numeric(SE_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
 SE_midD <- median(as.numeric(SE_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
+
+NZ_minD <- min(as.numeric(NZ_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
+NZ_maxD <- max(as.numeric(NZ_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
+NZ_midD <- median(as.numeric(NZ_results$MPS_tidy_results$`Cohens D`), na.rm = TRUE)
+
 ```
 
-Graphs depicting means and standard deviations for MPS total and subscale scores within diagnostic groups are presented in Supplemental @fig-MPS. A table showing t-tests and Cohen's D effect sizes for comparisons of MPS subscale scores within diagnostic groups is presented in Supplemental @tbl-MPS. Cohen's D effect sizes ranged from small-to-moderate (USA Range = `r USA_minD`-`r USA_maxD`; Median = `r USA_midD`; SE Range = `r SE_minD`-`r SE_maxD`; Median = `r SE_midD`).
+Graphs depicting means and standard deviations for MPS total and subscale scores within diagnostic groups are presented in Supplemental @fig-MPS. A table showing t-tests and Cohen's D effect sizes for comparisons of MPS subscale scores within diagnostic groups is presented in Supplemental @tbl-MPS. Cohen's D effect sizes ranged from small-to-moderate (NZ Range = `r NZ_minD`-`r NZ_maxD`; Median = `r NZ_midD`; SE Range = `r SE_minD`-`r SE_maxD`; Median = `r SE_midD`; USA Range = `r USA_minD`-`r USA_maxD`; Median = `r USA_midD`).
 
 # Supplement
 
@@ -288,44 +324,58 @@ knitr::include_graphics("figs/flowchart.png")
 #| label: fig-Q1sensitivity
 #| fig-cap: Accuracy of Q1 Any (#1) and Q1 Regular (#2) in detecting groups defined in approaches 3-8. Higher values represent greater validity/higher accuracy
 #| fig-subcap:
-#|   - "USA"
+#|   - "New Zealand"
 #|   - "Sweden" 
+#|   - "USA"
 #| layout-ncol: 1
-knitr::include_graphics("figs/Q1_sensitivity_USA.png")
+
+knitr::include_graphics("figs/Q1_sensitivity_NZ.png")
 knitr::include_graphics("figs/Q1_sensitivity_SE.png")
+knitr::include_graphics("figs/Q1_sensitivity_USA.png")
+
 ```
+
 
 ```{r, echo = FALSE, warning = FALSE}
 #| label: fig-npv
 #| fig-cap: Confusion matrix components of ED100k Exercise Scoring Apporoaches vs. current CET and EDEQ exercise
 #| fig-subcap:
+#|   - "New Zealand"
+#|   - "Sweden"
 #|   - "USA"
-#|   - "Sweden" 
 #| layout-ncol: 1
-knitr::include_graphics("figs/NPV_USA.png")
+
+knitr::include_graphics("figs/NPV_NZ.png")
 knitr::include_graphics("figs/NPV_SE.png")
+knitr::include_graphics("figs/NPV_USA.png")
 ```
 
 ```{r}
 #| label: fig-OCI
 #| fig-cap: OCI Means across diagnosis groups and ED100k exercise scoring criteria. Note - \*significant at FDR-corrected p-value. Lighter colors represent samples that do NOT meet scoring criteria; Darker colors represent samples that DO meet scoring criteria within each operationalization. Comparisons completed for those who do vs. do not meet scoring criteria within scoring approach and diagnostic group
 #| fig-subcap:
-#|   - "USA"
+#|   - "New Zealand"
 #|   - "Sweden" 
+#|   - "USA"
 #| layout-ncol: 1
-knitr::include_graphics("figs/OCI_combinedUSA.png")
+
+knitr::include_graphics("figs/OCI_combinedNZ.png")
 knitr::include_graphics("figs/OCI_combinedSE.png")
+knitr::include_graphics("figs/OCI_combinedUSA.png")
 ```
 
 ```{r}
 #| label: fig-MPS
 #| fig-cap: MPS subscale means across diagnosis groups and Scoring Operationalizations. Note - \*significant at FDR-corrected p-value. Lighter colors represent samples that do NOT meet scoring criteria; Darker colors represent samples that DO meet scoring criteria within each operationalization. Comparisons completed for those who do vs. do not meet scoring criteria within scoring approach and diagnostic group
 #| fig-subcap:
-#|   - "USA"
+#|   - "New Zealand"
 #|   - "Sweden" 
+#|   - "USA"
 #| layout-ncol: 1
-knitr::include_graphics("figs/MPS_combinedUSA.png")
+
+knitr::include_graphics("figs/MPS_combinedNZ.png")
 knitr::include_graphics("figs/MPS_combinedSE.png")
+knitr::include_graphics("figs/MPS_combinedUSA.png")
 ```
 
 ## Tables (See Supplemental_Tables.xlsx)
@@ -349,9 +399,13 @@ Table_1 <- full_join(USA_results$Table_1, SE_results$Table_1, by = c('Variable',
 
 USA_results$ED100k_items_table$Cohort <- "USA"
 SE_results$ED100k_items_table$Cohort <- "Sweden"
+NZ_results$ED100k_items_table$Cohort <- "New Zealand"
 
 ED100k_items_table <- # join the two tables
   full_join(USA_results$ED100k_items_table, SE_results$ED100k_items_table, by = c('Variable', 'Response', 'Cohort', 'Freq', 'Percent'))
+
+ED100k_items_table <- # join the two tables
+  full_join(ED100k_items_table, NZ_results$ED100k_items_table, by = c('Variable', 'Response', 'Cohort', 'Freq', 'Percent'))
 
 ED100k_items_table <- ED100k_items_table %>%
   pivot_wider(
@@ -362,7 +416,7 @@ ED100k_items_table <- ED100k_items_table %>%
 
 # order columns to be  Variable, Response, Freq (USA), Percent (USA), Freq (Sweden), Percent (Sweden)
 ED100k_items_table <- ED100k_items_table %>%
-  select(Variable, Response, `Freq (USA)`, `Percent (USA)`, `Freq (Sweden)`, `Percent (Sweden)`)
+  select(Variable, Response, `Freq (New Zealand)`, `Percent (New Zealand)`, `Freq (Sweden)`, `Percent (Sweden)`, `Freq (USA)`, `Percent (USA)`)
 
 # replace NA with 0 
 ED100k_items_table[is.na(ED100k_items_table)] <- 0
@@ -391,7 +445,18 @@ dx_contrasts_se$p.value <- sprintf('%.2e', dx_contrasts_se$p.value)
 dx_contrasts_se <- dx_contrasts_se[,c(1, 2, 4, 5, 3)]
 dx_contrasts_se$Cohort <- "Sweden"
 
-dx_contrasts <- rbind(dx_contrasts_se, dx_contrasts_usa)
+dx_contrasts_nz <- NZ_results$dx_contrasts_df |> 
+  select(c(DV, contrast, odds.ratio, SE, p.value)) |> 
+  mutate(OR = round(odds.ratio, 3),
+         se = round(SE, 3)) |> 
+  select (-c(odds.ratio, SE))
+dx_contrasts_nz$p.value <- sprintf('%.2e', dx_contrasts_nz$p.value)
+dx_contrasts_nz <- dx_contrasts_nz[,c(1, 2, 4, 5, 3)]
+dx_contrasts_nz$Cohort <- "New Zealand"
+
+dx_contrasts <- rbind(dx_contrasts_nz, dx_contrasts_se)
+dx_contrasts <- rbind(dx_contrasts, dx_contrasts_usa)
+
 ```
 
 ```{r CET-ANOVA}
@@ -400,8 +465,10 @@ dx_contrasts <- rbind(dx_contrasts_se, dx_contrasts_usa)
 
 USA_results$CET_ANOVA_df$cohort <- "USA"
 SE_results$CET_ANOVA_df$cohort <- "Sweden"
+NZ_results$CET_ANOVA_df$cohort <- "New Zealand"
 
-CET_ANOVA <- dplyr::bind_rows(SE_results$CET_ANOVA_df, USA_results$CET_ANOVA_df)
+CET_ANOVA <- dplyr::bind_rows(NZ_results$CET_ANOVA_df, SE_results$CET_ANOVA_df, USA_results$CET_ANOVA_df)
+
 
 ```
 
@@ -411,8 +478,9 @@ CET_ANOVA <- dplyr::bind_rows(SE_results$CET_ANOVA_df, USA_results$CET_ANOVA_df)
 #| 
 USA_results$CET_contrast_file$cohort <- "USA"
 SE_results$CET_contrast_file$cohort <- "Sweden"
+NZ_results$CET_contrast_file$cohort <- "New Zealand"
 
-CET_Contrasts <- dplyr::bind_rows(SE_results$CET_contrast_file, USA_results$CET_contrast_file)
+CET_Contrasts <- dplyr::bind_rows(NZ_results$CET_contrast_file, SE_results$CET_contrast_file, USA_results$CET_contrast_file)
 
 ```
 
@@ -422,8 +490,9 @@ CET_Contrasts <- dplyr::bind_rows(SE_results$CET_contrast_file, USA_results$CET_
 
 USA_results$EDEQ_ZIN_table$cohort <- "USA"
 SE_results$EDEQ_ZIN_table$cohort <- "Sweden"
+NZ_results$EDEQ_ZIN_table$cohort <- "New Zealand"
 
-EDEQ_ZIN <- dplyr::bind_rows(SE_results$EDEQ_ZIN_table, USA_results$EDEQ_ZIN_table)
+EDEQ_ZIN <- dplyr::bind_rows(NZ_results$EDEQ_ZIN_table, SE_results$EDEQ_ZIN_table, USA_results$EDEQ_ZIN_table)
 
 ```
 
@@ -448,7 +517,18 @@ oci_tidy_results_SE$`FDR p val` <- sprintf("%.2e", p.adjust(oci_tidy_results_SE$
 
 oci_tidy_results_SE$Cohort <- "Sweden"
 
-OCI_tidy_results <- rbind(oci_tidy_results_SE, oci_tidy_results_USA)
+oci_tidy_results_NZ <- NZ_results$oci_tidy_results |> 
+  mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
+  mutate(`t` = as.numeric(`t`)*-1)
+
+oci_tidy_results_NZ$`FDR p val` <- sprintf("%.2e", p.adjust(oci_tidy_results_NZ$p, method = 'fdr'))
+
+oci_tidy_results_NZ$Cohort <- "New Zealand"
+
+OCI_tidy_results <- rbind(oci_tidy_results_NZ, oci_tidy_results_SE)
+
+OCI_tidy_results <- rbind(OCI_tidy_results, oci_tidy_results_USA)
+
 
 
 ```
@@ -465,6 +545,7 @@ MPS_tidy_results_se <- SE_results$MPS_tidy_results
 MPS_tidy_results_se$Cohort <- "Sweden"
 
 MPS_tidy_results <- rbind(MPS_tidy_results_se, MPS_tidy_results_usa)
+MPS_tidy_results <- rbind(MPS_tidy_results, MPS_tidy_results_usa)
   
 ```
 

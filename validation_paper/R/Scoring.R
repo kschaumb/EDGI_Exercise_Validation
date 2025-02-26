@@ -39,7 +39,7 @@ library(haven)
 
 
 ## Point to your Raw Data here: 
-EDGI_raw <- read_sav('data/EDGI_USA_raw.sav') # CHANGE THIS TO SUIT YOUR DATA. 
+EDGI_raw <- read_sas('data/USA/exercise_250114.sas7bdat', encoding = "latin1") # CHANGE THIS TO SUIT YOUR DATA. 
 
 ## Name your Cohort
 cohort <- 'USA' #CHANGE THIS FOR EACH COHORT
@@ -47,11 +47,11 @@ cohort <- 'USA' #CHANGE THIS FOR EACH COHORT
 
 
 ## Point to Scoresheets here: 
-ED100k_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'ED100k')
-EDEQ_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'EDEQ')
-CET_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'CET')
-OCI12_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'OCI12')
-FrostMPS_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'FrostMPS')
+ED100k_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'ED100k')
+EDEQ_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'EDEQ')
+CET_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'CET')
+OCI12_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'OCI12')
+FrostMPS_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'FrostMPS')
 
 # ED100k Scoring
 ED100k<- scorekeep(EDGI_raw, ED100k_score)

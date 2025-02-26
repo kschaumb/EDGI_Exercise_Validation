@@ -12,22 +12,22 @@ library(cgwtools)
 library(expss)
 
 # load .sas7 data file 
-EDGI_SE_raw <- read_sas("data/Sweden/edgi_se_data.sas7bdat", encoding = "latin1")
+EDGI_USA_raw <- read_sas("data/USA/exercise_raw250114.sas7bdat", encoding = "latin1")
 # save as R Data file
-save(EDGI_SE_raw, file = "data/EDGI_SE_raw.RData")
+save(EDGI_USA_raw, file = "data/EDGI_USA_raw.RData")
 
 ## Point to your Raw Data here: 
-load('data/EDGI_SE_raw.RData') 
+load('data/EDGI_USA_raw.RData') 
 
 ## Point to Scoresheets here: 
-ED100k_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'ED100k')
-EDEQ_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'EDEQ')
-CET_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'CET')
-OCI12_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'OCI12')
-FrostMPS_score <- read_excel("scoring/EDGI_exercise_scoresheet.xlsx", 'FrostMPS')
+ED100k_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'ED100k')
+EDEQ_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'EDEQ')
+CET_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'CET')
+OCI12_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'OCI12')
+FrostMPS_score <- read_excel("scoring/USA_Scoring/EDGI_exercise_scoresheet.xlsx", 'FrostMPS')
 
 # ED100k Scoring
-ED100k_scored <- scorekeep(EDGI_raw, ED100k_score)
+ED100k_scored <- scorekeep(EDGI_USA_raw, ED100k_score)
 ED100k_scored <- ED100k_scored[[10]]
 
 # Add various weight suppression variables; clean outlier BMI variables
@@ -46,19 +46,19 @@ ED100k_scored <- ED100k_scored |>
   mutate( ED100k_bmi_suppress_current_low = currentbmi - lowestbmi) 
 
 # EDEQ Scoring 
-EDEQ_scored <- scorekeep(EDGI_raw, EDEQ_score)
+EDEQ_scored <- scorekeep(EDGI_USA_raw, EDEQ_score)
 EDEQ_scored <- EDEQ_scored[[5]]
 
 # CET Scoring
-CET_scored <- scorekeep(EDGI_raw, CET_score)
+CET_scored <- scorekeep(EDGI_USA_raw, CET_score)
 CET_scored <- CET_scored[[6]]
 
 # OCI Scoring
-OCI12_scored <- scorekeep(EDGI_raw, OCI12_score)
+OCI12_scored <- scorekeep(EDGI_USA_raw, OCI12_score)
 OCI12_scored <- OCI12_scored[[6]]
 
 # Frost MPS Scoring 
-FrostMPS_scored <- scorekeep(EDGI_raw, FrostMPS_score)
+FrostMPS_scored <- scorekeep(EDGI_USA_raw, FrostMPS_score)
 FrostMPS_scored <- FrostMPS_scored [[3]]
 
 # Combine data frames and save
@@ -73,8 +73,8 @@ EDGI_exercise_cleaned <- Data |>
   rename(ED100k_ex_int_sumNA = ED100k_ex_interfere_sum_NA_percent) |> #renames to shorter for SAS friendly variable name
   rename(ED100k_ex_int_weightedsum = ED100k_ex_interfere_sum_weighted_sum) #renames to shorter for SAS friendly variable name
 
-write_sas(EDGI_exercise_cleaned, 'data/exercise_cleaned.sas7bdat') # Save SAS file
-save(EDGI_exercise_cleaned, file = "data/EDGI_exercise_cleaned.RData") # Save RData File
+write_sas(EDGI_exercise_cleaned, 'data/exercise_cleaned_USA.sas7bdat') # Save SAS file
+save(EDGI_exercise_cleaned, file = "data/EDGI_exercise_cleaned_USA.RData") # Save RData File
 
 
 

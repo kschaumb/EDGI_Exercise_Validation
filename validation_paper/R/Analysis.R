@@ -50,7 +50,7 @@ library(wesanderson)
 
 
 # Name your cohort 
-cohort <- 'SE' #Change this to reflect your cohort 
+cohort <- 'USA' #Change this to reflect your cohort 
 
 #Load Cleaned Data - Make sure this is set to load the cleaned data file and contains ALL cleaned variables needed for analysis. See scoring first if dataset needs to be cleaned and scored. The data should be housed in 'EDGI_Exercise_cleaned/data'
 
