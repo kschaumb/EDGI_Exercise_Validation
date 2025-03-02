@@ -115,6 +115,10 @@ EDGI_exercise_cleaned <- EDGI_exercise_cleaned |>
                                       bed_case == 1 ~ 'BED', 
                                       control == 1 ~ 'Control')) 
 
+# remove where case_status is NA
+EDGI_exercise_cleaned <- EDGI_exercise_cleaned |> 
+  filter(!is.na(case_status))
+
 
 # Generate the file name with the cohort name
 RData_file <- paste0("data/EDGI_exercise_cleaned_", cohort, ".RData") 

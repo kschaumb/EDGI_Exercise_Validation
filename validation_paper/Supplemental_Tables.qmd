@@ -1,0 +1,395 @@
+---
+title: "Supplemental Tables"
+format: html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE,  warning = FALSE)
+library(expss)
+library(bookdown)
+library(dplyr)
+library(haven)
+library(sjmisc)
+library(rmarkdown)
+library(knitr)
+library(psych)
+library(ggplot2)
+library(ggrepel)
+library(wesanderson)
+library(tidyr)
+library(caret)
+library(broom)
+library(nnet)
+library(pscl)
+library(boot)
+library(tibble)
+library(psych)
+library(caret)
+library(viridis)  
+library(kableExtra)
+library(flextable)
+library(gtsummary)
+library(labelled)
+
+
+load('tabs/USA_results.RData')
+load('tabs/SE_results.RData')
+load("tabs/NZ_results.RData")
+load("tabs/AUS_results.RData")
+
+
+```
+
+
+## Tables (See Supplemental_Tables.xlsx)
+
+```{r scoring}
+#| label: tbl-scoring
+#| tbl-cap: Algorithm defining exercise-related constructs in the ED100k
+```
+
+```{r Table1}
+#| label: tbl-tbl1
+#| tbl-cap: Sample Descriptives. Categorial variables presented as N and percent of sample endorsing each category. Continuous variables presented as mean (SD).
+
+NZ_diagnoses <- NZ_results$manuscript_info$dx_frqs
+# remove val == NA
+NZ_diagnoses <- NZ_diagnoses[!is.na(NZ_diagnoses$val),]
+# select just val and frq
+NZ_diagnoses <- NZ_diagnoses |> 
+  select(c(val, frq)) |> 
+  mutate(Cohort = "New Zealand")
+# add a column that calulates the percentage of the total sample
+NZ_diagnoses <- NZ_diagnoses |> 
+  mutate(Percent = round(frq/sum(frq)*100, 1))
+# put frq and percent together in one column
+NZ_diagnoses <- NZ_diagnoses |> 
+  mutate(Statistic = paste(frq, " (", Percent, "%)", sep = "")) |> 
+  select(-Percent, - frq)
+# rename 'diagnosis' to "Level"
+NZ_diagnoses <- NZ_diagnoses |> 
+  rename(Level = val) |> 
+  select(Level, Statistic)
+# rename Statistic to 'Statistic (New Zealand)'
+NZ_diagnoses <- NZ_diagnoses |> 
+  rename(`Statistic (New Zealand)` = Statistic)
+# make a column called "variable) and name it "Eating Disorder Diagnosis"
+NZ_diagnoses <- NZ_diagnoses |> 
+  mutate(Variable = "Eating Disorder Diagnosis")
+
+# do the same thing for australia
+AUS_diagnoses <- AUS_results$manuscript_info$dx_frqs
+AUS_diagnoses <- AUS_diagnoses[!is.na(AUS_diagnoses$val),]
+AUS_diagnoses <- AUS_diagnoses |> 
+  select(c(val, frq)) |> 
+  mutate(Cohort = "Australia")
+AUS_diagnoses <- AUS_diagnoses |>
+  mutate(Percent = round(frq/sum(frq)*100, 1))
+AUS_diagnoses <- AUS_diagnoses |>
+  mutate(Statistic = paste(frq, " (", Percent, "%)", sep = "")) |>
+  select(-Percent, - frq)
+AUS_diagnoses <- AUS_diagnoses |>
+  rename(Level = val) |>
+  select(Level, Statistic)
+AUS_diagnoses <- AUS_diagnoses |>
+  rename(`Statistic (Australia)` = Statistic)
+# make a column called "variable) and name it "Eating Disorder Diagnosis"
+AUS_diagnoses <- AUS_diagnoses |>
+  mutate(Variable = "Eating Disorder Diagnosis") 
+
+  #Current eating disorder behaviors (ED100K)	6362 (75)	4220 (82)	8193 (78)	4259 (57)
+
+# create a table called current ED behaviors (ED100k)
+NZ_current_ED <- "4220 (82)"
+AUS_current_ED <- "8193 (78)"
+SE_current_ED <- "4259 (57)"
+USA_current_ED <- "6362 (75)"
+
+current_ED <- data.frame(Variable = "Current ED behaviors (ED100K - ED only)", 
+Level = "",
+                         `Statistic (Australia)` = AUS_current_ED,
+                         `Statistic (New Zealand)` = NZ_current_ED,
+                         `Statistic (Sweden)` = SE_current_ED,
+                         `Statistic (USA)` = USA_current_ED, check.names = FALSE
+)
+
+
+
+# create a table called current EDE-Q global
+NZ_current_EDE_Q <- "3.51 (1.50)"
+AUS_current_EDE_Q <- "3.39 (1.53)"
+SE_current_EDE_Q <- "3.43 (1.57)"
+USA_current_EDE_Q <- "2.33 (1.61)"
+
+current_EDE_Q <- data.frame(Variable = "Current EDE-Q global (ED only) ", Level = "",
+                         `Statistic (Australia)` = AUS_current_EDE_Q,
+
+                         `Statistic (New Zealand)` = NZ_current_EDE_Q,
+                         `Statistic (Sweden)` = SE_current_EDE_Q,
+                         `Statistic (USA)` = USA_current_EDE_Q, 
+check.names = FALSE)
+
+
+
+#Join the AUS and NZ tables
+diagnoses <- full_join(NZ_diagnoses, AUS_diagnoses, by = c('Variable', 'Level'))
+
+Table_1 <- full_join(USA_results$Table_1, SE_results$Table_1, by = c('Variable', 'Level'))
+
+# combine diagnosis and Table_1
+Table_1 <- full_join(diagnoses, Table_1, by = c('Variable', 'Level'))
+
+# change NA in level to 'Not Reported'
+Table_1$Level[is.na(Table_1$Level)] <- "Not Reported"
+
+# make 'Statistic USA' == '< 5' if it contains '0%'
+Table_1$`Statistic (USA)` <- ifelse(grepl("0%", Table_1$`Statistic (USA)`), "< 5", Table_1$`Statistic (USA)`)
+
+# make 'Statistic SE' == '< 5' if it contains '0%'
+Table_1$`Statistic (Sweden)` <- ifelse(grepl("0%", Table_1$`Statistic (Sweden)`), "< 5", Table_1$`Statistic (Sweden)`)
+
+# if Variable = N , make "Statistic (NZ)" = 5257
+Table_1$`Statistic (New Zealand)`[Table_1$Variable == "Total N"] <- "5257"
+
+# if Variable = N , make "Statistic (AUS)" = 10557
+Table_1$`Statistic (Australia)`[Table_1$Variable == "Total N"] <- "10557"
+
+# reorder the rows by Variable
+# make levels of Variable a factor
+Table_1$Variable <- factor(Table_1$Variable, levels = c("Total N", "Age", "Current BMI", "Gender Identity", "Eating Disorder Diagnosis", "Race", "Ethnicity"))
+Table_1 <- Table_1[order(Table_1$Variable),]
+
+# rbind the current ED and current EDE-Q global tables
+Table_1 <- rbind(Table_1, current_ED, current_EDE_Q)
+
+
+# reorder columns
+Table_1 <- Table_1 |>
+  select(Variable, Level, `Statistic (Australia)`, `Statistic (New Zealand)`, `Statistic (Sweden)`, `Statistic (USA)`)
+
+```
+
+```{r ED100k_items}
+#| label: tbl-ed100kItems
+#| tbl-cap: Item-level descriptives for ED100k Exercise Items (Cases Only)
+
+USA_results$ED100k_items_table$Cohort <- "USA"
+SE_results$ED100k_items_table$Cohort <- "Sweden"
+NZ_results$ED100k_items_table$Cohort <- "New Zealand"
+AUS_results$ED100k_items_table$Cohort <- "Australia"
+
+ED100k_items_table <- # join the two tables
+  full_join(USA_results$ED100k_items_table, SE_results$ED100k_items_table, by = c('Variable', 'Response', 'Cohort', 'Freq', 'Percent'))
+
+ED100k_items_table <- # join the two tables
+  full_join(ED100k_items_table, NZ_results$ED100k_items_table, by = c('Variable', 'Response', 'Cohort', 'Freq', 'Percent'))
+
+ED100k_items_table <- 
+full_join(ED100k_items_table, AUS_results$ED100k_items_table, by = c('Variable', 'Response', 'Cohort', 'Freq', 'Percent'))
+
+ED100k_items_table <- ED100k_items_table %>%
+  pivot_wider(
+    names_from = Cohort,  # Use 'Cohort' to create separate columns for each country
+    values_from = c(Freq, Percent),  # Pivot both 'Freq' and 'Percent'
+    names_glue = "{.value} ({Cohort})"  # Custom names for new columns
+  )
+
+# order columns to be  Variable, Response, Freq (USA), Percent (USA), Freq (Sweden), Percent (Sweden)
+ED100k_items_table <- ED100k_items_table %>%
+  select(Variable, Response, `Freq (Australia)`, `Percent (Australia)`, `Freq (New Zealand)`, `Percent (New Zealand)`, `Freq (Sweden)`, `Percent (Sweden)`, `Freq (USA)`, `Percent (USA)`)
+
+# replace NA with 0 
+ED100k_items_table[is.na(ED100k_items_table)] <- 0
+
+```
+
+```{r dx_contrasts}
+#| label: tbl-dxcontrasts
+#| tbl-cap: Odds Ratios for contrasts between all diagnostic groups within exercise construct 
+
+dx_contrasts_usa <- USA_results$dx_contrasts_df |> 
+  select(c(DV, contrast, odds.ratio, SE, p.value)) |> 
+  mutate(OR = round(odds.ratio, 3),
+         se = round(SE, 3)) |> 
+  select (-c(odds.ratio, SE))
+dx_contrasts_usa$p.value <- sprintf('%.2e', dx_contrasts_usa$p.value)
+dx_contrasts_usa <- dx_contrasts_usa[,c(1, 2, 4, 5, 3)]
+dx_contrasts_usa$Cohort <- "USA"
+
+dx_contrasts_se <- SE_results$dx_contrasts_df |> 
+  select(c(DV, contrast, odds.ratio, SE, p.value)) |> 
+  mutate(OR = round(odds.ratio, 3),
+         se = round(SE, 3)) |> 
+  select (-c(odds.ratio, SE))
+dx_contrasts_se$p.value <- sprintf('%.2e', dx_contrasts_se$p.value)
+dx_contrasts_se <- dx_contrasts_se[,c(1, 2, 4, 5, 3)]
+dx_contrasts_se$Cohort <- "Sweden"
+
+dx_contrasts_nz <- NZ_results$dx_contrasts_df |> 
+  select(c(DV, contrast, odds.ratio, SE, p.value)) |> 
+  mutate(OR = round(odds.ratio, 3),
+         se = round(SE, 3)) |> 
+  select (-c(odds.ratio, SE))
+dx_contrasts_nz$p.value <- sprintf('%.2e', dx_contrasts_nz$p.value)
+dx_contrasts_nz <- dx_contrasts_nz[,c(1, 2, 4, 5, 3)]
+dx_contrasts_nz$Cohort <- "New Zealand"
+
+dx_contrasts_aus <- AUS_results$dx_contrasts_df |> 
+  select(c(DV, contrast, odds.ratio, SE, p.value)) |> 
+  mutate(OR = round(odds.ratio, 3),
+         se = round(SE, 3)) |> 
+  select (-c(odds.ratio, SE))
+dx_contrasts_aus$p.value <- sprintf('%.2e', dx_contrasts_aus$p.value)
+dx_contrasts_aus <- dx_contrasts_aus[,c(1, 2, 4, 5, 3)]
+dx_contrasts_aus$Cohort <- "Australia"
+
+dx_contrasts <- rbind(dx_contrasts_aus, dx_contrasts_nz)
+dx_contrasts <- rbind(dx_contrasts, dx_contrasts_se)
+dx_contrasts <- rbind(dx_contrasts, dx_contrasts_usa)
+
+```
+
+```{r CET-ANOVA}
+#| label: tbl-CETANOVA
+#| tbl-cap: Sample Descriptives. Categorial variables presented as N and percent of sample endorsing each category. Continuous variables presented as mean (SD).
+
+USA_results$CET_ANOVA_df$cohort <- "USA"
+SE_results$CET_ANOVA_df$cohort <- "Sweden"
+NZ_results$CET_ANOVA_df$cohort <- "New Zealand"
+AUS_results$CET_ANOVA_df$cohort <- "Australia"
+
+CET_ANOVA <- dplyr::bind_rows(AUS_results$CET_ANOVA_df, NZ_results$CET_ANOVA_df, SE_results$CET_ANOVA_df, USA_results$CET_ANOVA_df)
+
+
+```
+
+```{r CET_contrasts}
+#| label: tbl-CETcontrasts
+#| tbl-cap: Sample Descriptives. Categorial variables presented as N and percent of sample endorsing each category. Continuous variables presented as mean (SD).
+#| 
+USA_results$CET_contrast_file$cohort <- "USA"
+SE_results$CET_contrast_file$cohort <- "Sweden"
+NZ_results$CET_contrast_file$cohort <- "New Zealand"
+AUS_results$CET_contrast_file$cohort <- "Australia"
+
+CET_Contrasts <- dplyr::bind_rows(AUS_results$CET_contrast_file, NZ_results$CET_contrast_file, SE_results$CET_contrast_file, USA_results$CET_contrast_file)
+
+```
+
+```{r EDEQ ZIN Model}
+#| label: tbl-EDEQZin
+#| tbl-cap: Zero-inflated Model Coefficients for ED100k Compulsive Exercise Predicting EDEQ Driven Exercise Days (past 28 days)
+
+USA_results$EDEQ_ZIN_table$cohort <- "USA"
+SE_results$EDEQ_ZIN_table$cohort <- "Sweden"
+NZ_results$EDEQ_ZIN_table$cohort <- "New Zealand"
+AUS_results$EDEQ_ZIN_table$cohort <- "Australia"
+
+EDEQ_ZIN <- dplyr::bind_rows(AUS_results$EDEQ_ZIN_table, NZ_results$EDEQ_ZIN_table, SE_results$EDEQ_ZIN_table, USA_results$EDEQ_ZIN_table)
+
+```
+
+```{r OCI-tabs}
+#| label: tbl-OCI
+#| tbl-cap: t-test output comparing OCI subscales and total scores within diagnostic groups and scoring approach
+
+# Create an empty data frame to store the tidy results
+oci_tidy_results_USA <- USA_results$oci_tidy_results |> 
+  mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
+  mutate(`t` = as.numeric(`t`)*-1)
+
+oci_tidy_results_USA$`FDR p val` <- sprintf("%.2e", p.adjust(oci_tidy_results_USA$p, method = 'fdr'))
+
+oci_tidy_results_USA$Cohort <- "USA"
+
+oci_tidy_results_SE <- SE_results$oci_tidy_results |> 
+  mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
+  mutate(`t` = as.numeric(`t`)*-1)
+
+oci_tidy_results_SE$`FDR p val` <- sprintf("%.2e", p.adjust(oci_tidy_results_SE$p, method = 'fdr'))
+
+oci_tidy_results_SE$Cohort <- "Sweden"
+
+oci_tidy_results_NZ <- NZ_results$oci_tidy_results |> 
+  mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
+  mutate(`t` = as.numeric(`t`)*-1)
+
+oci_tidy_results_NZ$`FDR p val` <- sprintf("%.2e", p.adjust(oci_tidy_results_NZ$p, method = 'fdr'))
+
+oci_tidy_results_NZ$Cohort <- "New Zealand"
+
+oci_tidy_results_AUS <- AUS_results$oci_tidy_results |> 
+  mutate(`Mean Diff` = as.numeric(`Mean Diff`)*-1) |> 
+  mutate(`t` = as.numeric(`t`)*-1)
+
+oci_tidy_results_AUS$`FDR p val` <- sprintf("%.2e", p.adjust(oci_tidy_results_AUS$p, method = 'fdr'))
+
+oci_tidy_results_AUS$Cohort <- "Australia"
+
+OCI_tidy_results <- rbind(oci_tidy_results_AUS, oci_tidy_results_NZ)
+
+OCI_tidy_results <- rbind(OCI_tidy_results, oci_tidy_results_SE)
+
+OCI_tidy_results <- rbind(OCI_tidy_results, oci_tidy_results_USA)
+
+
+
+```
+
+```{r MPS-tabs}
+#| label: tbl-MPS
+#| tbl-cap: t-test output comparing those with and without compulsive exercise on MPS subscales and within diagnostic groups
+# Create an empty data frame to store the tidy results
+
+MPS_tidy_results_usa <- USA_results$MPS_tidy_results 
+MPS_tidy_results_usa$Cohort <- "USA"
+
+MPS_tidy_results_se <- SE_results$MPS_tidy_results
+MPS_tidy_results_se$Cohort <- "Sweden"
+
+MPS_tidy_results_nz <- NZ_results$MPS_tidy_results
+MPS_tidy_results_nz$Cohort <- "New Zealand"
+
+MPS_tidy_results_aus <- AUS_results$MPS_tidy_results
+MPS_tidy_results_aus$Cohort <- "Australia"
+
+MPS_tidy_results <- rbind(MPS_tidy_results_aus, MPS_tidy_results_nz)
+MPS_tidy_results <- rbind(MPS_tidy_results, MPS_tidy_results_se)
+MPS_tidy_results <- rbind(MPS_tidy_results, MPS_tidy_results_usa)
+  
+```
+
+```{r}
+library(openxlsx)
+wb <- createWorkbook()
+
+addWorksheet(wb, "ST2-Sample_Descriptives")
+writeData(wb, "ST2-Sample_Descriptives", Table_1, rowNames = FALSE)
+
+addWorksheet(wb, "ST3-ED100k_Item_Descriptives")
+writeData(wb, "ST3-ED100k_Item_Descriptives", ED100k_items_table, rowNames = FALSE)
+
+addWorksheet(wb, "ST4-DX_Contrasts")
+writeData(wb, "ST4-DX_Contrasts", dx_contrasts, rowNames = FALSE)
+
+addWorksheet(wb, "ST5-CET_ANOVA_Results")
+writeData(wb, "ST5-CET_ANOVA_Results", CET_ANOVA, rowNames = FALSE)
+
+addWorksheet(wb, "ST6-CET_Contrast_Results")
+writeData(wb, "ST6-CET_Contrast_Results", CET_Contrasts, rowNames = FALSE)
+
+addWorksheet(wb, "ST7-EDEQ_ZIN_Model")
+writeData(wb, "ST7-EDEQ_ZIN_Model", EDEQ_ZIN, rowNames = FALSE)
+
+addWorksheet(wb, "ST8-OCI_T-Test_Results")
+writeData(wb, "ST8-OCI_T-Test_Results", OCI_tidy_results, rowNames = FALSE)
+
+addWorksheet(wb, "ST9-MPS_T-Test_Results")
+writeData(wb, "ST9-MPS_T-Test_Results", MPS_tidy_results, rowNames = FALSE)
+
+
+saveWorkbook(wb, "Supplemental_Tables.xlsx", overwrite = TRUE)
+
+
+```
+

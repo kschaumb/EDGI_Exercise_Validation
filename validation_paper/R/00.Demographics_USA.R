@@ -4,11 +4,13 @@ load("data/EDGI_exercise_cleaned_USA.RData") # Load clean data
 
 
 Demo_df <- EDGI_exercise_cleaned %>% 
-  select(ethnicity, ED100k_gender_dummy, sex, ED100k_race_dummy_2_factor, age, currentbmi, case_status)
+  select(ethnicity, ED100k_gender_dummy_2, sex, ED100k_race_dummy_2_factor, age, currentbmi, case_status, race)
 
 Demo_df$ethnicity <- factor(Demo_df$ethnicity, levels=c("1","2"), 
                             labels = c("Hispanic", "Non-Hispanic"))
-Demo_df$ED100k_gender_dummy <- to_factor(Demo_df$ED100k_gender_dummy)
+Demo_df$ED100k_gender_dummy_2 <- to_factor(Demo_df$ED100k_gender_dummy_2)
+Demo_df$race <- factor(Demo_df$race, levels = c('1', '2','3','4','5','6','99','-9'), labels = c ('White', 'Black/African American', 'Asian', 'Pacific Islander', 'Native American', '> 1 race', 'Other', 'Not Reported'))
+
 Demo_df$sex <- factor(Demo_df$sex, levels = c('1', '2','3'), 
                       labels = c ('Male', 'Female', 'Intersex'))
 Demo_df$ED100k_race_dummy_2_factor <- as.character(Demo_df$ED100k_race_dummy_2_factor)
@@ -37,10 +39,9 @@ summarize_continuous <- function(data, var, label) {
 
 # Summarize the data frame with labels
 Table_1 <- bind_rows(
-  summarize_categorical(Demo_df, "ED100k_race_dummy_2_factor", "Race"),
+  summarize_categorical(Demo_df, "race", "Race"),
   summarize_categorical(Demo_df, "ethnicity", "Ethnicity"),
-  summarize_categorical(Demo_df, "sex", "Sex"),
-  summarize_categorical(Demo_df, "ED100k_gender_dummy", "Gender Identity"),
+  summarize_categorical(Demo_df, "ED100k_gender_dummy_2", "Gender Identity"),
   summarize_categorical(Demo_df, "case_status", "Eating Disorder Diagnosis"),
   summarize_continuous(Demo_df, "age", "Age"),
   summarize_continuous(Demo_df, "currentbmi", "Current BMI")
@@ -57,9 +58,11 @@ Table_1 <- Table_1 %>%
 total_n <- nrow(Demo_df)
 
 Table_1 <- bind_rows(
-  tibble(Label = "Overall", Level = "Total N", `Statistic (USA)` = total_n),
+  tibble(Variable = "Total N", Level = '', `Statistic (USA)` = as.character(total_n)),
   Table_1
 )
+
+
 
 # Print the summary table
 print(Table_1)
