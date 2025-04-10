@@ -34,11 +34,11 @@ library(gtsummary)
 library(labelled)
 
 rm(list = ls())
-load('tabs/Result_dfs_USA.RData')
+load('tabs/Result_dfs_US.RData')
 load('tabs/Result_dfs_demographicsUSA.RData')
 # put in a list called 'USA_Results'
 USA_results <- mget(ls())
-save(USA_results, file = "tabs/USA_results.RData")
+save(USA_results, file = "tabs/US_results.RData")
 rm(list = ls())
 load('tabs/Result_dfs_SE.RData')
 load('tabs/Result_dfs_demographicsSE.RData')
@@ -79,10 +79,10 @@ The ED100k included 12 questions assessing maladaptive exercise (see Supplementa
 #| label: fig-heatmap
 #| fig-cap: Heatmap presenting the positive predictive value as the percentage of (sub)samples (horizontal axis) meeting criteria for each (sub)construct (vertical axis). Overall prevalence of each construct is presented on the off diagnional.
 
-AUS_results$Heatmap_df$Country <- "Australia"
-USA_results$Heatmap_df$Country <- "USA"
-SE_results$Heatmap_df$Country <- "Sweden"
-NZ_results$Heatmap_df$Country <- "New Zealand"
+AUS_results$Heatmap_df$Country <- "AU"
+USA_results$Heatmap_df$Country <- "US"
+SE_results$Heatmap_df$Country <- "SE"
+NZ_results$Heatmap_df$Country <- "NZ"
 
 
 # combine the two dataframes
@@ -145,23 +145,26 @@ NZ_dx <- NZ_results$dx_row_percents
 AUS_dx <- AUS_results$dx_row_percents
 
 SE_dx$Cohort <- "SE"
-USA_dx$Cohort <- "USA"
+USA_dx$Cohort <- "US"
 NZ_dx$Cohort <- "NZ"
-AUS_dx$Cohort <- "AUS"
+AUS_dx$Cohort <- "AU"
 
 dx_df <- rbind(SE_dx, USA_dx, NZ_dx, AUS_dx)
+
+dx_df$`Diagnosis Group` <- dplyr::recode(dx_df$`Diagnosis Group`, 
+                                   `BN-BED Mixed` = "BN-BED")  
 
 dx_combined <- ggplot(dx_df, aes(x = `Diagnosis Group`, y = value*100, fill = Cohort)) +
   geom_col(position = position_dodge()) +
   theme(legend.position = 'none') +
   theme(text = element_text(size = 16)) +
 geom_text(aes(x = `Diagnosis Group`, y = (value * 100) + 5, label = paste0(round(value * 100, 0))), position = position_dodge(width = 0.9), size = rel(3)) + 
-    labs(y = 'Percentage (within Diagnosis Group') +
+    labs(y = 'Percentage (within diagnosis group') +
 facet_wrap (~ `name`) +
-  labs(title = paste('Percentage Endorsement by Diagnosis Group \n and Exercise Construct'), x = 'Diagnosis Group', y = 'Percentage (within Diagnosis Group)') +
+  labs(title = paste('Percentage endorsement by diagnosis group \n and exercise construct'), x = 'Diagnosis group', y = 'Percentage (within diagnosis group)') +
   embarktools::embark_theme_a + 
   theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1, size = 16, face = 'bold')) +
-  scale_fill_manual(values = c('NZ' = '#C2B824', 'SE' = '#1A4F66', 'USA' = "#EF6C45", 'AUS' = '#A481C7')) + 
+  scale_fill_manual(values = c('NZ' = '#C2B824', 'SE' = '#1A4F66', 'US' = "#EF6C45", 'AU' = '#A481C7')) + 
   # bold strip text and make strip background light grey
   theme(strip.text = element_text(face = "bold", size = 14),
         strip.background = element_rect(fill = "lightgrey")) 
@@ -198,28 +201,37 @@ NZ_CET <- NZ_results$CET_boxplot_stats
 AUS_CET <- AUS_results$CET_boxplot_stats
 
 SE_CET$Cohort <- "SE"
-USA_CET$Cohort <- "USA"
+USA_CET$Cohort <- "US"
 NZ_CET$Cohort <- "NZ"
-AUS_CET$Cohort <- "AUS"
+AUS_CET$Cohort <- "AU"
 
 CET_combined <- rbind(SE_CET, USA_CET, NZ_CET, AUS_CET)
+
+# recorde variable 'Mood Improve' to be 'Mood improvement' and 'Wt Control' to be 'Weight control' for plotting
+CET_combined$variable <- gsub("Mood Improve", "Mood improvement", CET_combined$variable)
+CET_combined$variable <- gsub("Wt Control", "Weight control", CET_combined$variable)
+# Change 'Enjoyment' to be 'Lack of enjoyment' for plotting
+CET_combined$variable <- gsub("Enjoyment", "Lack of enjoyment", CET_combined$variable)
+
+# make variable a factor and put total at the end
+CET_combined$variable <- factor(CET_combined$variable, levels = c("Mood improvement", "Weight control", "Lack of enjoyment", "Avoidance", "Rigidity", "Total"))
 
 CET_combined_plot <- ggplot(CET_combined, aes(x = as.factor(ED100k_ex_compulsive_current2), y = Median, group = Cohort, color = Cohort)) +
   facet_wrap(~variable) +
   geom_errorbar(aes(ymin = Q1, ymax = Q3), size = 1, width = .5, position = position_dodge(width = 0.75)) +
   geom_point(size = 4, position = position_dodge(width = 0.75)) +  # Represents the median
   scale_x_discrete(labels = c('No Hx', 'Hx only', 'Current')) +
-  labs(title = 'Median Within-Cohort CET standardized scores and 25th-75th percentile range \n based on ED100k Maladaptive exercise', 
-       x = 'Maladaptive Exercise [ED100k]', 
-       y = 'CET Standardized Score') + 
+  labs(title = 'Median within-cohort CET standardized scores and 25th-75th percentile range \n based on ED100k.v3 maladaptive exercise', 
+       x = 'Maladaptive exercise [ED100k.v3]', 
+       y = 'CET standardized score') + 
   theme(legend.position = 'right', 
         text = element_text(size = 18)) +
   embarktools::embark_theme_a + 
     scale_color_manual(values = 
                          c('NZ' = "#C2B824", 
                            'SE' = '#1A4F66', 
-                           'USA' = "#EF6C45", 
-                           'AUS' = '#A481C7')) +
+                           'US' = "#EF6C45", 
+                           'AU' = '#A481C7')) +
   # angle the x-axis labels 45 degrees
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
    theme(strip.background = element_rect(fill = "lightgrey")) 
@@ -234,9 +246,9 @@ NZ_EDEQ <- NZ_results$EDEQ_boxplot_stats
 AUS_EDEQ <- AUS_results$EDEQ_boxplot_stats
 
 SE_EDEQ$Cohort <- "SE"
-USA_EDEQ$Cohort <- "USA"
+USA_EDEQ$Cohort <- "US"
 NZ_EDEQ$Cohort <- "NZ"
-AUS_EDEQ$Cohort <- "AUS"
+AUS_EDEQ$Cohort <- "AU"
 
 EDEQ_combined <- rbind(SE_EDEQ, USA_EDEQ, NZ_EDEQ, AUS_EDEQ)
 
@@ -244,13 +256,13 @@ EDEQ_combined_plot <- ggplot(EDEQ_combined, aes(x = as.factor(ED100k_ex_compulsi
   geom_errorbar(aes(ymin = Q1, ymax = Q3), size = 1, width = .5, position = position_dodge(width = 0.75)) +
   geom_point(size = 4, position = position_dodge(width = 0.75)) +  # Represents the median
   scale_x_discrete(labels = c('No Hx', 'Hx only', 'Current')) +
-  labs(title = 'Number of Driven Exercise Episodes in the Past 28 Days \n by ED100k Maladaptive Exercise Status', 
-       x = 'Maladaptive Exercise [ED100k]', 
-       y = 'Number of Driven Exercise Episodes in the Past 28 [EDEQ]') + 
+  labs(title = 'Number of driven exercise episodes in the past 28 days \n by ED100k.v3 maladaptive exercise status', 
+       x = 'Maladaptive exercise [ED100k.v3]', 
+       y = 'Number of driven exercise episodes [EDEQ]') + 
   theme(legend.position = 'right', 
         text = element_text(size = 18)) +
   embarktools::embark_theme_a + 
-    scale_color_manual(values = c("NZ" = "#C2B824", 'SE' = '#1A4F66', 'USA' = "#EF6C45", 'AUS' = '#A481C7')) +
+    scale_color_manual(values = c("NZ" = "#C2B824", 'SE' = '#1A4F66', 'US' = "#EF6C45", 'AU' = '#A481C7')) +
   # angle the x-axis labels 45 degrees
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
    theme(strip.background = element_rect(fill = "lightgrey")) 
@@ -378,7 +390,7 @@ knitr::include_graphics("figs/flowchart.png")
 knitr::include_graphics("figs/Q1_sensitivity_AUS.png")
 knitr::include_graphics("figs/Q1_sensitivity_NZ.png")
 knitr::include_graphics("figs/Q1_sensitivity_SE.png")
-knitr::include_graphics("figs/Q1_sensitivity_USA.png")
+knitr::include_graphics("figs/Q1_sensitivity_US.png")
 
 ```
 
@@ -396,7 +408,7 @@ knitr::include_graphics("figs/Q1_sensitivity_USA.png")
 knitr::include_graphics("figs/NPV_AUS.png")
 knitr::include_graphics("figs/NPV_NZ.png")
 knitr::include_graphics("figs/NPV_SE.png")
-knitr::include_graphics("figs/NPV_USA.png")
+knitr::include_graphics("figs/NPV_US.png")
 ```
 
 
@@ -413,7 +425,7 @@ knitr::include_graphics("figs/NPV_USA.png")
 knitr::include_graphics("figs/OCI_combinedAUS.png")
 knitr::include_graphics("figs/OCI_combinedNZ.png")
 knitr::include_graphics("figs/OCI_combinedSE.png")
-knitr::include_graphics("figs/OCI_combinedUSA.png")
+knitr::include_graphics("figs/OCI_combinedUS.png")
 ```
 
 
@@ -431,7 +443,7 @@ knitr::include_graphics("figs/OCI_combinedUSA.png")
 knitr::include_graphics("figs/MPS_combinedAUS.png")
 knitr::include_graphics("figs/MPS_combinedNZ.png")
 knitr::include_graphics("figs/MPS_combinedSE.png")
-knitr::include_graphics("figs/MPS_combinedUSA.png")
+knitr::include_graphics("figs/MPS_combinedUS.png")
 ```
 
 

@@ -34,11 +34,11 @@ library(gtsummary)
 library(labelled)
 
 rm(list = ls())
-load('tabs/Result_dfs_USA.RData')
-load('tabs/Result_dfs_demographicsUSA.RData')
+load('tabs/Result_dfs_US.RData')
+load('tabs/Result_dfs_demographicsUS.RData')
 # put in a list called 'USA_Results'
 USA_results <- mget(ls())
-save(USA_results, file = "tabs/USA_results.RData")
+save(USA_results, file = "tabs/US_results.RData")
 rm(list = ls())
 load('tabs/Result_dfs_SE.RData')
 load('tabs/Result_dfs_demographicsSE.RData')
@@ -52,7 +52,7 @@ save(NZ_results, file = "tabs/NZ_results.RData")
 rm(list = ls())
 
 
-load('tabs/USA_results.RData')
+load('tabs/US_results.RData')
 load('tabs/SE_results.RData')
 load("tabs/NZ_results.RData")
 

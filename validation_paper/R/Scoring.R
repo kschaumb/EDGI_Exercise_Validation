@@ -42,7 +42,7 @@ library(haven)
 EDGI_raw <- read_sas('data/USA/exercise_250114.sas7bdat', encoding = "latin1") # CHANGE THIS TO SUIT YOUR DATA. 
 
 ## Name your Cohort
-cohort <- 'USA' #CHANGE THIS FOR EACH COHORT
+cohort <- 'US' #CHANGE THIS FOR EACH COHORT
 
 
 
