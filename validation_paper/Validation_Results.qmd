@@ -33,6 +33,7 @@ library(flextable)
 library(gtsummary)
 library(labelled)
 
+
 rm(list = ls())
 load('tabs/Result_dfs_US.RData')
 load('tabs/Result_dfs_demographicsUS.RData')
@@ -47,15 +48,22 @@ save(SE_results, file = "tabs/SE_results.RData")
 rm(list = ls())
 
 load('tabs/Result_dfs_NZ.RData')
+load('tabs/Result_dfs_demographicsNZ.RData')
 NZ_results <- mget(ls())
 save(NZ_results, file = "tabs/NZ_results.RData")
 rm(list = ls())
 
+load('tabs/Result_dfs_AUS.RData')
+load('tabs/Result_dfs_demographicsAU.RData')
+AUS_results <- mget(ls())
+save(AUS_results, file = "tabs/AUS_results.RData")
+rm(list = ls())
 
-load('tabs/US_results.RData')
+
+load('tabs/USA_results.RData')
 load('tabs/SE_results.RData')
 load("tabs/NZ_results.RData")
-
+load("tabs/AUS_results.RData")
 
 ```
 
@@ -361,7 +369,7 @@ knitr::include_graphics("figs/NPV_USA.png")
 
 knitr::include_graphics("figs/OCI_combinedNZ.png")
 knitr::include_graphics("figs/OCI_combinedSE.png")
-knitr::include_graphics("figs/OCI_combinedUSA.png")
+knitr::include_graphics("figs/OCI_combinedUS.png")
 ```
 
 ```{r}
@@ -389,7 +397,14 @@ knitr::include_graphics("figs/MPS_combinedUSA.png")
 #| label: tbl-tbl1
 #| tbl-cap: Sample Descriptives. Categorial variables presented as N and percent of sample endorsing each category. Continuous variables presented as mean (SD).
 
-Table_1 <- full_join(USA_results$Table_1, SE_results$Table_1, by = c('Variable', 'Level'))
+Table_1 <- full_join(AU_results$Table_1, NZ_results$Table_1, by = c('Variable', 'Level'))
+Table_1 <- full_join(Table_1, SE_results$Table_1, by = c('Variable', 'Level'))
+Table_1 <- full_join(Table_1, US_results$Table_1, by = c('Variable', 'Level'))
+
+
+# save the table as a .xlsx
+openxlsx::write.xlsx(Table_1, file = "Table_1.xlsx", sheetName = "Table_1", append = TRUE)
+
 
 ```
 

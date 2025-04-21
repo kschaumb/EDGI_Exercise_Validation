@@ -35,7 +35,7 @@ library(labelled)
 
 rm(list = ls())
 load('tabs/Result_dfs_US.RData')
-load('tabs/Result_dfs_demographicsUSA.RData')
+load('tabs/Result_dfs_demographicsUS.RData')
 # put in a list called 'USA_Results'
 USA_results <- mget(ls())
 save(USA_results, file = "tabs/US_results.RData")
@@ -47,13 +47,15 @@ save(SE_results, file = "tabs/SE_results.RData")
 rm(list = ls())
 
 load('tabs/Result_dfs_NZ.RData')
+load('tabs/Result_dfs_demographicsNZ.RData')
 NZ_results <- mget(ls())
 save(NZ_results, file = "tabs/NZ_results.RData")
 rm(list = ls())
 
 load('tabs/Result_dfs_AUS.RData')
+load('tabs/Result_dfs_demographicsAU.RData')
 AUS_results <- mget(ls())
-save(AUS_results, file = "tabs/AUS_results.RData")
+save(AUS_results, file = "tabs/AU_results.RData")
 rm(list = ls())
 
 
