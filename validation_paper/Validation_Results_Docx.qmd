@@ -52,7 +52,7 @@ NZ_results <- mget(ls())
 save(NZ_results, file = "tabs/NZ_results.RData")
 rm(list = ls())
 
-load('tabs/Result_dfs_AUS.RData')
+load('tabs/Result_dfs_AU.RData')
 load('tabs/Result_dfs_demographicsAU.RData')
 AUS_results <- mget(ls())
 save(AUS_results, file = "tabs/AU_results.RData")
